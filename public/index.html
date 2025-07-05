@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool Browser</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <button class="menu-button" id="menuButton">
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </button>
+            <div class="logo">Logo Here</div>
+        </div>
+        <div class="header-right">
+            <div class="credit">Credit</div>
+            <div class="profile">
+                Profile Name
+                <div class="profile-icon">👤</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Tools</div>
+                <div class="sidebar-item" data-category="health">
+                    <div class="sidebar-icon"></div>
+                    Health & Wellness
+                </div>
+                <div class="sidebar-item active" data-category="ai">
+                    <div class="sidebar-icon"></div>
+                    AI Assistance
+                </div>
+                <div class="sidebar-item" data-category="learning">
+                    <div class="sidebar-icon"></div>
+                    Learning & Engagement
+                </div>
+                <div class="sidebar-item" data-category="scheduling">
+                    <div class="sidebar-icon"></div>
+                    Scheduling & Reminders
+                </div>
+                <div class="sidebar-item" data-category="utilities">
+                    <div class="sidebar-icon"></div>
+                    Utilities
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="content-header">
+                <h1 class="content-title" id="categoryTitle">AI Assistance</h1>
+                <div class="search-container">
+                    <div class="search-icon"></div>
+                    <input type="text" class="search-input" placeholder="Search a tool" id="searchInput">
+                </div>
+            </div>
+
+            <div class="tools-grid" id="toolsGrid">
+                <!-- Tools will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
