@@ -1,0 +1,328 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-icon {
+    width: 40px;
+    height: 40px;
+    background: #4a90e2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+.main-container {
+    display: flex;
+    flex: 1;
+    gap: 0;
+}
+
+.hero-section {
+    flex: 1;
+    background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="sunset" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23ff7b7b;stop-opacity:1" /><stop offset="50%" style="stop-color:%23ff6b35;stop-opacity:1" /><stop offset="100%" style="stop-color:%23f7931e;stop-opacity:1" /></linearGradient></defs><rect width="1200" height="800" fill="url(%23sunset)"/><polygon points="0,500 200,450 400,480 600,460 800,490 1000,470 1200,500 1200,800 0,800" fill="%23333"/><circle cx="900" cy="150" r="60" fill="%23ffeb3b" opacity="0.8"/></svg>');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 40px;
+}
+
+.location-display {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 12px 24px;
+    border-radius: 25px;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    color: #333;
+}
+
+.location-icon {
+    width: 20px;
+    height: 20px;
+    background: #e74c3c;
+    border-radius: 50%;
+    position: relative;
+}
+
+.location-icon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+}
+
+.hero-title {
+    color: white;
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: 40px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    line-height: 1.2;
+}
+
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-box {
+    padding: 18px 24px;
+    font-size: 20px;
+    border: none;
+    border-radius: 50px;
+    width: 400px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.search-box:focus {
+    outline: 3px solid #4a90e2;
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+}
+
+.search-btn {
+    padding: 18px 30px;
+    font-size: 20px;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.search-btn:hover {
+    background: #357abd;
+    transform: translateY(-2px);
+}
+
+.weather-sidebar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    width: 400px;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.nav-tabs {
+    display: flex;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 5px;
+    margin-bottom: 30px;
+}
+
+.nav-tab {
+    flex: 1;
+    padding: 12px 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.nav-tab.active {
+    background: #4a90e2;
+    color: white;
+}
+
+.weather-section {
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.current-weather {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.temp-display {
+    font-size: 48px;
+    font-weight: bold;
+    color: #333;
+    line-height: 1;
+}
+
+.temp-unit {
+    font-size: 24px;
+    color: #666;
+}
+
+.weather-details {
+    text-align: right;
+    font-size: 16px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.day-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.day-name {
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+.weather-icon {
+    width: 40px;
+    height: 30px;
+    background: linear-gradient(45deg, #87CEEB, #4682B4);
+    border-radius: 5px;
+    position: relative;
+    margin: 0 10px;
+}
+
+.weather-icon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 15px;
+    background: white;
+    border-radius: 10px;
+}
+
+.day-forecast {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid #4a90e2;
+}
+
+.forecast-temp {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.forecast-desc {
+    font-size: 16px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.forecast-day {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+@media (max-width: 1024px) {
+    .main-container {
+        flex-direction: column;
+    }
+    
+    .weather-sidebar {
+        width: 100%;
+    }
+    
+    .search-box {
+        width: 300px;
+    }
+    
+    .hero-title {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 768px) {
+    .search-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .search-box {
+        width: 280px;
+        margin-bottom: 10px;
+    }
+    
+    .hero-title {
+        font-size: 28px;
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
