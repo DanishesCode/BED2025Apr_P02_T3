@@ -1,91 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather Forecast</title>
-    <link rel="stylesheet" href="weather.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather Forecast</title>
+  <link rel="stylesheet" href="weather.css" />
 </head>
 <body>
-    <header class="header">
-        <div class="logo">Logo Here</div>
-        <div class="header-right">
-            <span>Credit</span>
-            <div class="profile-section">
-                <span>Profile Name</span>
-                <div class="profile-icon">P</div>
-            </div>
-        </div>
-    </header>
-
-    <div class="main-container">
-        <section class="hero-section">
-            <div class="location-display">
-                <div class="location-icon"></div>
-                <span>Chennai, Tamil Nadu</span>
-            </div>
-            
-            <h1 class="hero-title">The only weather forecast you need</h1>
-            
-            <div class="search-container">
-                <input type="text" class="search-box" placeholder="Enter Location" id="locationInput">
-                <button class="search-btn" onclick="searchWeather()">Search</button>
-            </div>
-        </section>
-
-        <aside class="weather-sidebar">
-            <div class="nav-tabs">
-                <button class="nav-tab active">Weather</button>
-                <button class="nav-tab">News</button>
-                <button class="nav-tab">Alert</button>
-            </div>
-
-            <div class="weather-section">
-                <h2 class="section-title">Today</h2>
-                
-                <div class="current-weather">
-                    <div>
-                        <div class="temp-display">32<span class="temp-unit">°C</span></div>
-                        <div class="day-info">
-                            <span class="day-name">Sunday</span>
-                            <div class="weather-icon"></div>
-                        </div>
-                        <div style="font-size: 16px; color: #666; margin-top: 10px;">
-                            Monday 27, Thursday
-                        </div>
-                    </div>
-                    <div class="weather-details">
-                        <div>Humidity: 66%</div>
-                        <div>RealFeel: 67%</div>
-                        <div>UV Index: 0</div>
-                        <div>Index</div>
-                        <div>Visibility: 5km</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="weather-section">
-                <h2 class="section-title">Daily</h2>
-                
-                <div class="day-forecast">
-                    <div>
-                        <div class="forecast-temp">28°</div>
-                        <div class="forecast-desc">Rainy, Wed</div>
-                    </div>
-                    <div class="forecast-day">Today</div>
-                </div>
-                
-                <div class="day-forecast">
-                    <div>
-                        <div class="forecast-temp">21°</div>
-                        <div class="forecast-desc">Rainy, Thurs</div>
-                    </div>
-                    <div class="forecast-day">Tomorrow</div>
-                </div>
-            </div>
-        </aside>
+  <header class="header">
+    <div class="logo">WeatherNow</div>
+    <div class="header-right">
+      <span>Credit</span>
+      <div class="profile-section">
+        <span>Profile Name</span>
+        <div class="profile-icon">P</div>
+      </div>
     </div>
+  </header>
 
-    <script src="weather.js"></script>
+  <div class="main-container">
+    <section class="hero-section">
+      <div class="location-display">
+        <div class="location-icon">📍</div>
+        <span id="displayLocation">Loading...</span>
+      </div>
+      <h1 class="hero-title">The only weather forecast you need</h1>
+      <div class="search-container">
+        <input type="text" class="search-box" placeholder="Enter Location" id="locationInput" />
+        <button class="search-btn" onclick="searchWeather()">Search</button>
+      </div>
+    </section>
+
+    <aside class="weather-sidebar">
+      <div class="nav-tabs">
+        <button class="nav-tab active">Weather</button>
+        <button class="nav-tab">News</button>
+        <button class="nav-tab">Alert</button>
+      </div>
+
+      <div class="weather-section">
+        <h2 class="section-title">Today</h2>
+
+        <div class="current-weather">
+          <div>
+            <div class="temp-display">
+              <span id="tempValue">--</span><span class="temp-unit">°C</span>
+            </div>
+            <div class="day-info">
+              <span id="weatherDesc" class="day-name">--</span>
+            </div>
+          </div>
+          <div class="weather-details">
+            <div id="humidity">Humidity: --</div>
+            <div id="realFeel">RealFeel: --</div>
+            <div id="uvIndex">UV Index: --</div>
+            <div id="visibility">Visibility: --</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="weather-section">
+        <h2 class="section-title">Next 10 Hours <span class="last-refresh"></span></h2>
+        <div class="hourly-forecast-container">
+          <!-- Hourly forecast will be dynamically populated here -->
+        </div>
+      </div>
+
+      <div class="weather-section">
+        <h2 class="section-title">7-Day Forecast</h2>
+        <div class="daily-forecast-container">
+          <!-- Forecast days will be dynamically populated here -->
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Include JavaScript files in proper order -->
+  <script src="weatherValidation.js"></script>
+  <script src="weatherModel.js"></script>
+  <script src="weatherController.js"></script>
+  <script src="weatherApp.js"></script>
 </body>
 </html>
