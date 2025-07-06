@@ -4,14 +4,22 @@
 
 
 -- [Your Name] - [What was added] - [Last Modified Date: YYYY-MM-DD]
+
 CREATE TABLE Users (
-    userId INT PRIMARY KEY IDENTITY(1,1),   -- Auto-incremented unique ID
-    name VARCHAR(100) NOT NULL,             -- Full name of the user
-    email VARCHAR(100) NOT NULL UNIQUE,     -- Unique email address
-    password VARCHAR(255) NOT NULL,         -- Encrypted password
-    dob DATE NOT NULL                       -- Date of birth
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(100) NOT NULL,
+    email NVARCHAR(100) NOT NULL UNIQUE,
+    password NVARCHAR(255) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT GETDATE(),
+    updated_at DATETIME NOT NULL DEFAULT GETDATE()
 );
 
+-- Sample users for testing
+INSERT INTO Users (name, email, password, date_of_birth)
+VALUES
+('Alice Tan', 'alice@example.com', '$2b$10$Q9n8Qw9b8Qw9b8Qw9b8QwOQ9n8Qw9b8Qw9b8Qw9b8Qw9b8Qw9b8Qw', '2000-01-01'),
+('Bob Lee', 'bob@example.com', '$2b$10$Q9n8Qw9b8Qw9b8Qw9b8QwOQ9n8Qw9b8Qw9b8Qw9b8Qw9b8Qw9b8Qw', '1999-05-15');
 
 -- [Your Name] - [What was added] - [Last Modified Date: YYYY-MM-DD]
 --[Danish] -Create trivia tables and sample data - 09/06/2025
