@@ -13,6 +13,7 @@ class UserModel {
             
             const query = `
 
+
                 INSERT INTO Users (name, email, password, dob)
                 OUTPUT INSERTED.userId, INSERTED.name, INSERTED.email
                 VALUES (@name, @email, @password, @dob)
@@ -98,6 +99,7 @@ class UserModel {
                 OUTPUT INSERTED.userId, INSERTED.name, INSERTED.email
                 WHERE userId = @userId
 
+
             `;
             
             const request = pool.request();
@@ -118,6 +120,7 @@ class UserModel {
         try {
             const pool = await sql.connect(dbConfig);
             const query = `DELETE FROM Users WHERE userId = @userId`;
+
 
             
             const request = pool.request();

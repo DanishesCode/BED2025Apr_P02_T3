@@ -15,7 +15,6 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-
 // CORS configuration - allow multiple origins
 app.use(cors({
     origin: function (origin, callback) {
@@ -43,7 +42,6 @@ app.use(cors({
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-
 // controller variables
 const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
@@ -54,6 +52,7 @@ const ValidationMiddleware = require("./middlewares/validationMiddleware");
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
 
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login', 'login.html'));
@@ -66,7 +65,6 @@ app.get("/signup", (req, res) => {
 // Trivia routes (DANISH)
 app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
 app.get("/trivia/options/:questionText", triviaController.getOptionsByQuestion);
-
 
 // User authentication routes
 app.post(
