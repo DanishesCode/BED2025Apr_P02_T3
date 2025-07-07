@@ -12,15 +12,10 @@ class UserModel {
             const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
             
             const query = `
-<<<<<<< HEAD
-                INSERT INTO Users (name, email, password, date_of_birth, created_at, updated_at)
-                OUTPUT INSERTED.id, INSERTED.name, INSERTED.email, INSERTED.created_at
-                VALUES (@name, @email, @password, @dob, GETDATE(), GETDATE())
-=======
+
                 INSERT INTO Users (name, email, password, dob)
                 OUTPUT INSERTED.userId, INSERTED.name, INSERTED.email
                 VALUES (@name, @email, @password, @dob)
->>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
             `;
             
             const request = pool.request();
@@ -49,11 +44,8 @@ class UserModel {
         try {
             const pool = await sql.connect(dbConfig);
             const query = `
-<<<<<<< HEAD
-                SELECT id, name, email, password, date_of_birth, created_at, updated_at
-=======
+
                 SELECT userId, name, email, password, dob
->>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
                 FROM Users 
                 WHERE email = @email
             `;
@@ -102,15 +94,11 @@ class UserModel {
             const pool = await sql.connect(dbConfig);
             const query = `
                 UPDATE Users 
-<<<<<<< HEAD
-                SET name = @name, updated_at = GETDATE()
-                OUTPUT INSERTED.id, INSERTED.name, INSERTED.email, INSERTED.updated_at
-                WHERE id = @userId
-=======
+
                 SET name = @name
                 OUTPUT INSERTED.userId, INSERTED.name, INSERTED.email
                 WHERE userId = @userId
->>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
+
             `;
             
             const request = pool.request();
@@ -130,11 +118,9 @@ class UserModel {
     static async deleteUser(userId) {
         try {
             const pool = await sql.connect(dbConfig);
-<<<<<<< HEAD
-            const query = `DELETE FROM Users WHERE id = @userId`;
-=======
+
             const query = `DELETE FROM Users WHERE userId = @userId`;
->>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
+
             
             const request = pool.request();
             request.input('userId', sql.Int, userId);

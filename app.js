@@ -15,14 +15,6 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-<<<<<<< HEAD
-app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://127.0.0.1:5500/",
-    credentials: true
-}));
-
-=======
-
 // CORS configuration - allow multiple origins
 app.use(cors({
     origin: function (origin, callback) {
@@ -50,7 +42,6 @@ app.use(cors({
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
->>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
 // controller variables
 const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
@@ -62,12 +53,7 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-<<<<<<< HEAD
-// Trivia routes (DANISH)
-app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
-app.get("/trivia/options/:questionText", triviaController.getOptionsByQuestion);
 
-=======
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login', 'login.html'));
 });
@@ -80,7 +66,6 @@ app.get("/signup", (req, res) => {
 app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
 app.get("/trivia/options/:questionText", triviaController.getOptionsByQuestion);
 
->>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
 // User authentication routes
 app.post(
     "/auth/signup",
