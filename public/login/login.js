@@ -137,7 +137,11 @@ class LoginHandler {
         this.setLoading(true);
 
         try {
+<<<<<<< HEAD
             const response = await fetch('/api/login', {
+=======
+            const response = await fetch('http://localhost:3000/auth/login', {
+>>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include', // Include cookies
@@ -147,18 +151,33 @@ class LoginHandler {
             const result = await response.json();
 
             if (result.success) {
+<<<<<<< HEAD
                 // Store token in localStorage if provided
                 if (result.token) {
                     localStorage.setItem('authToken', result.token);
+=======
+                // Store token in localStorage
+                if (result.token) {
+                    localStorage.setItem('authToken', result.token);
+                    console.log('Token stored in localStorage:', result.token);
+>>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
                 }
                 
                 // Store user info
                 if (result.user) {
                     localStorage.setItem('currentUser', JSON.stringify(result.user));
+<<<<<<< HEAD
+=======
+                    console.log('User info stored in localStorage:', result.user);
+>>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
                 }
 
                 this.showMessage('Login successful! Redirecting...', 'success');
                 setTimeout(() => {
+<<<<<<< HEAD
+=======
+                    // Redirect to main page or dashboard
+>>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
                     window.location.href = '/public/index.html';
                 }, 1500);
             } else {
@@ -192,7 +211,11 @@ class LoginHandler {
         const token = localStorage.getItem('authToken');
         if (token) {
             // Validate token with server
+<<<<<<< HEAD
             fetch('/api/profile', {
+=======
+            fetch('http://localhost:3000/user/profile', {
+>>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,

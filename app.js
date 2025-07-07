@@ -15,22 +15,72 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+<<<<<<< HEAD
 app.use(cors({
     origin: process.env.FRONTEND_URL || "http://127.0.0.1:5500/",
     credentials: true
 }));
 
+=======
+
+// CORS configuration - allow multiple origins
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://127.0.0.1:5500',
+            'http://localhost:5500',
+            'http://127.0.0.1:3000'
+        ];
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+}));
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+>>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
 // controller variables
 const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
 const AuthMiddleware = require("./middlewares/authMiddleware");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
 
+// Routes for pages
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+<<<<<<< HEAD
+// Trivia routes (DANISH)
+app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
+app.get("/trivia/options/:questionText", triviaController.getOptionsByQuestion);
+
+=======
+app.get("/login", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'login', 'login.html'));
+});
+
+app.get("/signup", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'signup', 'signup.html'));
+});
 
 // Trivia routes (DANISH)
 app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
 app.get("/trivia/options/:questionText", triviaController.getOptionsByQuestion);
 
+>>>>>>> 6d3e09573ef1eb153e882d9bcea4c9c848e53269
 // User authentication routes
 app.post(
     "/auth/signup",
