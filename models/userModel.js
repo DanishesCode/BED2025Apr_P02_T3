@@ -13,9 +13,11 @@ class UserModel {
             
             const query = `
 
+
                 INSERT INTO Users (name, email, password, dob)
                 OUTPUT INSERTED.userId, INSERTED.name, INSERTED.email
                 VALUES (@name, @email, @password, @dob)
+
             `;
             
             const request = pool.request();
@@ -44,7 +46,6 @@ class UserModel {
         try {
             const pool = await sql.connect(dbConfig);
             const query = `
-
                 SELECT userId, name, email, password, dob
                 FROM Users 
                 WHERE email = @email
@@ -94,10 +95,10 @@ class UserModel {
             const pool = await sql.connect(dbConfig);
             const query = `
                 UPDATE Users 
-
                 SET name = @name
                 OUTPUT INSERTED.userId, INSERTED.name, INSERTED.email
                 WHERE userId = @userId
+
 
             `;
             
@@ -118,8 +119,8 @@ class UserModel {
     static async deleteUser(userId) {
         try {
             const pool = await sql.connect(dbConfig);
-
             const query = `DELETE FROM Users WHERE userId = @userId`;
+
 
             
             const request = pool.request();
