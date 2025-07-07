@@ -28,7 +28,6 @@ async function getOptionsByQuestion(req,res){
     }
 }
 
-
 module.exports = {
     getQuestionsByCategory,
     getOptionsByQuestion
