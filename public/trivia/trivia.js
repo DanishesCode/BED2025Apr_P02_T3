@@ -21,7 +21,11 @@ async function fetchQuestions(category){
           if (questions === 0){
             console.log("category not found");
           }else{
-            console.log(questions);
+            list = []
+            questions.forEach(function(x){
+              list.push(x);
+            })
+            console.log(list);
           }
     }catch(error){
         console.error("error fetching questions",error)
