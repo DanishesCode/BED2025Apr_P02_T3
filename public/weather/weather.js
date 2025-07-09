@@ -5,8 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize the weather controller
     window.weatherController = new WeatherController();
     
-    // Initialize the app with default location (Chennai)
-    window.weatherController.init('Chennai');
+    // Initialize the app with default location (Singapore)
+    window.weatherController.init('Singapore');
     
     console.log('Weather App initialized successfully!');
 });

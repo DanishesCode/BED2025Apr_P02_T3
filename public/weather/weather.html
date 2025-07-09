@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Weather Forecast</title>
   <link rel="stylesheet" href="weather.css" />
+  <link rel="stylesheet" href="../navbar/navbar.css" />
 </head>
 <body>
   <header class="header">
@@ -75,10 +76,24 @@
     </aside>
   </div>
 
+  <!-- New full-width elderly activities section below the main weather app -->
+  <section class="elderly-activities-full-section">
+    <div class="activities-wrapper">
+      <div class="activities-header">
+        <h2 class="activities-main-title">�️ Weather-Smart Activities</h2>
+        <p class="activities-main-subtitle">Carefully curated recommendations for seniors based on current weather conditions and safety considerations</p>
+      </div>
+      <div class="activities-grid">
+        <!-- Activities will be dynamically populated here -->
+      </div>
+    </div>
+  </section>
+
   <!-- Include JavaScript files in proper order -->
-  <script src="weatherValidation.js"></script>
-  <script src="weatherModel.js"></script>
-  <script src="weatherController.js"></script>
-  <script src="weatherApp.js"></script>
+  <script src="../../middlewares/weatherValidation.js"></script>
+  <script src="../../models/weatherModel.js"></script>
+  <script src="../../controllers/weatherController.js"></script>
+  <script src="weather.js"></script>
+  <script src="../navbar/navbar.js"></script>
 </body>
 </html>
