@@ -49,6 +49,7 @@ const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
 const AuthMiddleware = require("./middlewares/authMiddleware");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
+const aichatController = require("./controllers/aichatController");
 
 // Routes for pages
 app.get("/", (req, res) => {
@@ -100,6 +101,8 @@ app.put(
     ValidationMiddleware.validateUpdateProfile,
     userController.updateProfile
 );
+
+app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
 
 // Start server
 app.listen(port, () => {
