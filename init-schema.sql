@@ -256,7 +256,8 @@ INSERT INTO Answers (answer_text, question_text, is_correct) VALUES
 
 -- [Danish] - [added caretaker adatabase] - [9/7/2025]
 CREATE TABLE Caretaker (
-    id INT IDENTITY(1,1) PRIMARY KEY,
+    id INT PRIMARY KEY, -- Same type as Users.id
     telegram_name NVARCHAR(100) NOT NULL,
-    chat_id BIGINT NOT NULL
+    chat_id BIGINT NOT NULL,
 );
+

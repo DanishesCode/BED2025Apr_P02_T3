@@ -1,7 +1,7 @@
 const sos = require("../models/sosModel");
 
 async function retrieveRecord(req,res){
-    const id  = req.query.id
+    const id  = req.params.id
     if(!id){
         return res.status(400).json({message:"Id is required"});
     }
@@ -18,7 +18,8 @@ async function retrieveRecord(req,res){
 
 async function createRecord(req,res){
     try {
-        const newRecord = await sos.createRecord(req.body);
+      const id = parseInt(req.params.id)
+        const newRecord = await sos.createRecord(id,req.body);
         res.status(201).json(newRecord);
       } catch (error) {
         console.error("Controller error:", error);
@@ -62,4 +63,11 @@ async function deleteRecord(req,res){
         console.error("Controller error:", error);
         res.status(500).json({ error: "Error deleting record" });
       }
+}
+
+module.exports = {
+    retrieveRecord,
+    createRecord,
+    updateRecord,
+    deleteRecord
 }

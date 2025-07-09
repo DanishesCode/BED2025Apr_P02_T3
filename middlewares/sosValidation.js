@@ -10,7 +10,6 @@ const caretakerSchema = Joi.object({
       'string.max': 'Telegram name must not exceed 100 characters',
       'any.required': 'Telegram name is required',
     }),
-
   chat_id: Joi.number()
     .integer()
     .required()
@@ -20,6 +19,8 @@ const caretakerSchema = Joi.object({
       'any.required': 'Chat ID is required',
     }),
 });
+
+
 
 // Middleware to validate caretaker payload (POST/PUT)
 function validateCaretaker(req, res, next) {
@@ -45,5 +46,7 @@ function validateCaretakerId(req, res, next) {
 
   next();
 }
+
+
 
 module.exports = { validateCaretaker, validateCaretakerId };

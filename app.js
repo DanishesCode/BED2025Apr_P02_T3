@@ -45,8 +45,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // controller variables
 const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
-const AuthMiddleware = require("./middlewares/authMiddleware");
+const sosController = require("./controllers/sosController");
+const AuthMiddleware = require("./middlewares/authMiddleware.js");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
+const sosMiddleware = require("./middlewares/sosValidation.js");
 
 // Routes for pages
 app.get("/", (req, res) => {
@@ -98,6 +100,13 @@ app.put(
     ValidationMiddleware.validateUpdateProfile,
     userController.updateProfile
 );
+
+
+//ROUTES FOR SOS(Danish)
+app.get("/caretaker/getrecord/:id",sosController.retrieveRecord);
+app.post("/caretaker/create/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.createRecord);
+app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
+app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 
 // Start server
 app.listen(port, () => {

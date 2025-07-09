@@ -30,20 +30,24 @@ async function retrieveRecord(id){
     }
 }
 
-async function createRecord(data){
-    let connection;
+async function createRecord(id, data) {
+  let connection;
   try {
     connection = await sql.connect(dbConfig);
-    const query =
-      "INSERT INTO Caretaker (id, telegram_name,chat_id) VALUES (@id,@telegram_name @chat_id);";
+
+    const query = `
+      INSERT INTO Caretaker (id, telegram_name, chat_id)
+      VALUES (@id, @telegram_name, @chat_id);
+    `;
+
     const request = connection.request();
-    request.input("id", data.id);
+    request.input("id", id); // id from URL param
     request.input("telegram_name", data.telegram_name);
     request.input("chat_id", data.chat_id);
-    const result = await request.query(query);
 
-    const newRecord = result.recordset[0].id;
-    return await retrieveRecord(newRecord);
+    await request.query(query);
+
+    return { message: "Caretaker created", id };
   } catch (error) {
     console.error("Database error:", error);
     throw error;
@@ -57,6 +61,7 @@ async function createRecord(data){
     }
   }
 }
+
 
 async function updateRecord(id,data){
     let connection;
