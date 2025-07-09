@@ -253,3 +253,10 @@ INSERT INTO Answers (answer_text, question_text, is_correct) VALUES
 ('Basketball', 'Which sport uses a puck?', 0),
 ('Baseball', 'Which sport uses a puck?', 0),
 ('Cricket', 'Which sport uses a puck?', 0);
+
+-- [Danish] - [added caretaker adatabase] - [9/7/2025]
+CREATE TABLE Caretaker (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    telegram_name NVARCHAR(100) NOT NULL,
+    chat_id BIGINT NOT NULL
+);
