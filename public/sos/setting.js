@@ -89,6 +89,55 @@ async function createData(id,data){
       }
 }
 
+async function updateRecord(id,newRecord){
+  try{
+    const response = await fetch(`${apiBaseUrl}/caretaker/update/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newRecord),
+      });
+      if(response.status === 200){
+        showNotification("Successfully updated data!","success")
+      }
+      if (!response.ok) {
+        const errorBody = await response.json();
+        showNotification(`Error updating data! Please make sure all columns are filled!`,"error");
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorBody.message}`);
+      }
+      
+  }
+  
+  catch (error) {
+    console.error("Error updating record:", error);
+  }
+}
+
+async function deleteRecord(id){
+  try{
+    const response = await fetch(`${apiBaseUrl}/caretaker/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if(response.status === 204 || response.status === 200){
+        showNotification("Successfully deleted data!","success");
+        return true;
+      }
+  if (!response.ok) {
+    const errorBody = await response.json();
+    showNotification("Error in deleting record","error");
+    throw new Error(`HTTP error! status: ${response.status}, message: ${errorBody.message}`);
+  }
+  // --- End of code for learners to complete ---
+}
+catch (error) {
+    console.error("Error deleting record:", error);
+    showNotification("Error in deleting record","error");
+  }
+}
 
 document.addEventListener("DOMContentLoaded",async function(){
     let userId = 1
@@ -103,7 +152,30 @@ document.addEventListener("DOMContentLoaded",async function(){
         actualData = data[0]
         teleBox.value = actualData.telegram_name;
         chatBox.value = actualData.chat_id;
+        saveButton.addEventListener("click",async function(){
+          data ={
+              "telegram_name": teleBox.value,
+              "chat_id": chatBox.value
+          }
+          if (!await retrieveData(userId)){
+            createData(userId,data);
+          }else{
+            updateRecord(userId,data);
+          }
+          
+      })
 
+      deleteButton.addEventListener("click",async function(){
+        if (await retrieveData(userId)){
+          let result = await deleteRecord(userId);
+          if(result){
+            teleBox.value = "";
+            chatBox.value = "";
+          }
+        }else{
+          showNotification("There is no data to delete!","error");
+        }
+      })
         
     }else{
         console.log("not avail");
@@ -112,7 +184,24 @@ document.addEventListener("DOMContentLoaded",async function(){
                 "telegram_name": teleBox.value,
                 "chat_id": chatBox.value
             }
-            result = await createData(userId,data);
+            if (!await retrieveData(userId)){
+              createData(userId,data);
+            }else{
+              updateRecord(userId,data);
+            }
+            
+        })
+
+        deleteButton.addEventListener("click",async function(){
+          if (await retrieveData(userId)){
+            let result = await deleteRecord(userId);
+            if(result){
+              teleBox.value = "";
+              chatBox.value = "";
+            }
+          }else{
+            showNotification("There is no data to delete!","error");
+          }
         })
     }
 
