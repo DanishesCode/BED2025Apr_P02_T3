@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const teleBot = require("./teleBot");
 
 // Load environment variables
 dotenv.config();
@@ -107,6 +108,11 @@ app.get("/caretaker/getrecord/:id",sosController.retrieveRecord);
 app.post("/caretaker/create/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.createRecord);
 app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
 app.delete("/caretaker/delete/:id", sosController.deleteRecord);
+
+
+//RUN TELEBOT(Danish)
+teleBot.startBot();
+
 
 // Start server
 app.listen(port, () => {

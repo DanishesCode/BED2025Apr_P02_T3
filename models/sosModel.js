@@ -114,12 +114,22 @@ async function deleteData(id){
   }
 }
 
-async function runTelegramBot(){
 
-}
+async function convertLocation(data){
+const latitude = data.latitude;
+const longitude = data.longitude;
+const apiKey = process.env.Geocoding_ApiKey;
 
-async function convertLocation(){
-
+fetch(`https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`)
+  .then(response => response.json())
+  .then(data => {
+    const address = data.results[0].formatted;
+    console.log("Address:", address);
+    return address;
+  })
+  .catch(error => {
+    console.error("Error fetching address:", error);
+  });
 }
 
 module.exports = {
@@ -127,6 +137,5 @@ module.exports = {
     createRecord,
     updateRecord,
     deleteData,
-    runTelegramBot,
     convertLocation
 }
