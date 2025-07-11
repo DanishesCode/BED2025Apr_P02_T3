@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat</title>
+    <link rel="stylesheet" href="aichat.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Logo Here</div>
+        <div class="header-right">
+            <div class="credit">Credit</div>
+            <div class="profile">
+                <span class="profile-name">Profile Name</span>
+                <div class="profile-avatar">👤</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn">
+                    <span>+</span>
+                    New Chat
+                </button>
+            </div>
+            <div class="chat-history">
+                <div class="chat-item active">
+                    <div class="chat-item-title">How to use email?</div>
+                    <div class="chat-item-date">Today, 2:30 PM</div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-item-title">Setting up my smartphone</div>
+                    <div class="chat-item-date">Yesterday, 4:15 PM</div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-item-title">Internet safety tips</div>
+                    <div class="chat-item-date">Mar 15, 2024</div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-item-title">Using video calls</div>
+                    <div class="chat-item-date">Mar 14, 2024</div>
+                </div>
+                <div class="chat-item">
+                    <div class="chat-item-title">Password security help</div>
+                    <div class="chat-item-date">Mar 13, 2024</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="chat-container" id="chatContainer">
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="message-avatar ai-avatar">AI</div>
+                    <span>AI is thinking</span>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <div style="position: relative; width: 100%;">
+                        <textarea class="input-box" placeholder="Type your message..." id="messageInput" rows="1"></textarea>
+                        <div class="input-actions">
+                            <button class="send-btn" id="sendBtn">
+                                ↑
+                            </button>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn voice-btn">
+                            🎤 Use my voice
+                        </button>
+                        <button class="action-btn summarize-btn">
+                            📝 Summarize
+                        </button>
+                    </div>
+                </div>
+                <div class="footer-disclaimer">
+                    This AI chat is powered by [AI Model Name]. AI may provide incorrect or outdated information, please double-check important answers.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="aichat.js"></script>
+</body>
+</html>

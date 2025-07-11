@@ -14,9 +14,9 @@ class UserModel {
             const query = `
 
 
-                INSERT INTO Users (name, email, password, dob)
+                INSERT INTO Users (name, email, password, date_of_birth)
                 OUTPUT INSERTED.userId, INSERTED.name, INSERTED.email
-                VALUES (@name, @email, @password, @dob)
+                VALUES (@name, @email, @password, @date_of_birth)
 
             `;
             
@@ -24,8 +24,9 @@ class UserModel {
             request.input('name', sql.NVarChar(100), userData.name);
             request.input('email', sql.NVarChar(100), userData.email);
             request.input('password', sql.NVarChar(255), hashedPassword);
-            request.input('dob', sql.Date, userData.dob);
+            request.input('date_of_birth', sql.Date, userData.dob);
             
+            console.log('Executing query:', query);
             const result = await request.query(query);
             return {
                 success: true,
@@ -46,7 +47,7 @@ class UserModel {
         try {
             const pool = await sql.connect(dbConfig);
             const query = `
-                SELECT userId, name, email, password, dob
+                SELECT userId, name, email, password, date_of_birth
                 FROM Users 
                 WHERE email = @email
             `;
