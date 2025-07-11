@@ -1,19 +1,58 @@
 -- init-schema.sql
 -- Created: 07-06-2025
 -- Initializes the local MSSQL database schema for the project.
-
-
 -- [Your Name] - [What was added] - [Last Modified Date: YYYY-MM-DD]
+
+-- Ensure the script runs in EaseForLifeDB database
+USE EaseForLifeDB;
+
+-- RESET ALL TABLES WHENEVER EXECUTED
+DROP TABLE IF EXISTS Answers;
+DROP TABLE IF EXISTS Questions;
+DROP TABLE IF EXISTS Categories;
+DROP TABLE IF EXISTS Messages;
+DROP TABLE IF EXISTS Chats;
+DROP TABLE IF EXISTS Users;
+----------
+
 CREATE TABLE Users (
-    userId INT PRIMARY KEY IDENTITY(1,1),   -- Auto-incremented unique ID
-    name VARCHAR(100) NOT NULL,             -- Full name of the user
-    email VARCHAR(100) NOT NULL UNIQUE,     -- Unique email address
-    password VARCHAR(255) NOT NULL,         -- Encrypted password
-    dob DATE NOT NULL                       -- Date of birth
+    userId INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(100) NOT NULL,
+    email NVARCHAR(100) NOT NULL UNIQUE,
+    password NVARCHAR(255) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT GETDATE(),
+    updated_at DATETIME NOT NULL DEFAULT GETDATE()
 );
 
+-- Sample users for testing
+INSERT INTO Users (name, email, password, date_of_birth)
+VALUES
+('Alice Tan', 'alice@example.com', '$2b$10$Q9n8Qw9b8Qw9b8Qw9b8QwOQ9n8Qw9b8Qw9b8Qw9b8Qw9b8Qw9b8Qw', '2000-01-01'),
+('Bob Lee', 'bob@example.com', '$2b$10$Q9n8Qw9b8Qw9b8Qw9b8QwOQ9n8Qw9b8Qw9b8Qw9b8Qw9b8Qw9b8Qw', '1999-05-15');
 
--- [Your Name] - [What was added] - [Last Modified Date: YYYY-MM-DD]
+-- [Linn] - [Chat and Messages table to store chats and messages between user and AI] - [Last Modified Date: 2025-07-09]
+-- Chats table
+CREATE TABLE Chats (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    title NVARCHAR(255) NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
+);
+
+-- Messages table
+CREATE TABLE Messages (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    chat_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    message NVARCHAR(MAX) NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+
+    FOREIGN KEY (chat_id) REFERENCES Chats(id) ON DELETE CASCADE
+);
+
 --[Danish] -Create trivia tables and sample data - 09/06/2025
 -- Create tables
 CREATE TABLE Categories (

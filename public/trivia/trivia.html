@@ -4,54 +4,107 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trivia Challenge</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="trivia.css">
 </head>
 <body>
-  <div class="container">
-    <h1>🧠 Trivia Challenge</h1>
-    <div class="subheading-box">
-      <h2>Choose your category</h2>
-      <p>Select a topic that interest you. Each trivia contain 5 questions</p>
+  <body>
+    <div class="chooseCategory">
+      <div class="container">
+        <h1>🧠 Trivia Challenge</h1>
+        <div class="subheading-box">
+          <h2>Choose your category</h2>
+          <p>Select a topic that interest you. Each trivia contain 5 questions</p>
+        </div>
+  
+        <div class="grid">
+          <div class="card" item = "History">
+            <div class="emoji">🏛️</div>
+            <h3>History</h3>
+            <p>Test your knowledge of historical events and figures</p>
+          </div>
+          <div class="card" item = "Science">
+            <div class="emoji">🧬</div>
+            <h3>Science</h3>
+            <p>Explore the wonders of science and nature</p>
+          </div>
+          <div class="card" item = "Singapore">
+            <div class="emoji">🇸🇬</div>
+            <h3>Singapore</h3>
+            <p>Test how well you know Singapore</p>
+          </div>
+          <div class="card" item = "Mathematics">
+            <div class="emoji">📖</div>
+            <h3>Mathematics</h3>
+            <p>Test your basic math knowledge</p>
+          </div>
+          <div class="card" item = "Sports">
+            <div class="emoji">⚽</div>
+            <h3>Sports</h3>
+            <p>Athletic achievements and sports trivia</p>
+          </div>
+          <div class="card" item = "General">
+            <div class="emoji">🏛️</div>
+            <h3>General knowledge</h3>
+            <p>A mix of everything</p>
+          </div>
+        </div>
+      </div>
+      <button class="start">Start</button>
+    </div> <!-- Close chooseCategory -->
+  
+    <!-- START of question section -->
+    <div class="question" >
+      <button class="back-button">Back to categories</button>
+      <h1>🧠 Trivia Challenge <span style="float: right;">Score: 0/5</span></h1>
+  
+      <div class="question-box">
+        <p><strong>Question # of 5</strong> <span style="float: right;">TOPIC</span></p>
+        <h2>QUESTION QUESTION</h2>
+  
+        <div class="options-grid">
+          <div class="option">OPTION</div>
+          <div class="option">OPTION</div>
+          <div class="option">OPTION</div>
+          <div class="option">OPTION</div>
+        </div>
+  
+      </div>
     </div>
-    
-    <div class="grid">
-      <div class="card">
-        <div class="emoji">🏛️</div>
-        <h3>History</h3>
-        <p>Test your knowledge of historical events and figures</p>
+    <!-- END of question section -->
+     <!-- Start of correct answer section -->
+     <div class="correctAnswer">
+      <img src="image/correct.png" alt="correct">
+      <h1>CORRECT!</h1>
+      <p>Keep it up!</p>
+      <button class="next-button">Next Question</button>
+     </div>
+     <!-- End of correct answer section -->
+      <!-- Start of incorrect answer section -->
+      <div class="incorrectAnswer">
+        <img src="image/wrong.png" alt="incorrect">
+        <h1>INCORRECT!</h1>
+        <p>Try harder!</p>
+        <button class="next-button">Next Question</button>
       </div>
-
-      <div class="card">
-        <div class="emoji">🧬</div>
-        <h3>Science</h3>
-        <p>Explore the wonders of science and nature</p>
+      <!-- End of incorrect answer section -->
+       <!-- Final Score Section-->
+       <div class="finalScore" >
+        <h1>🧠Trivia Challenge</h1>
+        <h2>Your Final Score:</h2>
+        
+        <div class="score-values">
+          <p class="score-fraction">5/5</p>
+          <p class="score-percent">100%</p>
+        </div>
+        
+        <p class="congrats">🎯Congrats on your amazing score!</p>
+        
+        <button class="try-category">Try another category</button>
+        <button class="try-again">Try again</button>
       </div>
-
-      <div class="card">
-        <div class="emoji">🇸🇬</div>
-        <h3>Singapore</h3>
-        <p>Test how well you know Singapore</p>
-      </div>
-
-      <div class="card">
-        <div class="emoji">📖</div>
-        <h3>Mathematics</h3>
-        <p>Test your basic math knowledge</p>
-      </div>
-
-      <div class="card">
-        <div class="emoji">⚽</div>
-        <h3>Sports</h3>
-        <p>Athletic achievements and sports trivia</p>
-      </div>
-
-      <div class="card">
-        <div class="emoji">🏛️</div>
-        <h3>General knowledge</h3>
-        <p>A mix of everything</p>
-      </div>
-    </div>
-  </div>
-  <button class=start >Start</button>
-</body>
+      
+       <!-- End of final score section -->
+  </body>
+  <script src="trivia.js"></script>
+  
 </html>

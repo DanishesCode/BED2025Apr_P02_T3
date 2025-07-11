@@ -20,9 +20,12 @@
         </div>
         <div class="header-right">
             <div class="credit">Credit</div>
-            <div class="profile">
-                Profile Name
+            <div class="profile" id="profileSection">
+                <span id="userName">Guest</span>
                 <div class="profile-icon">👤</div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-item" id="logoutBtn">Logout</div>
+                </div>
             </div>
         </div>
     </div>
@@ -71,5 +74,67 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // Authentication check
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('authToken');
+            const currentUser = localStorage.getItem('currentUser');
+            
+            if (!token) {
+                // Redirect to login if not authenticated
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Display user info
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    document.getElementById('userName').textContent = user.name || 'User';
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                }
+            }
+            
+            // Logout functionality
+            document.getElementById('logoutBtn').addEventListener('click', async function() {
+                try {
+                    const response = await fetch('/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include'
+                    });
+                    
+                    // Clear localStorage regardless of server response
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('currentUser');
+                    
+                    // Redirect to login
+                    window.location.href = '/login';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    // Still clear localStorage and redirect
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('currentUser');
+                    window.location.href = '/login';
+                }
+            });
+            
+            // Profile dropdown toggle
+            document.querySelector('.profile').addEventListener('click', function() {
+                document.getElementById('profileDropdown').classList.toggle('show');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.profile')) {
+                    document.getElementById('profileDropdown').classList.remove('show');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
