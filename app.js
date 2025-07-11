@@ -10,7 +10,7 @@ dotenv.config();
 
 // Create Express app
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 // Middleware
 app.use(express.json());
@@ -50,6 +50,7 @@ const userController = require("./controllers/userController");
 const AuthMiddleware = require("./middlewares/authMiddleware");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
 const aichatController = require("./controllers/aichatController");
+const appointmentController = require("./controllers/appointmentController");
 
 // Routes for pages
 app.get("/", (req, res) => {
@@ -103,6 +104,12 @@ app.put(
 );
 
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+
+// Appointment API routes
+app.post("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.create);
+app.put("/api/appointments/:id", AuthMiddleware.authenticateToken, appointmentController.update);
+app.delete("/api/appointments/:id", AuthMiddleware.authenticateToken, appointmentController.delete);
+app.get("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.list);
 
 // Start server
 app.listen(port, () => {

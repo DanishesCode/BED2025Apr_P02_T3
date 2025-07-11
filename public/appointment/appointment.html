@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Booking</title>
+    <link rel="stylesheet" href="appointment.css">
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo">Logo Here</div>
+        <div class="topbar-right">
+            <span class="credit">Credit</span>
+            <span class="profile-name">Profile Name</span>
+            <span class="profile-icon">&#128100;</span>
+        </div>
+    </div>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h2>Health &amp; Wellness</h2>
+                <ul>
+                    <li><span class="icon">&#128170;</span> Personalized Health Coaching</li>
+                    <li><span class="icon">&#127828;</span> Nutrition and meal plan</li>
+                    <li><span class="icon">&#128161;</span> Tips</li>
+                    <li><span class="icon">&#128712;</span> xxx xxxxx xxx</li>
+                </ul>
+            </div>
+            <div class="sidebar-section">
+                <h2>Smart Assistance</h2>
+                <ul>
+                    <li><span class="icon">&#129302;</span> AI Chat</li>
+                    <li><span class="icon">&#128221;</span> Summarizer</li>
+                </ul>
+            </div>
+        </aside>
+        <main class="main-content">
+            <div class="appointment-section">
+                <h3>Choose a Date</h3>
+                <div class="date-picker">
+                    <!-- Placeholder for calendar widget -->
+                    <div class="calendar">
+                        <div class="calendar-header">
+                            <select>
+                                <option>August</option>
+                            </select>
+                            <select>
+                                <option>2023</option>
+                            </select>
+                        </div>
+                        <table class="calendar-table">
+                            <thead>
+                                <tr><th>M</th><th>Tu</th><th>W</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>29</td><td>30</td><td>31</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+                                <tr><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td></tr>
+                                <tr><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td></tr>
+                                <tr><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td></tr>
+                                <tr><td>26</td><td class="selected">27</td><td>28</td><td>29</td><td>30</td><td>31</td><td>1</td></tr>
+                                <tr><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <h3>Pick a time</h3>
+                <div class="time-picker">
+                    <div class="time-row">
+                        <button class="time-btn">9:30</button>
+                        <button class="time-btn">9:30</button>
+                        <button class="time-btn">9:30</button>
+                    </div>
+                    <div class="time-row">
+                        <button class="time-btn">9:30</button>
+                        <button class="time-btn selected">9:30</button>
+                        <button class="time-btn">9:30</button>
+                    </div>
+                    <div class="time-row">
+                        <button class="time-btn">9:30</button>
+                        <button class="time-btn">9:30</button>
+                        <button class="time-btn">9:30</button>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="back-btn">Back</button>
+                    <button class="continue-btn">Continue</button>
+                </div>
+            </div>
+        </main>
+        <aside class="appointments-sidebar">
+            <h3>Appointments</h3>
+            <div class="mini-calendar">
+                <!-- Placeholder for mini calendar -->
+                <table class="mini-calendar-table">
+                    <thead>
+                        <tr><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td></td><td></td><td></td><td></td><td>1</td><td>2</td><td>3</td></tr>
+                        <tr><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr>
+                        <tr><td>11</td><td>12</td><td>13</td><td class="mini-selected">14</td><td>15</td><td>16</td><td>17</td></tr>
+                        <tr><td>18</td><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td></tr>
+                        <tr><td>25</td><td>26</td><td>27</td><td>28</td><td class="mini-selected">29</td><td>30</td><td>31</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </aside>
+    </div>
+    <script src="appointment.js"></script>
+</body>
+</html> 

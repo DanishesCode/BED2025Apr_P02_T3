@@ -24,6 +24,13 @@ CREATE TABLE Users (
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
     updated_at DATETIME NOT NULL DEFAULT GETDATE()
 );
+CREATE TABLE Appointments (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    appointmentDate DATE NOT NULL,
+    appointmentTime TIME NOT NULL,
+    createdAt DATETIME DEFAULT GETDATE()
+);
 
 -- Sample users for testing
 INSERT INTO Users (name, email, password, date_of_birth)
