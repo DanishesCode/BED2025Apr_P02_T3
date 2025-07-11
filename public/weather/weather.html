@@ -5,19 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Weather Forecast</title>
   <link rel="stylesheet" href="weather.css" />
-  <link rel="stylesheet" href="../navbar/navbar.css" />
+
 </head>
 <body>
-  <header class="header">
-    <div class="logo">WeatherNow</div>
-    <div class="header-right">
-      <span>Credit</span>
-      <div class="profile-section">
-        <span>Profile Name</span>
-        <div class="profile-icon">P</div>
-      </div>
-    </div>
-  </header>
 
   <div class="main-container">
     <section class="hero-section">
@@ -47,6 +37,7 @@
             <div class="temp-display">
               <span id="tempValue">--</span><span class="temp-unit">°C</span>
             </div>
+            <div class="temp-description" id="tempDescription">--</div>
             <div class="day-info">
               <span id="weatherDesc" class="day-name">--</span>
             </div>
@@ -80,7 +71,7 @@
   <section class="elderly-activities-full-section">
     <div class="activities-wrapper">
       <div class="activities-header">
-        <h2 class="activities-main-title">�️ Weather-Smart Activities</h2>
+        <h2 class="activities-main-title">🌤️ Weather-Smart Activities</h2>
         <p class="activities-main-subtitle">Carefully curated recommendations for seniors based on current weather conditions and safety considerations</p>
       </div>
       <div class="activities-grid">
@@ -89,11 +80,8 @@
     </div>
   </section>
 
-  <!-- Include JavaScript files in proper order -->
-  <script src="../../middlewares/weatherValidation.js"></script>
-  <script src="../../models/weatherModel.js"></script>
-  <script src="../../controllers/weatherController.js"></script>
+  <!-- Only include the main weather.js file -->
   <script src="weather.js"></script>
-  <script src="../navbar/navbar.js"></script>
+  <!-- Keep navbar separate to avoid conflicts -->
 </body>
 </html>
