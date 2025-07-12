@@ -23,7 +23,7 @@ app.use(cors({
         if (!origin) return callback(null, true);
         
         const allowedOrigins = [
-            'http://localhost:3000',
+            'http://localhost:3000',              
             'http://127.0.0.1:5500',
             'http://localhost:5500',
             'http://127.0.0.1:3000'
@@ -68,6 +68,14 @@ app.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'signup', 'signup.html'));
 });
 
+
+// Environment variables endpoint for client-side usage
+app.get("/api/env", (req, res) => {
+    res.json({
+        WEATHER_API_KEY: process.env.WEATHER_API_KEY,
+        PEXELS_API_KEY: process.env.PEXELS_API_KEY
+    });
+
 // SOS routes
 app.get("/sos", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'main.html'));
@@ -75,6 +83,7 @@ app.get("/sos", (req, res) => {
 
 app.get("/sos/settings", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'setting.html'));
+
 });
 
 // Trivia routes (DANISH)
