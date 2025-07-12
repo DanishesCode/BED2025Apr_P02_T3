@@ -2,9 +2,24 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDashboardBirthdays();
 });
 const API_BASE = 'http://localhost:3000';
+
+// Get auth token for API calls
+function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+
 async function loadDashboardBirthdays() {
   try {
-     const res = await fetch(`${API_BASE}/birthdays/dashboard`);
+    const res = await fetch(`${API_BASE}/birthdays/dashboard`);
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    
     const data = await res.json();
 
     updateCurrentDate();
@@ -116,7 +131,7 @@ document.addEventListener('click', async (e) => {
 async function deleteBirthday(id) {
   try {
     const res = await fetch(`${API_BASE}/birthdays/${id}`, {
-      method: 'DELETE',
+      method: 'DELETE'
     });
     if (!res.ok) throw new Error('Delete failed');
     console.log('Birthday deleted');

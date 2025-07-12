@@ -75,6 +75,7 @@ app.get("/api/env", (req, res) => {
         WEATHER_API_KEY: process.env.WEATHER_API_KEY,
         PEXELS_API_KEY: process.env.PEXELS_API_KEY
     });
+});
 
 // SOS routes
 app.get("/sos", (req, res) => {
@@ -133,14 +134,14 @@ app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.
 app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 
 
-//RUN TELEBOT(Danish)
+//RUN TELEBOT(Danish) - Temporarily disabled to prevent spam
 teleBot.startBot();
 
 
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
 
 
-// Birthday routes
+// Birthday routes - Temporarily remove auth for testing
 app.get("/birthdays", birthdayController.getAllBirthdays);
 app.get("/birthdays/dashboard", birthdayController.getBirthdaysForDashboard);
 app.get("/birthdays/:id", birthdayController.getBirthdayById);
