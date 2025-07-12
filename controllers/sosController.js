@@ -65,13 +65,51 @@ async function deleteRecord(req,res){
       }
 }
 
-async function convertLocation(req,res){
-  
+async function convertLocation(req, res) {
+  try {
+    const data = req.body;
+    console.log("Received coordinates:", data);
+
+    const address = await sos.convertLocation(data);
+    console.log("Converted Address:", address);
+
+    if (!address) {
+      return res.status(404).json({ error: "Address not found." });
+    }
+
+    res.status(200).json({ message: address });
+  } catch (error) {
+    console.error("Controller error in convertLocation:", error.message);
+    res.status(500).json({ error: "Failed to fetch address from coordinates" });
+  }
 }
+async function sendTelegramMessage(req, res) {
+  try {
+    const { chatId, address } = req.body;
+
+    if (!chatId || !address) {
+      return res.status(400).json({ error: "chatId and address are required" });
+    }
+
+    const success = await sos.sendTeleMessage(req.body);
+
+    if (success) {
+      res.status(200).json({ message: "Message sent successfully" });
+    } else {
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  } catch (error) {
+    console.error("Controller error in sendTelegramMessage:", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 
 module.exports = {
     retrieveRecord,
     createRecord,
     updateRecord,
-    deleteRecord
+    deleteRecord,
+    convertLocation,
+    sendTelegramMessage
 }

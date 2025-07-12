@@ -105,6 +105,8 @@ app.put(
 
 //ROUTES FOR SOS(Danish)
 app.get("/caretaker/getrecord/:id",sosController.retrieveRecord);
+app.post("/caretaker/convertaddress",sosController.convertLocation);
+app.post('/caretaker/send-message', sosController.sendTelegramMessage);
 app.post("/caretaker/create/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.createRecord);
 app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
 app.delete("/caretaker/delete/:id", sosController.deleteRecord);

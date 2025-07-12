@@ -1,5 +1,6 @@
 const sql = require("mssql");
 const dbConfig = require("../dbConfig");
+const teleBot = require("../teleBot");
 
 async function retrieveRecord(id){
     let connection;
@@ -115,27 +116,62 @@ async function deleteData(id){
 }
 
 
-async function convertLocation(data){
-const latitude = data.latitude;
-const longitude = data.longitude;
-const apiKey = process.env.Geocoding_ApiKey;
+async function convertLocation(data) {
+  const latitude = data.latitude;
+  const longitude = data.longitude;
+  const apiKey = process.env.Geocoding_ApiKey;
 
-fetch(`https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`)
-  .then(response => response.json())
-  .then(data => {
-    const address = data.results[0].formatted;
-    console.log("Address:", address);
+  try {
+    if (!apiKey) {
+      throw new Error("API key is missing!");
+    }
+
+    const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`;
+    console.log("Requesting URL:", url);
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error("Response not OK:", response.status, text);
+      throw new Error(`OpenCage API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log("API result:", result);
+
+    if (!result.results || result.results.length === 0) {
+      throw new Error("No address found.");
+    }
+
+    const address = result.results[0].formatted;
     return address;
-  })
-  .catch(error => {
-    console.error("Error fetching address:", error);
-  });
+  } catch (error) {
+    console.error("Model error in convertLocation:", error.message);
+    throw error;
+  }
 }
+
+async function sendTeleMessage(data){
+  try {
+    const chatId = data.chatId;
+    const address = data.address;
+    const name = data.name;
+    let message = `🚨ALERT🚨 ${name} HAS PRESSED THE EMERGENCY SOS! HER LOCATION: ${address}`;
+    const success = await teleBot.sendMessage(chatId, message);
+    return success;
+  } catch (error) {
+    console.error("Model error in sendMessageToTelegram:", error.message);
+    throw error;
+  }
+}
+
 
 module.exports = {
     retrieveRecord,
     createRecord,
     updateRecord,
     deleteData,
-    convertLocation
+    convertLocation,
+    sendTeleMessage
 }
