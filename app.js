@@ -65,6 +65,15 @@ app.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'signup', 'signup.html'));
 });
 
+// SOS routes
+app.get("/sos", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'sos', 'main.html'));
+});
+
+app.get("/sos/settings", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'sos', 'setting.html'));
+});
+
 // Trivia routes (DANISH)
 app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
 app.get("/trivia/options/:questionText", triviaController.getOptionsByQuestion);

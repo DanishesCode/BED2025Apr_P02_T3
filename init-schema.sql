@@ -259,5 +259,6 @@ CREATE TABLE Caretaker (
     id INT PRIMARY KEY, -- Same type as Users.id
     telegram_name NVARCHAR(100) NOT NULL,
     chat_id BIGINT NOT NULL,
+    FOREIGN KEY (id) REFERENCES Users(id)
 );
 

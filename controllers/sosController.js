@@ -77,7 +77,7 @@ async function convertLocation(req, res) {
       return res.status(404).json({ error: "Address not found." });
     }
 
-    res.status(200).json({ message: address });
+    res.status(200).json({ address });
   } catch (error) {
     console.error("Controller error in convertLocation:", error.message);
     res.status(500).json({ error: "Failed to fetch address from coordinates" });
