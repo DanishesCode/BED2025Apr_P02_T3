@@ -43,6 +43,8 @@ app.use(cors({
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.options('*', cors());
+
 // controller variables
 const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
@@ -50,6 +52,7 @@ const sosController = require("./controllers/sosController");
 const AuthMiddleware = require("./middlewares/authMiddleware.js");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
 const sosMiddleware = require("./middlewares/sosValidation.js");
+const aichatController = require("./controllers/aichatController");
 
 // Routes for pages
 app.get("/", (req, res) => {
@@ -123,6 +126,9 @@ app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 
 //RUN TELEBOT(Danish)
 teleBot.startBot();
+
+=======
+app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
 
 
 // Start server

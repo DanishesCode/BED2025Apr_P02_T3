@@ -1,12 +1,22 @@
 -- init-schema.sql
 -- Created: 07-06-2025
 -- Initializes the local MSSQL database schema for the project.
-
-
 -- [Your Name] - [What was added] - [Last Modified Date: YYYY-MM-DD]
 
+-- Ensure the script runs in EaseForLifeDB database
+USE EaseForLifeDB;
+
+-- RESET ALL TABLES WHENEVER EXECUTED
+DROP TABLE IF EXISTS Answers;
+DROP TABLE IF EXISTS Questions;
+DROP TABLE IF EXISTS Categories;
+DROP TABLE IF EXISTS Messages;
+DROP TABLE IF EXISTS Chats;
+DROP TABLE IF EXISTS Users;
+----------
+
 CREATE TABLE Users (
-    id INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(100) NOT NULL,
     email NVARCHAR(100) NOT NULL UNIQUE,
     password NVARCHAR(255) NOT NULL,
@@ -21,7 +31,28 @@ VALUES
 ('Alice Tan', 'alice@example.com', '$2b$10$Q9n8Qw9b8Qw9b8Qw9b8QwOQ9n8Qw9b8Qw9b8Qw9b8Qw9b8Qw9b8Qw', '2000-01-01'),
 ('Bob Lee', 'bob@example.com', '$2b$10$Q9n8Qw9b8Qw9b8Qw9b8QwOQ9n8Qw9b8Qw9b8Qw9b8Qw9b8Qw9b8Qw', '1999-05-15');
 
--- [Your Name] - [What was added] - [Last Modified Date: YYYY-MM-DD]
+-- [Linn] - [Chat and Messages table to store chats and messages between user and AI] - [Last Modified Date: 2025-07-09]
+-- Chats table
+CREATE TABLE Chats (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    title NVARCHAR(255) NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
+);
+
+-- Messages table
+CREATE TABLE Messages (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    chat_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    message NVARCHAR(MAX) NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+
+    FOREIGN KEY (chat_id) REFERENCES Chats(id) ON DELETE CASCADE
+);
+
 --[Danish] -Create trivia tables and sample data - 09/06/2025
 -- Create tables
 CREATE TABLE Categories (
@@ -252,6 +283,7 @@ INSERT INTO Answers (answer_text, question_text, is_correct) VALUES
 ('Ice Hockey', 'Which sport uses a puck?', 1),
 ('Basketball', 'Which sport uses a puck?', 0),
 ('Baseball', 'Which sport uses a puck?', 0),
+
 ('Cricket', 'Which sport uses a puck?', 0);
 
 -- [Danish] - [added caretaker adatabase] - [9/7/2025]
@@ -263,4 +295,7 @@ CREATE TABLE Caretaker (
 );
 INSERT INTO Users (name, email, password, date_of_birth)
 VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
+
+=======
+('Cricket', 'Which sport uses a puck?', 0);
 

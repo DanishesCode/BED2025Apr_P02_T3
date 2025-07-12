@@ -34,7 +34,7 @@ class UserController {
             console.error('Signup error:', error);
             res.status(500).json({
                 success: false,
-                message: 'Internal server error'
+                message: 'yea server error'
             });
         }
     }
