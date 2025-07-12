@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Birthday</title>
+  <link rel="stylesheet" href="edit-birthday.css"/>
+</head>
+<body>
+  <main class="edit-form-container">
+    <div class="edit-box">
+      <h2 id="form-title">Add / Edit Birthday</h2>
+
+      <input type="text" id="first_name" placeholder="First Name *" required />
+      <input type="text" id="last_name" placeholder="Last Name (Optional)" />
+
+      <input type="date" id="birth_date" required />
+
+      <input type="text" id="relationship" placeholder="Relationship" />
+      <textarea id="notes" placeholder="Notes"></textarea>
+
+      <div class="btn-group form-buttons">
+        <button id="save-btn" type="button" class="save-btn">Save</button>
+        <button id="cancel-btn" type="button" class="cancel-btn">Cancel</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="edit-birthday.js"></script>
+</body>
+</html>

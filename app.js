@@ -12,7 +12,6 @@ dotenv.config();
 // Create Express app
 const app = express();
 const port = process.env.PORT || 3000;
-
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
@@ -53,7 +52,8 @@ const AuthMiddleware = require("./middlewares/authMiddleware.js");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
 const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
-
+const birthdayController = require('./controllers/birthdayController');
+const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
 // Routes for pages
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -138,6 +138,16 @@ teleBot.startBot();
 
 
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+
+
+// Birthday routes
+app.get("/birthdays", birthdayController.getAllBirthdays);
+app.get("/birthdays/dashboard", birthdayController.getBirthdaysForDashboard);
+app.get("/birthdays/:id", birthdayController.getBirthdayById);
+app.post("/birthdays", validateAdd, birthdayController.addBirthday);
+app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
+app.delete("/birthdays/:id", birthdayController.deleteBirthday);
+
 
 
 // Start server
