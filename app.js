@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const teleBot = require("./teleBot");
 
 // Load environment variables
 dotenv.config();
@@ -47,8 +48,10 @@ app.options('*', cors());
 // controller variables
 const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
-const AuthMiddleware = require("./middlewares/authMiddleware");
+const sosController = require("./controllers/sosController");
+const AuthMiddleware = require("./middlewares/authMiddleware.js");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
+const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
 
 // Routes for pages
@@ -63,6 +66,15 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'signup', 'signup.html'));
+});
+
+// SOS routes
+app.get("/sos", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'sos', 'main.html'));
+});
+
+app.get("/sos/settings", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'sos', 'setting.html'));
 });
 
 // Trivia routes (DANISH)
@@ -102,7 +114,22 @@ app.put(
     userController.updateProfile
 );
 
+
+//ROUTES FOR SOS(Danish)
+app.get("/caretaker/getrecord/:id",sosController.retrieveRecord);
+app.post("/caretaker/convertaddress",sosController.convertLocation);
+app.post('/caretaker/send-message', sosController.sendTelegramMessage);
+app.post("/caretaker/create/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.createRecord);
+app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
+app.delete("/caretaker/delete/:id", sosController.deleteRecord);
+
+
+//RUN TELEBOT(Danish)
+teleBot.startBot();
+
+=======
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+
 
 // Start server
 app.listen(port, () => {

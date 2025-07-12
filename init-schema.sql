@@ -283,4 +283,19 @@ INSERT INTO Answers (answer_text, question_text, is_correct) VALUES
 ('Ice Hockey', 'Which sport uses a puck?', 1),
 ('Basketball', 'Which sport uses a puck?', 0),
 ('Baseball', 'Which sport uses a puck?', 0),
+
 ('Cricket', 'Which sport uses a puck?', 0);
+
+-- [Danish] - [added caretaker adatabase] - [9/7/2025]
+CREATE TABLE Caretaker (
+    id INT PRIMARY KEY, -- Same type as Users.id
+    telegram_name NVARCHAR(100) NOT NULL,
+    chat_id BIGINT NOT NULL,
+    FOREIGN KEY (id) REFERENCES Users(id)
+);
+INSERT INTO Users (name, email, password, date_of_birth)
+VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
+
+=======
+('Cricket', 'Which sport uses a puck?', 0);
+
