@@ -107,7 +107,6 @@
                                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                                             </svg>
                                         </span>
-                                        Add to favorites
                                     </label>
                                 </div>
                             </div>
@@ -156,123 +155,7 @@
         </div>
     </div>
 
-    <script>
-        // File upload handling
-        const uploadArea = document.getElementById('upload-area');
-        const fileInput = document.getElementById('photo-upload');
-        const previewContainer = document.getElementById('preview-container');
-
-        // Drag and drop functionality
-        uploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            uploadArea.classList.add('drag-over');
-        });
-
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.classList.remove('drag-over');
-        });
-
-        uploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            uploadArea.classList.remove('drag-over');
-            const files = e.dataTransfer.files;
-            handleFiles(files);
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
-
-        function handleFiles(files) {
-            previewContainer.innerHTML = '';
-            Array.from(files).forEach(file => {
-                if (file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const preview = document.createElement('div');
-                        preview.className = 'preview-item';
-                        preview.innerHTML = `
-                            <img src="${e.target.result}" alt="Preview">
-                            <button type="button" class="remove-preview" onclick="this.parentElement.remove()">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                            </button>
-                        `;
-                        previewContainer.appendChild(preview);
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-        }
-
-        // Auto-set today's date
-        document.getElementById('memory-date').valueAsDate = new Date();
-
-        // Form submission
-        document.getElementById('memory-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const fileInput = document.getElementById('photo-upload');
-            const title = document.getElementById('memory-title').value;
-            const description = document.getElementById('memory-description').value;
-            const date = document.getElementById('memory-date').value;
-            const category = document.getElementById('memory-category').value;
-            const location = document.getElementById('memory-location').value;
-            const isFavorite = document.getElementById('memory-favorite').checked;
-            
-            // Validate required fields
-            if (!title.trim()) {
-                alert('Please enter a title for your memory');
-                return;
-            }
-            
-            if (!fileInput.files || fileInput.files.length === 0) {
-                alert('Please select at least one photo');
-                return;
-            }
-            
-            // Create FormData for file upload
-            const formData = new FormData();
-            formData.append('photo', fileInput.files[0]); // Upload first file
-            formData.append('title', title);
-            formData.append('description', description);
-            formData.append('date', date);
-            formData.append('category', category || 'General');
-            formData.append('location', location);
-            formData.append('isFavorite', isFavorite);
-            
-            try {
-                console.log("Sending form data:", formData);
-                console.log("Title:", title);
-                console.log("File:", fileInput.files[0]);
-                
-                const response = await fetch('http://localhost:3001/photos/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                console.log("Response status:", response.status);
-                console.log("Response headers:", response.headers);
-                
-                const result = await response.json();
-                console.log("Response result:", result);
-                
-                if (result.success) {
-                    alert('Memory saved successfully!');
-                    window.location.href = 'photo.html';
-                } else {
-                    alert('Error saving memory: ' + (result.message || 'Unknown error'));
-                    console.error("Server error details:", result);
-                }
-            } catch (error) {
-                console.error('Upload error:', error);
-                alert('Error uploading photo. Please try again.');
-            }
-        });
-  
-    </script>
+    <script src="photo.js"></script>
     
 </body>
 </html>

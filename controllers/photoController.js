@@ -2,14 +2,13 @@ const sql = require("mssql");
 const dbConfig = require("../public/photogallery/photoConfig");
 const photoModel = require("../models/photoModel");
 const fetch = require("node-fetch");
-
 const imgbbKey = process.env.IMGBB_API_KEY;
 
 const photoController = {
   // Upload a new photo
   async uploadPhoto(req, res) {
     try {
-      const { title, description, location, date, category, isFavorite } = req.body;
+      const { title, description, location, date, category, isFavorite, userId } = req.body;
       const file = req.file;
 
       // Upload to imgbb
@@ -41,7 +40,8 @@ const photoController = {
         date: date || new Date(),
         isFavorite: isFavorite === 'true' || isFavorite === true || false,
         category: category || 'General',
-        imageUrl
+        imageUrl,
+        userId: parseInt(userId) || 1 // Parse userId from form data or default to 1
       };
 
       // Save to database using model

@@ -65,6 +65,14 @@ app.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'signup', 'signup.html'));
 });
 
+// Environment variables endpoint for client-side usage
+app.get("/api/env", (req, res) => {
+    res.json({
+        WEATHER_API_KEY: process.env.WEATHER_API_KEY,
+        PEXELS_API_KEY: process.env.PEXELS_API_KEY
+    });
+});
+
 // Trivia routes (DANISH)
 app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
 app.get("/trivia/options/:questionText", triviaController.getOptionsByQuestion);

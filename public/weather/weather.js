@@ -39,7 +39,7 @@ function getWeatherApiKey() {
     }
     
     // Fallback for development (remove in production)
-    console.warn('⚠️ Using fallback Weather API key. Please configure environment variables.');
+    console.warn('Using fallback Weather API key. Please configure environment variables.');
     return 'b4389571ae284ebc84d83842250607'; // Temporary fallback
 }
 
@@ -182,7 +182,7 @@ class WeatherAppLoader {
         errorDiv.className = 'app-error';
         errorDiv.innerHTML = `
             <div class="error-content">
-                <h3>⚠️ Application Error</h3>
+                <h3>Application Error</h3>
                 <p>${message}</p>
                 <button onclick="window.location.reload()">Refresh Page</button>
             </div>

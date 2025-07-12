@@ -7,9 +7,9 @@ const photoModel = {
     try {
       let pool = await sql.connect(dbConfig);
       const query = `
-        INSERT INTO Photos (title, description, location, date, isFavorite, category, imageUrl, uploadedAt)
+        INSERT INTO Photos (title, description, location, date, isFavorite, category, imageUrl, uploadedAt, userId)
         OUTPUT INSERTED.id
-        VALUES (@title, @description, @location, @date, @isFavorite, @category, @imageUrl, GETDATE())
+        VALUES (@title, @description, @location, @date, @isFavorite, @category, @imageUrl, GETDATE(), @userId)
       `;
       
       const result = await pool.request()
@@ -20,6 +20,7 @@ const photoModel = {
         .input("isFavorite", sql.Bit, metadata.isFavorite || false)
         .input("category", sql.NVarChar(50), metadata.category || 'General')
         .input("imageUrl", sql.NVarChar(sql.MAX), metadata.imageUrl)
+        .input("userId", sql.Int, metadata.userId || 1) // Pass userId through metadata
         .query(query);
 
       return { 

@@ -81,10 +81,14 @@ class WeatherController {
             this.startAutoRefresh();
 
             // Fetch and update background image
+            console.log(`🖼️ Fetching background image for: ${weatherResult.data.location.name}, ${weatherResult.data.location.country}`);
+            
             const imageUrl = await this.model.getLocationImage(
                 weatherResult.data.location.name, 
                 weatherResult.data.location.country
             );
+            
+            console.log(`🎨 Got image URL: ${imageUrl}`);
             this.updateBackgroundImage(imageUrl);
 
             // Hide loading state
@@ -282,45 +286,57 @@ class WeatherController {
     updateElderlyActivities(currentWeather) {
         const activitiesGrid = document.querySelector('.activities-grid');
         
-        if (activitiesGrid) {
-            // Add loading state
-            activitiesGrid.classList.add('loading');
-            
-            // Get activities recommendations from the model
-            const activities = this.model.getElderlyActivities(currentWeather);
-            
-            // Simulate a brief loading delay for smooth transition
-            setTimeout(() => {
-                // Clear existing activities
-                activitiesGrid.innerHTML = '';
-                
-                // Add activity cards with staggered animation
-                activities.forEach((activity, index) => {
-                    setTimeout(() => {
-                        const activityElement = this.createActivityElement(activity, index);
-                        activitiesGrid.appendChild(activityElement);
-                        
-                        // Trigger entrance animation
-                        requestAnimationFrame(() => {
-                            activityElement.style.opacity = '0';
-                            activityElement.style.transform = 'translateY(50px) scale(0.8)';
-                            
-                            requestAnimationFrame(() => {
-                                activityElement.style.transition = 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                                activityElement.style.opacity = '1';
-                                activityElement.style.transform = 'translateY(0) scale(1)';
-                            });
-                        });
-                    }, index * 150); // Stagger the appearance of each card
-                });
-                
-                // Remove loading state after all cards are added
-                setTimeout(() => {
-                    activitiesGrid.classList.remove('loading');
-                }, activities.length * 150 + 200);
-                
-            }, 300);
+        if (!activitiesGrid) return;
+        
+        // Prevent duplicate updates by checking if already updating
+        if (activitiesGrid.classList.contains('loading')) {
+            return;
         }
+        
+        // Add loading state
+        activitiesGrid.classList.add('loading');
+        
+        // Get activities recommendations from the model
+        const activities = this.model.getElderlyActivities(currentWeather);
+        
+        // Validate activities array
+        if (!Array.isArray(activities) || activities.length === 0) {
+            console.warn('No activities generated for current weather conditions');
+            activitiesGrid.classList.remove('loading');
+            return;
+        }
+        
+        // Simulate a brief loading delay for smooth transition
+        setTimeout(() => {
+            // Clear existing activities
+            activitiesGrid.innerHTML = '';
+            
+            // Add activity cards with staggered animation
+            activities.forEach((activity, index) => {
+                setTimeout(() => {
+                    const activityElement = this.createActivityElement(activity, index);
+                    activitiesGrid.appendChild(activityElement);
+                    
+                    // Trigger entrance animation
+                    requestAnimationFrame(() => {
+                        activityElement.style.opacity = '0';
+                        activityElement.style.transform = 'translateY(50px) scale(0.8)';
+                        
+                        requestAnimationFrame(() => {
+                            activityElement.style.transition = 'all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                            activityElement.style.opacity = '1';
+                            activityElement.style.transform = 'translateY(0) scale(1)';
+                        });
+                    });
+                }, index * 150); // Stagger the appearance of each card
+            });
+            
+            // Remove loading state after all cards are added
+            setTimeout(() => {
+                activitiesGrid.classList.remove('loading');
+            }, activities.length * 150 + 200);
+            
+        }, 300);
     }
 
     /**
@@ -338,14 +354,13 @@ class WeatherController {
         ).join('');
         
         activityElement.innerHTML = `
-            <div class="activity-image">
-                <img src="${activity.image}" alt="${activity.title}" loading="lazy" onload="this.style.opacity=1" style="opacity:0; transition: opacity 0.5s ease;">
-                <div class="activity-icon-overlay">${activity.icon}</div>
-            </div>
-            <div class="activity-content">
-                <div class="activity-header">
-                    <h3 class="activity-title">${activity.title}</h3>
+            <div class="activity-card-header">
+                <div class="activity-image">
+                    <div class="activity-icon ${this.getIconClass(activity.title)}"></div>
                 </div>
+            </div>
+            <div class="activity-card-content">
+                <h3 class="activity-title">${activity.title}</h3>
                 <p class="activity-description">${activity.description}</p>
                 <div class="activity-benefits">
                     ${benefitTags}
@@ -368,6 +383,35 @@ class WeatherController {
         activityElement.setAttribute('aria-label', `Activity: ${activity.title}. ${activity.description}`);
         
         return activityElement;
+    }
+
+    /**
+     * Get appropriate icon class based on activity title
+     * @param {string} title - Activity title
+     * @returns {string} Icon class name
+     */
+    getIconClass(title) {
+        const titleLower = title.toLowerCase();
+        
+        if (titleLower.includes('hydration') || titleLower.includes('water') || titleLower.includes('drink')) {
+            return 'hydration';
+        } else if (titleLower.includes('exercise') || titleLower.includes('walk') || titleLower.includes('stretch') || titleLower.includes('yoga')) {
+            return 'exercise';
+        } else if (titleLower.includes('rest') || titleLower.includes('sleep') || titleLower.includes('nap')) {
+            return 'rest';
+        } else if (titleLower.includes('sun') || titleLower.includes('shade') || titleLower.includes('umbrella') || titleLower.includes('protection')) {
+            return 'sun-protection';
+        } else if (titleLower.includes('clothing') || titleLower.includes('dress') || titleLower.includes('wear')) {
+            return 'clothing';
+        } else if (titleLower.includes('indoor') || titleLower.includes('inside') || titleLower.includes('home')) {
+            return 'indoor';
+        } else if (titleLower.includes('health') || titleLower.includes('medical') || titleLower.includes('doctor')) {
+            return 'health';
+        } else if (titleLower.includes('temperature') || titleLower.includes('heat') || titleLower.includes('cold')) {
+            return 'temperature';
+        } else {
+            return 'health'; // Default icon
+        }
     }
 
     /**
@@ -455,28 +499,60 @@ class WeatherController {
      * @param {string|null} imageUrl - Image URL or null for default
      */
     updateBackgroundImage(imageUrl) {
+        console.log(`🎨 Updating background with: ${imageUrl}`);
         const heroSection = document.querySelector('.hero-section');
 
         if (imageUrl) {
-            // Update BODY background
-            document.body.style.background = `
-                linear-gradient(rgba(102, 126, 234, 0.4), rgba(118, 75, 162, 0.4)),
-                url('${imageUrl}') center/cover no-repeat fixed
-            `;
-            document.body.style.transition = 'background 1s ease-in-out';
+            // Test if the image loads before applying it
+            const testImg = new Image();
+            testImg.onload = () => {
+                console.log(`✅ Background image loaded successfully`);
+                
+                // Update BODY background
+                document.body.style.background = `
+                    linear-gradient(rgba(102, 126, 234, 0.4), rgba(118, 75, 162, 0.4)),
+                    url('${imageUrl}') center/cover no-repeat fixed
+                `;
+                document.body.style.transition = 'background 1s ease-in-out';
 
-            // Update HERO-SECTION background
-            if (heroSection) {
-                heroSection.style.background = `url('${imageUrl}') no-repeat center center/cover`;
-                heroSection.style.transition = 'background 1s ease-in-out';
-            }
-        } else {
-            // Reset to default gradient if no image found
-            document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                // Update HERO-SECTION background
+                if (heroSection) {
+                    heroSection.style.background = `url('${imageUrl}') no-repeat center center/cover`;
+                    heroSection.style.transition = 'background 1s ease-in-out';
+                }
+            };
             
-            if (heroSection) {
-                heroSection.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-            }
+            testImg.onerror = () => {
+                console.error(`❌ Failed to load background image: ${imageUrl}`);
+                console.log(`🔄 Falling back to default gradient`);
+                this.setDefaultBackground(heroSection);
+            };
+            
+            // Set timeout for image loading
+            setTimeout(() => {
+                if (!testImg.complete) {
+                    console.warn(`⏰ Background image load timeout, using default`);
+                    this.setDefaultBackground(heroSection);
+                }
+            }, 5000);
+            
+            testImg.src = imageUrl;
+        } else {
+            console.log(`🎨 No image URL provided, using default background`);
+            this.setDefaultBackground(heroSection);
+        }
+    }
+
+    /**
+     * Set default gradient background
+     * @param {HTMLElement} heroSection - Hero section element
+     */
+    setDefaultBackground(heroSection) {
+        // Reset to default gradient if no image found
+        document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        
+        if (heroSection) {
+            heroSection.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
         }
     }
 
