@@ -261,4 +261,6 @@ CREATE TABLE Caretaker (
     chat_id BIGINT NOT NULL,
     FOREIGN KEY (id) REFERENCES Users(id)
 );
+INSERT INTO Users (name, email, password, date_of_birth)
+VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
 
