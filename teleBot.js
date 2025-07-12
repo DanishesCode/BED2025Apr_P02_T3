@@ -25,7 +25,7 @@ const TelegramBot = require('node-telegram-bot-api');
 let bot; // will hold the bot instance
 
 function startBot() {
-  bot = new TelegramBot("8199800212:AAGfq6zaGFC8ktKqMmI6A7PGnO2YQWT45Qk", { polling: true });
+  bot = new TelegramBot(process.env.TeleBot_Token, { polling: true });
 
   console.log("Telegram bot started");
 

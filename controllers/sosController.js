@@ -65,6 +65,10 @@ async function deleteRecord(req,res){
       }
 }
 
+async function convertLocation(req,res){
+  
+}
+
 module.exports = {
     retrieveRecord,
     createRecord,
