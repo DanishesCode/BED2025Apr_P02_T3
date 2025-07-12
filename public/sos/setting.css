@@ -1,0 +1,179 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #fafafa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  .container {
+    border: 2px solid #6246ea;
+    border-radius: 10px;
+    padding: 25px 30px;
+    width: 320px;
+    background-color: white;
+    text-align: center;
+  }
+  
+  h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+  
+  label {
+    display: block;
+    text-align: left;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  
+  input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border: 1.5px solid #6246ea;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  
+  .telegram-btn {
+    display: inline-block;
+    background-color: #2d9cdb;
+    color: white;
+    padding: 10px 20px;
+    margin: 10px 0;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .instructions {
+    background-color: #d0ccfc;
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin: 15px 0;
+    text-align: left;
+    font-size: 14px;
+  }
+  
+  .instructions ol {
+    margin: 0;
+    padding-left: 18px;
+  }
+  
+  .instructions a {
+    color: #1a0dab;
+    text-decoration: underline;
+  }
+  
+  .save-btn {
+    background-color: #339dff;
+    color: white;
+    font-weight: bold;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-top: 10px;
+  }
+  
+  .delete-btn {
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-top: 10px;
+  }
+  .back-btn {
+    background-color: #888;
+    color: white;
+    font-weight: bold;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-top: 10px;
+  }
+  
+  .save-btn, .delete-btn, .back-btn, .telegram-btn {
+    transition:
+      background 0.3s,
+      color 0.3s,
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .save-btn:hover {
+    background-color: #2176c1;
+    color: #fff;
+    transform: scale(1.06);
+    box-shadow: 0 4px 16px rgba(51, 157, 255, 0.18);
+  }
+
+  .delete-btn:hover {
+    background-color: #b30000;
+    color: #fff;
+    transform: scale(1.06);
+    box-shadow: 0 4px 16px rgba(179, 0, 0, 0.18);
+  }
+
+  .back-btn:hover {
+    background-color: #555;
+    color: #fff;
+    transform: scale(1.06);
+    box-shadow: 0 4px 16px rgba(136, 136, 136, 0.18);
+  }
+
+  .telegram-btn:hover {
+    background-color: #2176c1;
+    color: #fff;
+    transform: scale(1.06);
+    box-shadow: 0 4px 16px rgba(45, 156, 219, 0.18);
+  }
+  .notification {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    z-index: 9999;
+    max-width: 90%;
+    width: fit-content;
+    pointer-events: none;
+    font-size: 14px;
+  }
+  
+  .notification.success {
+    background-color: #28a745;
+  }
+  
+  .notification.error {
+    background-color: #dc3545;
+  }
+  
+  .notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  

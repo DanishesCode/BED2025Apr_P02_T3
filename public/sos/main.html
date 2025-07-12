@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SOS Emergency</title>
+  <link rel="stylesheet" href="main.css"/>
+</head>
+<body>
+  <div id="notification" class="notification hidden">
+    <span id="notification-text">This is a notification message</span>
+  </div>
+  <div class="container">
+
+    <div class="top-bar">
+      <button class="settings-button">⚙️ settings</button>
+      <div class="telegram-status">
+        Caretaker telegram: <span class="telegram-none">NONE</span>
+      </div>
+    </div>
+
+    <h2 class="title">Press for emergency<br>help</h2>
+
+    <div class="sos-wrapper">
+      <button class="sos-button">
+        <div class="sos-icon">⚠️</div>
+        <div class="sos-label">SOS</div>
+      </button>
+    </div>
+
+    <p class="info-text">
+      This will immediately send your current location to<br>
+      your emergency contact via Telegram
+    </p>
+
+    <div class="important-box">
+      <strong>Important:</strong><br style="text-align: center;">
+      For life-threatening emergencies, always call your local emergency number 911 first.
+      This SOS system is for additional support and location sharing with your caretaker.</br>
+    </div>
+
+  </div>
+  <script src = "main.js"></script>
+</body>
+</html>

@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const teleBot = require("./teleBot");
 
 // Load environment variables
 dotenv.config();
@@ -21,7 +22,7 @@ app.use(cors({
         if (!origin) return callback(null, true);
         
         const allowedOrigins = [
-            'http://localhost:3000',
+            'http://localhost:3000',              
             'http://127.0.0.1:5500',
             'http://localhost:5500',
             'http://127.0.0.1:3000'
@@ -46,8 +47,10 @@ app.options('*', cors());
 // controller variables
 const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
-const AuthMiddleware = require("./middlewares/authMiddleware");
+const sosController = require("./controllers/sosController");
+const AuthMiddleware = require("./middlewares/authMiddleware.js");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
+const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
 const birthdayController = require('./controllers/birthdayController');
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
@@ -63,6 +66,24 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'signup', 'signup.html'));
+});
+
+
+// Environment variables endpoint for client-side usage
+app.get("/api/env", (req, res) => {
+    res.json({
+        WEATHER_API_KEY: process.env.WEATHER_API_KEY,
+        PEXELS_API_KEY: process.env.PEXELS_API_KEY
+    });
+
+// SOS routes
+app.get("/sos", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'sos', 'main.html'));
+});
+
+app.get("/sos/settings", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'sos', 'setting.html'));
+
 });
 
 // Trivia routes (DANISH)
@@ -102,7 +123,22 @@ app.put(
     userController.updateProfile
 );
 
+
+//ROUTES FOR SOS(Danish)
+app.get("/caretaker/getrecord/:id",sosController.retrieveRecord);
+app.post("/caretaker/convertaddress",sosController.convertLocation);
+app.post('/caretaker/send-message', sosController.sendTelegramMessage);
+app.post("/caretaker/create/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.createRecord);
+app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
+app.delete("/caretaker/delete/:id", sosController.deleteRecord);
+
+
+//RUN TELEBOT(Danish)
+teleBot.startBot();
+
+
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+
 
 // Birthday routes
 app.get("/birthdays", birthdayController.getAllBirthdays);
@@ -111,6 +147,9 @@ app.get("/birthdays/:id", birthdayController.getBirthdayById);
 app.post("/birthdays", validateAdd, birthdayController.addBirthday);
 app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
 app.delete("/birthdays/:id", birthdayController.deleteBirthday);
+
+
+
 // Start server
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
