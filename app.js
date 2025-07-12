@@ -113,7 +113,6 @@ app.post("/chat/messages", AuthMiddleware.authenticateToken, aichatController.sa
 // Add route for creating new chat
 app.post("/chat/new", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
 
-
 // Start server
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
