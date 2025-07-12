@@ -47,6 +47,11 @@ app.use(cors({
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve MVC files for browser-side loading
+app.use('/middlewares', express.static(path.join(__dirname, 'middlewares')));
+app.use('/models', express.static(path.join(__dirname, 'models')));
+app.use('/controllers', express.static(path.join(__dirname, 'controllers')));
+
 // Multer setup for file uploads
 const upload = multer();
 
