@@ -4,11 +4,11 @@ const AppointmentController = {
     async create(req, res) {
         try {
             const userId = req.user.userId;
-            const { date, time } = req.body;
-            if (!date || !time) {
-                return res.status(400).json({ success: false, message: 'Date and time are required.' });
+            const { date, time, consultationType } = req.body;
+            if (!date || !time || !consultationType) {
+                return res.status(400).json({ success: false, message: 'Date, time, and consultation type are required.' });
             }
-            const result = await AppointmentModel.createAppointment(userId, date, time);
+            const result = await AppointmentModel.createAppointment(userId, date, time, consultationType);
             if (result.success) {
                 res.status(201).json({ success: true, appointment: result.appointment });
             } else {
@@ -18,15 +18,16 @@ const AppointmentController = {
             res.status(500).json({ success: false, message: err.message });
         }
     },
+
     async update(req, res) {
         try {
             const userId = req.user.userId;
             const { id } = req.params;
-            const { date, time } = req.body;
-            if (!date || !time) {
-                return res.status(400).json({ success: false, message: 'Date and time are required.' });
+            const { date, time, consultationType } = req.body;
+            if (!date || !time || !consultationType) {
+                return res.status(400).json({ success: false, message: 'Date, time, and consultation type are required.' });
             }
-            const result = await AppointmentModel.updateAppointment(id, userId, date, time);
+            const result = await AppointmentModel.updateAppointment(id, userId, date, time, consultationType);
             if (result.success) {
                 res.json({ success: true, appointment: result.appointment });
             } else {

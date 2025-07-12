@@ -2,32 +2,43 @@ const sql = require('mssql');
 const dbConfig = require('../dbConfig');
 
 const AppointmentModel = {
-    async createAppointment(userId, date, time) {
+    async createAppointment(userId, date, time, consultationType) {
         try {
             const pool = await sql.connect(dbConfig);
+            
+            // Map consultation type: coach = 'H' (human), ai = 'B' (bot)
+            const mappedType = consultationType === 'coach' ? 'H' : 'B';
+            
             const result = await pool.request()
                 .input('userId', sql.Int, userId)
-                .input('appointmentDate', sql.Date, date)
-                .input('appointmentTime', sql.Time, time)
-                .query(`INSERT INTO Appointments (userId, appointmentDate, appointmentTime)
+                .input('appointmentDate', sql.VarChar(10), date)
+                .input('appointmentTime', sql.VarChar(10), time)
+                .input('consultationType', sql.VarChar(10), mappedType)
+                .query(`INSERT INTO Appointments (userId, appointmentDate, appointmentTime, consultationType)
                         OUTPUT INSERTED.*
-                        VALUES (@userId, @appointmentDate, @appointmentTime)`);
+                        VALUES (@userId, @appointmentDate, @appointmentTime, @consultationType)`);
             return { success: true, appointment: result.recordset[0] };
         } catch (err) {
             console.error('Create appointment error:', err);
             return { success: false, error: err.message };
         }
     },
-    async updateAppointment(id, userId, date, time) {
+
+    async updateAppointment(id, userId, date, time, consultationType) {
         try {
             const pool = await sql.connect(dbConfig);
+            
+            // Map consultation type: coach = 'H' (human), ai = 'B' (bot)
+            const mappedType = consultationType === 'coach' ? 'H' : 'B';
+            
             const result = await pool.request()
                 .input('id', sql.Int, id)
                 .input('userId', sql.Int, userId)
-                .input('appointmentDate', sql.Date, date)
-                .input('appointmentTime', sql.Time, time)
+                .input('appointmentDate', sql.VarChar(10), date)
+                .input('appointmentTime', sql.VarChar(10), time)
+                .input('consultationType', sql.VarChar(10), mappedType)
                 .query(`UPDATE Appointments
-                        SET appointmentDate = @appointmentDate, appointmentTime = @appointmentTime
+                        SET appointmentDate = @appointmentDate, appointmentTime = @appointmentTime, consultationType = @consultationType
                         OUTPUT INSERTED.*
                         WHERE id = @id AND userId = @userId`);
             return { success: true, appointment: result.recordset[0] };
@@ -36,6 +47,7 @@ const AppointmentModel = {
             return { success: false, error: err.message };
         }
     },
+
     async deleteAppointment(id, userId) {
         try {
             const pool = await sql.connect(dbConfig);
@@ -49,6 +61,7 @@ const AppointmentModel = {
             return { success: false, error: err.message };
         }
     },
+
     async listAppointments(userId) {
         try {
             const pool = await sql.connect(dbConfig);

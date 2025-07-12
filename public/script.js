@@ -16,6 +16,12 @@ const toolsData = {
     ],
     health: [
         {
+            title: "Book Health Appointment",
+            description: "Schedule an appointment with your personalized health coach or AI assistant.",
+            icon: "chat",
+            url: "/appointment"
+        },
+        {
             title: "Health Tracker",
             description: "Monitor your daily health metrics and wellness goals.",
             icon: "chat",
@@ -43,6 +49,12 @@ const toolsData = {
         }
     ],
     scheduling: [
+        {
+            title: "Book Appointment",
+            description: "Schedule an appointment with your personalized health coach or AI assistant.",
+            icon: "chat",
+            url: "/appointment"
+        },
         {
             title: "Task Manager",
             description: "Organize and prioritize your daily tasks efficiently.",
@@ -234,7 +246,14 @@ function renderTools(tools) {
 // Open tool
 function openTool(url) {
     console.log('Opening tool:', url);
-    // Add your tool opening logic here
+    
+    // Handle appointment booking
+    if (url === '/appointment') {
+        window.location.href = 'http://localhost:3000/appointment';
+        return;
+    }
+    
+    // Add your tool opening logic here for other tools
     alert('Tool would open here: ' + url);
 }
 

@@ -12,12 +12,9 @@ class UserModel {
             const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
             
             const query = `
-
-
                 INSERT INTO Users (name, email, password, date_of_birth)
-                OUTPUT INSERTED.userId, INSERTED.name, INSERTED.email
+                OUTPUT INSERTED.id, INSERTED.name, INSERTED.email
                 VALUES (@name, @email, @password, @date_of_birth)
-
             `;
             
             const request = pool.request();
@@ -47,7 +44,7 @@ class UserModel {
         try {
             const pool = await sql.connect(dbConfig);
             const query = `
-                SELECT userId, name, email, password, date_of_birth
+                SELECT id, name, email, password, date_of_birth
                 FROM Users 
                 WHERE email = @email
             `;
@@ -97,10 +94,8 @@ class UserModel {
             const query = `
                 UPDATE Users 
                 SET name = @name
-                OUTPUT INSERTED.userId, INSERTED.name, INSERTED.email
-                WHERE userId = @userId
-
-
+                OUTPUT INSERTED.id, INSERTED.name, INSERTED.email
+                WHERE id = @userId
             `;
             
             const request = pool.request();
@@ -120,9 +115,7 @@ class UserModel {
     static async deleteUser(userId) {
         try {
             const pool = await sql.connect(dbConfig);
-            const query = `DELETE FROM Users WHERE userId = @userId`;
-
-
+            const query = `DELETE FROM Users WHERE id = @userId`;
             
             const request = pool.request();
             request.input('userId', sql.Int, userId);

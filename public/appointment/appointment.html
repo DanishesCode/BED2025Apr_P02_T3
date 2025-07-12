@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Appointment Booking</title>
+    <title>Appointment Booking - EaseForLife</title>
     <link rel="stylesheet" href="appointment.css">
 </head>
 <body>
     <div class="topbar">
-        <div class="logo">Logo Here</div>
+        <div class="logo">EaseForLife</div>
         <div class="topbar-right">
+            <a href="/" class="home-link">🏠 Home</a>
             <span class="credit">Credit</span>
             <span class="profile-name">Profile Name</span>
             <span class="profile-icon">&#128100;</span>
@@ -41,46 +42,53 @@
                     <!-- Placeholder for calendar widget -->
                     <div class="calendar">
                         <div class="calendar-header">
-                            <select>
-                                <option>August</option>
-                            </select>
-                            <select>
-                                <option>2023</option>
-                            </select>
+                            <select id="month-select"></select>
+                            <select id="year-select"></select>
                         </div>
                         <table class="calendar-table">
                             <thead>
                                 <tr><th>M</th><th>Tu</th><th>W</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th></tr>
                             </thead>
-                            <tbody>
-                                <tr><td>29</td><td>30</td><td>31</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
-                                <tr><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td></tr>
-                                <tr><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td></tr>
-                                <tr><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td></tr>
-                                <tr><td>26</td><td class="selected">27</td><td>28</td><td>29</td><td>30</td><td>31</td><td>1</td></tr>
-                                <tr><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
+                            <tbody id="calendar-body">
+                                <!-- Calendar days will be rendered here by JS -->
                             </tbody>
                         </table>
                     </div>
                 </div>
                 <h3>Pick a time</h3>
-                <div class="time-picker">
-                    <div class="time-row">
-                        <button class="time-btn">9:30</button>
-                        <button class="time-btn">9:30</button>
-                        <button class="time-btn">9:30</button>
+                <div class="time-picker" id="time-picker">
+                    <!-- Time slots will be rendered here by JS -->
+                </div>
+                
+                <h3>Choose Consultation Type</h3>
+                <div class="consultation-picker">
+                    <div class="consultation-option" data-type="coach">
+                        <div class="consultation-icon">👨‍⚕️</div>
+                        <div class="consultation-content">
+                            <h4>Real Health Coach</h4>
+                            <p>Speak with a certified health coach for personalized guidance, nutrition advice, and wellness planning.</p>
+                            <div class="consultation-features">
+                                <span>✓ Personalized coaching</span>
+                                <span>✓ Nutrition guidance</span>
+                                <span>✓ Wellness planning</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="time-row">
-                        <button class="time-btn">9:30</button>
-                        <button class="time-btn selected">9:30</button>
-                        <button class="time-btn">9:30</button>
-                    </div>
-                    <div class="time-row">
-                        <button class="time-btn">9:30</button>
-                        <button class="time-btn">9:30</button>
-                        <button class="time-btn">9:30</button>
+                    
+                    <div class="consultation-option" data-type="ai">
+                        <div class="consultation-icon">🤖</div>
+                        <div class="consultation-content">
+                            <h4>AI Health Assistant</h4>
+                            <p>Get instant answers to health questions, wellness tips, and guidance from our AI assistant.</p>
+                            <div class="consultation-features">
+                                <span>✓ 24/7 availability</span>
+                                <span>✓ Instant responses</span>
+                                <span>✓ Health guidance</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                
                 <div class="action-buttons">
                     <button class="back-btn">Back</button>
                     <button class="continue-btn">Continue</button>
@@ -107,5 +115,55 @@
         </aside>
     </div>
     <script src="appointment.js"></script>
+    <script>
+        // Authentication check and user profile display
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('authToken');
+            const currentUser = localStorage.getItem('currentUser');
+            
+            if (!token) {
+                // Redirect to login if not authenticated
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Display user info
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    document.querySelector('.profile-name').textContent = user.name || 'User';
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
+                }
+            }
+            
+            // Add logout functionality
+            document.querySelector('.profile-icon').addEventListener('click', async function() {
+                try {
+                    const response = await fetch('/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include'
+                    });
+                    
+                    // Clear localStorage regardless of server response
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('currentUser');
+                    
+                    // Redirect to login
+                    window.location.href = '/login';
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    // Still clear localStorage and redirect
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('currentUser');
+                    window.location.href = '/login';
+                }
+            });
+        });
+    </script>
 </body>
 </html> 
