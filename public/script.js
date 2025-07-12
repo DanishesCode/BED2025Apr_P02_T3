@@ -40,6 +40,12 @@ const toolsData = {
             description: "Create interactive quizzes to test your knowledge.",
             icon: "summarizer",
             url: "#"
+        },
+        {
+            title: "Photo Gallery",
+            description: "Store and organize your precious memories with a beautiful photo gallery.",
+            icon: "chat",
+            url: "photogallery/photo.html"
         }
     ],
     scheduling: [
@@ -68,6 +74,12 @@ const toolsData = {
             description: "Generate secure passwords for all your accounts.",
             icon: "summarizer",
             url: "#"
+        },
+        {
+            title: "Weather",
+            description: "Get current weather conditions and forecasts for any location.",
+            icon: "chat",
+            url: "weather/weather.html"
         }
     ]
 };
@@ -234,8 +246,15 @@ function renderTools(tools) {
 // Open tool
 function openTool(url) {
     console.log('Opening tool:', url);
-    // Add your tool opening logic here
-    alert('Tool would open here: ' + url);
+    
+    // Check if it's a placeholder URL
+    if (url === '#') {
+        alert('This tool is coming soon!');
+        return;
+    }
+    
+    // Navigate to the tool URL
+    window.location.href = url;
 }
 
 // Initialize the app

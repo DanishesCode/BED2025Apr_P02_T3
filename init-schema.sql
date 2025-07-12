@@ -4,7 +4,7 @@
 -- [Your Name] - [What was added] - [Last Modified Date: YYYY-MM-DD]
 
 -- Ensure the script runs in EaseForLifeDB database
-USE EaseForLifeDB;
+USE EaseForLifeDb;
 
 -- RESET ALL TABLES WHENEVER EXECUTED
 DROP TABLE IF EXISTS Answers;
@@ -52,6 +52,21 @@ CREATE TABLE Messages (
 
     FOREIGN KEY (chat_id) REFERENCES Chats(id) ON DELETE CASCADE
 );
+
+CREATE TABLE Photos (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    title NVARCHAR(100) NOT NULL,
+    description NVARCHAR(500),
+    location NVARCHAR(100),
+    date DATE,
+    category NVARCHAR(50),
+    isFavorite BIT DEFAULT 0,
+    photoUrl NVARCHAR(MAX),
+    uploadedAt DATETIME DEFAULT GETDATE(),
+    userId INT NOT NULL,
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
+);
+
 
 --[Danish] -Create trivia tables and sample data - 09/06/2025
 -- Create tables

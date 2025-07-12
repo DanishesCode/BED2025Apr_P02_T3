@@ -1,5 +1,5 @@
 const sql = require("mssql");
-const dbConfig = require("../public/photogallery/photoConfig");
+const dbConfig = require("../dbConfig");
 
 const photoModel = {
   // Save a new photo to database

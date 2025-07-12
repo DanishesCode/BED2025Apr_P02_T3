@@ -4,10 +4,15 @@ const dotenv = require("dotenv");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const multer = require("multer");
 const teleBot = require("./teleBot");
 
-// Load environment variables
+// Load environment variables FIRST
 dotenv.config();
+
+// Import dbConfig AFTER loading environment variables
+const dbConfig = require("./dbConfig");
+
 
 // Create Express app
 const app = express();
@@ -42,14 +47,19 @@ app.use(cors({
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Multer setup for file uploads
+const upload = multer();
+
 app.options('*', cors());
 
 // controller variables
 const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
 const sosController = require("./controllers/sosController");
+const photoController = require("./controllers/photoController");
 const AuthMiddleware = require("./middlewares/authMiddleware.js");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
+const validatePhoto = require("./middlewares/PhotoValidation");
 const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
 const birthdayController = require('./controllers/birthdayController');
@@ -68,6 +78,19 @@ app.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'signup', 'signup.html'));
 });
 
+// Photo Gallery routes
+app.get("/photogallery", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'photogallery', 'photo.html'));
+});
+
+app.get("/photoupload", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'photogallery', 'photoupload.html'));
+});
+
+// Weather route
+app.get("/weather", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'weather', 'weather.html'));
+});
 
 // Environment variables endpoint for client-side usage
 app.get("/api/env", (req, res) => {
@@ -75,6 +98,7 @@ app.get("/api/env", (req, res) => {
         WEATHER_API_KEY: process.env.WEATHER_API_KEY,
         PEXELS_API_KEY: process.env.PEXELS_API_KEY
     });
+});
 
 // SOS routes
 app.get("/sos", (req, res) => {
@@ -83,7 +107,6 @@ app.get("/sos", (req, res) => {
 
 app.get("/sos/settings", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'setting.html'));
-
 });
 
 // Trivia routes (DANISH)
@@ -148,10 +171,51 @@ app.post("/birthdays", validateAdd, birthdayController.addBirthday);
 app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
 app.delete("/birthdays/:id", birthdayController.deleteBirthday);
 
+// Photo Gallery API Routes
+// GET all photos
+app.get("/photos", photoController.getAllPhotos);
 
+// GET photo by ID
+app.get("/photos/:id", photoController.getPhotoById);
+
+// POST upload new photo with validation middleware
+app.post("/photos/upload", (req, res, next) => {
+    console.log("=== UPLOAD REQUEST RECEIVED ===");
+    console.log("Body:", req.body);
+    console.log("File:", req.file);
+    console.log("Headers:", req.headers);
+    next();
+}, upload.single("photo"), validatePhoto, photoController.uploadPhoto);
+
+// PUT toggle favorite status
+app.put("/photos/:id/favorite", photoController.toggleFavorite);
+
+// PUT update photo metadata and optionally image
+app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
+
+// DELETE photo by ID
+app.delete("/photos/:id", photoController.deletePhoto);
+
+// Error handling middleware
+app.use((error, req, res, next) => {
+    console.error("=== SERVER ERROR ===");
+    console.error(error);
+    res.status(500).json({ 
+        success: false, 
+        message: "Server error", 
+        error: error.message 
+    });
+});
 
 // Start server
-app.listen(port, () => {
+app.listen(port, async () => {
+    try {
+        await sql.connect(dbConfig);
+        console.log("Database connected");
+    } catch (err) {
+        console.error("DB connection error:", err);
+        process.exit(1);
+    }
     console.log(`Server running on port ${port}`);
 });
 
@@ -162,5 +226,3 @@ process.on("SIGINT", async () => {
     console.log("Database connections closed");
     process.exit(0);
 });
-
-    });

@@ -22,6 +22,14 @@ const modalArrowRight = document.getElementById('modal-arrow-right');
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the upload page
+    const uploadForm = document.getElementById('memory-form');
+    if (uploadForm) {
+        setupUploadForm();
+        return; // Don't load gallery functionality on upload page
+    }
+    
+    // Gallery page functionality
     loadPhotos();
     setupEventListeners();
     // Move arrows outside modal-content
@@ -73,7 +81,7 @@ async function loadPhotos() {
     try {
         showLoading();
         
-        const response = await fetch('http://localhost:3001/photos');
+        const response = await fetch('http://localhost:3000/photos');
         const result = await response.json();
         
         if (result.success && result.data) {
@@ -307,7 +315,7 @@ async function toggleFavorite(photoId, buttonElement) {
         const photo = allPhotos.find(p => p.id === photoId);
         const newFavoriteStatus = !photo.isFavorite;
         
-        const response = await fetch(`http://localhost:3001/photos/${photoId}/favorite`, {
+        const response = await fetch(`http://localhost:3000/photos/${photoId}/favorite`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -349,7 +357,7 @@ async function deletePhoto(photoId) {
     }
     
     try {
-        const response = await fetch(`http://localhost:3001/photos/${photoId}`, {
+        const response = await fetch(`http://localhost:3000/photos/${photoId}`, {
             method: 'DELETE'
         });
         
@@ -494,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     formData.append('photo', imageFile);
                 }
 
-                const response = await fetch(`http://localhost:3001/photos/${currentEditingPhotoId}`, {
+                const response = await fetch(`http://localhost:3000/photos/${currentEditingPhotoId}`, {
                     method: 'PUT',
                     body: formData
                 });
@@ -542,6 +550,145 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Handle upload form submission
+function setupUploadForm() {
+    const uploadForm = document.getElementById('memory-form');
+    const fileInput = document.getElementById('photo-upload');
+    const uploadArea = document.getElementById('upload-area');
+    const previewContainer = document.getElementById('preview-container');
+    
+    // Handle file selection
+    fileInput.addEventListener('change', handleFileSelection);
+    
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', handleDragOver);
+    uploadArea.addEventListener('drop', handleFileDrop);
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    // Handle form submission
+    uploadForm.addEventListener('submit', handleUploadSubmission);
+}
+
+function handleFileSelection(e) {
+    const files = Array.from(e.target.files);
+    displayFilePreview(files[0]); // For now, handle single file
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+}
+
+function handleFileDrop(e) {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    if (imageFiles.length > 0) {
+        document.getElementById('photo-upload').files = e.dataTransfer.files;
+        displayFilePreview(imageFiles[0]);
+    }
+}
+
+function displayFilePreview(file) {
+    const previewContainer = document.getElementById('preview-container');
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        previewContainer.innerHTML = `
+            <div class="preview-item">
+                <img src="${e.target.result}" alt="Preview" class="preview-image">
+                <div class="preview-info">
+                    <span class="preview-name">${file.name}</span>
+                    <span class="preview-size">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                </div>
+                <button type="button" class="remove-preview" onclick="removeFilePreview()">×</button>
+            </div>
+        `;
+        previewContainer.style.display = 'block';
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+function removeFilePreview() {
+    const previewContainer = document.getElementById('preview-container');
+    const fileInput = document.getElementById('photo-upload');
+    
+    previewContainer.innerHTML = '';
+    previewContainer.style.display = 'none';
+    fileInput.value = '';
+}
+
+async function handleUploadSubmission(e) {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('photo-upload');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Please select a photo to upload');
+        return;
+    }
+    
+    // Get form data
+    const title = document.getElementById('memory-title').value.trim();
+    const description = document.getElementById('memory-description').value.trim();
+    const date = document.getElementById('memory-date').value;
+    const category = document.getElementById('memory-category').value || 'General';
+    const location = document.getElementById('memory-location').value.trim();
+    const isFavorite = document.getElementById('memory-favorite').checked;
+    
+    if (!title) {
+        alert('Please enter a title for your memory');
+        return;
+    }
+    
+    try {
+        // Show loading state
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+        submitButton.innerHTML = '<span class="button-icon">⏳</span> Saving...';
+        submitButton.disabled = true;
+        
+        // Create FormData
+        const formData = new FormData();
+        formData.append('photo', file);
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('date', date || new Date().toISOString().split('T')[0]);
+        formData.append('category', category);
+        formData.append('location', location);
+        formData.append('isFavorite', isFavorite);
+        
+        console.log('Uploading photo...');
+        
+        // Upload to server
+        const response = await fetch('http://localhost:3000/photos/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('Memory saved successfully!');
+            // Redirect to gallery
+            window.location.href = 'photo.html';
+        } else {
+            console.error('Upload failed:', result.message);
+            alert('Failed to save memory: ' + (result.message || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('Error uploading photo. Please try again.');
+    } finally {
+        // Reset button state
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    }
+}
+
 // Utility functions for loading states
 function showLoading() {
     console.log('showLoading called');
@@ -572,4 +719,143 @@ function hideNoPhotos() {
 // Scroll to gallery function
 function scrollToGallery() {
     document.getElementById('gallery-start').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Setup upload form functionality
+function setupUploadForm() {
+    const uploadForm = document.getElementById('memory-form');
+    const fileInput = document.getElementById('photo-upload');
+    const uploadArea = document.getElementById('upload-area');
+    const previewContainer = document.getElementById('preview-container');
+    
+    // Handle file selection
+    fileInput.addEventListener('change', handleFileSelection);
+    
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', handleDragOver);
+    uploadArea.addEventListener('drop', handleFileDrop);
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    // Handle form submission
+    uploadForm.addEventListener('submit', handleUploadSubmission);
+}
+
+function handleFileSelection(e) {
+    const files = Array.from(e.target.files);
+    displayFilePreview(files[0]); // For now, handle single file
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+}
+
+function handleFileDrop(e) {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    if (imageFiles.length > 0) {
+        document.getElementById('photo-upload').files = e.dataTransfer.files;
+        displayFilePreview(imageFiles[0]);
+    }
+}
+
+function displayFilePreview(file) {
+    const previewContainer = document.getElementById('preview-container');
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        previewContainer.innerHTML = `
+            <div class="preview-item">
+                <img src="${e.target.result}" alt="Preview" class="preview-image">
+                <div class="preview-info">
+                    <span class="preview-name">${file.name}</span>
+                    <span class="preview-size">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                </div>
+                <button type="button" class="remove-preview" onclick="removeFilePreview()">×</button>
+            </div>
+        `;
+        previewContainer.style.display = 'block';
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+function removeFilePreview() {
+    const previewContainer = document.getElementById('preview-container');
+    const fileInput = document.getElementById('photo-upload');
+    
+    previewContainer.innerHTML = '';
+    previewContainer.style.display = 'none';
+    fileInput.value = '';
+}
+
+async function handleUploadSubmission(e) {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('photo-upload');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Please select a photo to upload');
+        return;
+    }
+    
+    // Get form data
+    const title = document.getElementById('memory-title').value.trim();
+    const description = document.getElementById('memory-description').value.trim();
+    const date = document.getElementById('memory-date').value;
+    const category = document.getElementById('memory-category').value || 'General';
+    const location = document.getElementById('memory-location').value.trim();
+    const isFavorite = document.getElementById('memory-favorite').checked;
+    
+    if (!title) {
+        alert('Please enter a title for your memory');
+        return;
+    }
+    
+    try {
+        // Show loading state
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+        submitButton.innerHTML = '<span class="button-icon">⏳</span> Saving...';
+        submitButton.disabled = true;
+        
+        // Create FormData
+        const formData = new FormData();
+        formData.append('photo', file);
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('date', date || new Date().toISOString().split('T')[0]);
+        formData.append('category', category);
+        formData.append('location', location);
+        formData.append('isFavorite', isFavorite);
+        
+        console.log('Uploading photo...');
+        
+        // Upload to server
+        const response = await fetch('http://localhost:3000/photos/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('Memory saved successfully!');
+            // Redirect to gallery
+            window.location.href = 'photo.html';
+        } else {
+            console.error('Upload failed:', result.message);
+            alert('Failed to save memory: ' + (result.message || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('Error uploading photo. Please try again.');
+    } finally {
+        // Reset button state
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    }
 }

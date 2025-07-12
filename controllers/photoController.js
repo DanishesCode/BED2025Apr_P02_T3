@@ -1,5 +1,5 @@
 const sql = require("mssql");
-const dbConfig = require("../public/photogallery/photoConfig");
+const dbConfig = require("../dbConfig");
 const photoModel = require("../models/photoModel");
 const fetch = require("node-fetch");
 const imgbbKey = process.env.IMGBB_API_KEY;
