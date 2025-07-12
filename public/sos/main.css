@@ -1,0 +1,171 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    padding: 20px;
+    max-width: 100%;
+    max-height: 100%;
+    margin: auto;
+    text-align: center;
+  }
+  
+  /* Top Bar */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+  
+  /* Settings Button */
+  .settings-button {
+    background-color: #ffffff;
+    border: 2px solid #2F27CE;
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 
+      background 0.3s,
+      border-color 0.3s,
+      color 0.3s,
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+  
+  .settings-button:hover {
+    background: #2F27CE;
+    color: #fff;
+    border-color: #1a1766;
+    transform: scale(1.07);
+    box-shadow: 0 6px 18px rgba(47, 39, 206, 0.15);
+  }
+  
+
+  /* Caretaker Telegram */
+  .telegram-status {
+    background-color: #90ee90;
+    padding: 10px 100px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    margin: 0 28vw;      /* This centers the element horizontally */
+    display: block;      /* Ensure it's block-level */
+  }
+  .telegram-none {
+    color: black;
+  }
+  
+  /* Title */
+  .title {
+    font-size: 1.4rem;
+    margin: 20px 0;
+    font-weight: bold;
+  }
+  
+  /* SOS Button */
+  .sos-wrapper {
+    margin: 30px 0 15px;
+  }
+  .sos-button {
+    width: 300px;
+    height: 300px;
+    background-color: red;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    display: block;
+    margin: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    font-family: Arial, sans-serif;
+    transition: 
+      background 0.3s,
+      border-color 0.3s,
+      color 0.3s,
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+  .sos-button:hover {
+    background: #b30000;
+    color: #fff;
+    cursor:pointer;
+    border: 2px solid #7a0000;
+    transform: scale(1.07);
+    box-shadow: 0 8px 24px rgba(179, 0, 0, 0.18);
+  }
+  .sos-icon {
+    font-size: 6em;
+  }
+  .sos-label {
+    margin-top: 5px;
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
+  
+  /* Info Text */
+  .info-text {
+    color: #444;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin-top: 10px;
+  }
+  
+  /* Important Box */
+  .important-box {
+    background-color: #fff4b2;
+    padding: 20px;
+    margin-top: 35px;
+    border-radius: 10px;
+    font-size: 1rem;
+    text-align: left;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .important-box strong {
+    font-size: 2rem;
+    text-align: center;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .notification {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    z-index: 9999;
+    max-width: 90%;
+    width: fit-content;
+    pointer-events: none;
+    font-size: 14px;
+  }
+  
+  .notification.success {
+    background-color: #28a745;
+  }
+  
+  .notification.error {
+    background-color: #dc3545;
+  }
+  
+  .notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  
