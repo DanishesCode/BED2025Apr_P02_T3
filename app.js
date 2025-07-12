@@ -101,6 +101,19 @@ app.put(
     userController.updateProfile
 );
 
+app.post("/chat/", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+
+// Retrive Chats and Messages
+app.get("/chat/:id", AuthMiddleware.authenticateToken, aichatController.retrieveChats);
+app.get("/chat/messages/:chatId", AuthMiddleware.authenticateToken, aichatController.retrieveMessages);
+
+// Save Messages
+app.post("/chat/messages", AuthMiddleware.authenticateToken, aichatController.saveMessage);
+
+// Add route for creating new chat
+app.post("/chat/new", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+
+
 // Start server
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);

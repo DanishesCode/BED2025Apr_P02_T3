@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat</title>
+    <link rel="stylesheet" href="aichat.css">
+
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <button class="new-chat-btn">
+                    <span>+</span>
+                    New Chat
+                </button>
+            </div>
+            <div class="chat-history" id="chatHistory">
+                <!-- Dynamic chat items will go here -->
+            </div>            
+        </div>
+
+        <div class="content-area">
+            <div class="chat-container" id="chatContainer">
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="message-avatar ai-avatar">AI</div>
+                    <span>AI is thinking</span>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <div style="position: relative; width: 100%;">
+                        <textarea class="input-box" placeholder="Type your message..." id="messageInput" rows="1"></textarea>
+                        <div class="input-actions">
+                            <button class="send-btn" id="sendBtn">
+                                ↑
+                            </button>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn voice-btn">
+                            🎤 Use my voice
+                        </button>
+                        <button class="action-btn summarize-btn">
+                            📝 Summarize
+                        </button>
+                    </div>
+                </div>
+                <div class="footer-disclaimer">
+                    This AI chat is powered by [AI Model Name]. AI may provide incorrect or outdated information, please double-check important answers.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="aichat.js"></script>
+</body>
+</html>
