@@ -127,7 +127,7 @@ app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 //RUN TELEBOT(Danish)
 teleBot.startBot();
 
-=======
+
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
 
 
