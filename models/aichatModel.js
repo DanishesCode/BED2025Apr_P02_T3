@@ -68,7 +68,7 @@ async function saveMessage(chatId, senderId, message, is_ai) {
       request.input("chatId", sql.Int, chatId);
       request.input("senderId", sql.Int, senderId);
       request.input("message", sql.NVarChar, message);
-      request.input("senderId", sql.Int, is_ai);
+      request.input("is_ai", sql.Int, is_ai);
       const result = await request.query(query);
       return result.recordset[0].id;
     } catch (error) {
@@ -142,10 +142,39 @@ async function retrieveMessages(chat_id) {
     }
   }
 }
-  
+
+async function createChat(userId, title = 'New Chat') {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const query = `
+      INSERT INTO Chats (userId, title)
+      OUTPUT INSERTED.id
+      VALUES (@userId, @title);
+    `;
+    const request = connection.request();
+    request.input("userId", sql.Int, userId);
+    request.input("title", sql.NVarChar, title);
+    const result = await request.query(query);
+    return result.recordset[0].id;
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+}
+
 module.exports = {
     getGeminiResponse,
     retrieveChats,
     retrieveMessages,
-    saveMessage
+    saveMessage,
+    createChat
   };

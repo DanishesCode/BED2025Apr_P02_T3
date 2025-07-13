@@ -117,9 +117,38 @@ const getAIResponse = async (req, res) => {
     }
 };
 
+const createChat = async (req, res) => {
+    try {
+        const { userId, title } = req.body;
+
+        if (!userId || isNaN(userId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'User ID is required and must be a number',
+            });
+        }
+
+        // Create the chat
+        const chatId = await chatModel.createChat(parseInt(userId), title || 'New Chat');
+
+        return res.status(201).json({
+            success: true,
+            chatId: chatId
+        });
+
+    } catch (error) {
+        console.error('[ChatController] Error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Something went wrong. Please try again later.',
+        });
+    }
+};
+
 module.exports = { 
     getAIResponse,
     retrieveChats,
     retrieveMessages,
-    saveMessage
+    saveMessage,
+    createChat
 };

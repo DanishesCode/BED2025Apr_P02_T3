@@ -167,7 +167,8 @@ body {
 /* Option card */
 .option {
   border: 2px solid #0000cc;
-  padding: 20px;
+  padding: 50px;
+  margin: 20px;
   text-align: center;
   font-weight: bold;
   background: #fff;

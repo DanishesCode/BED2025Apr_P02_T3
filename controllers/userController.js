@@ -25,7 +25,7 @@ class UserController {
                 success: true,
                 message: 'User created successfully',
                 user: {
-                    id: result.user.id,
+                    id: result.user.userId,
                     name: result.user.name,
                     email: result.user.email
                 }
@@ -34,7 +34,7 @@ class UserController {
             console.error('Signup error:', error);
             res.status(500).json({
                 success: false,
-                message: 'Internal server error'
+                message: 'yea server error'
             });
         }
     }
@@ -56,7 +56,7 @@ class UserController {
             // Generate JWT token
             const token = jwt.sign(
                 { 
-                    userId: result.user.id, 
+                    userId: result.user.userId, 
                     email: result.user.email 
                 },
                 process.env.JWT_SECRET || 'your-secret-key',
@@ -74,7 +74,7 @@ class UserController {
                 success: true,
                 message: 'Login successful',
                 user: {
-                    id: result.user.id,
+                    id: result.user.userId,
                     name: result.user.name,
                     email: result.user.email
                 },

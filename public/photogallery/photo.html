@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Life Gallery</title>
+    <link rel="stylesheet" href="photo.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">My Life Gallery</h1>
+            <p class="hero-subtitle">A collection of precious memories</p>
+            <div class="hero-actions">
+                <a href="photoupload.html" class="cta-button primary">
+                    <span class="button-icon">+</span>
+                    Add New Memory
+                </a>
+                <button class="cta-button secondary" onclick="scrollToGallery()">
+                    <span class="button-icon">👁</span>
+                    View Gallery
+                </button>
+            </div>
+        </div>
+        <div class="hero-background">
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+                <div class="shape shape-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Filter Section -->
+        <section class="filter-section" id="gallery-start">
+            <div class="section-header">
+                <h2 class="section-title">Your Memories</h2>
+                <p class="section-description">Relive your beautiful moments</p>
+            </div>
+            
+            <div class="filter-controls">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All</button>
+                    <button class="filter-tab" data-filter="recent">Recent</button>
+                    <button class="filter-tab" data-filter="favorites">Favorites</button>
+                    <button class="filter-tab" data-filter="family">Family</button>
+                    <button class="filter-tab" data-filter="travel">Travel</button>
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" placeholder="Search memories..." class="search-input">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section class="gallery-section">
+            <div class="loading-spinner" id="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading your memories...</p>
+            </div>
+            
+            <div class="gallery-grid" id="gallery-grid">
+                <!-- Photos will be loaded here dynamically -->
+            </div>
+            
+            <div class="no-photos" id="no-photos" style="display: none;">
+                <h3>No memories found</h3>
+                <p>Start creating beautiful memories by uploading your first photo!</p>
+                <a href="photoupload.html" class="cta-button primary">Add Your First Memory</a>
+            </div>
+        </section>
+
+
+
+    <!-- Photo Modal -->
+    <div class="modal" id="photo-modal">
+        <div class="modal-backdrop"></div>
+        <!-- Move arrows here -->
+        <button class="modal-arrow modal-arrow-left" id="modal-arrow-left" aria-label="Previous photo">&#8592;</button>
+        <div class="modal-content">
+            <img src="" alt="" class="modal-image">
+            <div class="modal-info">
+                <h3 class="modal-title"></h3>
+                <p class="modal-description"></p>
+                <div class="modal-meta">
+                    <span class="modal-date"></span>
+                    <span class="modal-tag"></span>
+                </div>
+            </div>
+        </div>
+        <button class="modal-arrow modal-arrow-right" id="modal-arrow-right" aria-label="Next photo">&#8594;</button>
+    </div>
+
+    <!-- Edit Photo Modal -->
+    <div class="modal" id="edit-modal">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content edit-modal-content">
+            <div class="modal-header">
+                <h2>Edit Memory</h2>
+                <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="edit-form" class="edit-form">
+                <div class="form-group image-upload-section">
+                    <label for="edit-image">Current Image</label>
+                    <div class="current-image-container" id="current-image-container" onclick="document.getElementById('edit-image').click()">
+                        <img id="current-image" src="" alt="Current photo" class="current-image">
+                        <div class="image-overlay">
+                            <p>Click to change image</p>
+                        </div>
+                    </div>
+                    
+                    <div class="upload-area-edit" onclick="document.getElementById('edit-image').click()">
+                        <div class="upload-placeholder">
+                            <div class="upload-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14,2 14,8 20,8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10,9 9,9 8,9"></polyline>
+                                </svg>
+                            </div>
+                            <div class="upload-text">Choose New Image</div>
+                            <div class="upload-subtext">Click here to select a new image</div>
+                        </div>
+                    </div>
+                    
+                    <input type="file" id="edit-image" name="image" accept="image/*" style="display: none;">
+                    
+                    <div class="image-preview" id="edit-image-preview" style="display: none;">
+                        <img id="edit-preview-img" src="" alt="New image preview">
+                        <button type="button" onclick="clearImagePreview()">Remove New Image</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-title">Title *</label>
+                    <input type="text" id="edit-title" name="title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-description">Description</label>
+                    <textarea id="edit-description" name="description" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-date">Date</label>
+                    <input type="date" id="edit-date" name="date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-category">Category</label>
+                    <select id="edit-category" name="category">
+                        <option value="General">General</option>
+                        <option value="Family">Family</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Friends">Friends</option>
+                        <option value="Nature">Nature</option>
+                        <option value="Celebrations">Celebrations</option>
+                        <option value="Hobbies">Hobbies</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-location">Location</label>
+                    <input type="text" id="edit-location" name="location" placeholder="Where was this taken?">
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="edit-favorite" name="isFavorite">
+                        <span class="checkbox-custom">
+                            <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                        </span>
+                        Mark as favorite
+                    </label>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" onclick="closeEditModal()" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Memory</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+
+
+    <script src="photo.js"></script>
+</body>
+</html>

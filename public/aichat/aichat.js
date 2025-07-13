@@ -3,6 +3,7 @@ const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const typingIndicator = document.getElementById('typingIndicator');
 let messageCount = 0;
+let currentChatId = null; // Track current chat ID
 
 // Auto-resize textarea
 messageInput.addEventListener('input', function() {
@@ -68,6 +69,7 @@ async function loadChatMessages(chatId) {
   
     try {
       chatContainer.innerHTML = ''; // clear existing messages
+      currentChatId = chatId; // Set current chat ID
   
       const res = await fetch(`http://localhost:3000/chat/messages/${chatId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -111,7 +113,8 @@ async function loadChatMessages(chatId) {
         body: JSON.stringify({
           chatId: chatId,
           senderId: senderId,
-          message: message
+          message: message,
+          is_ai: is_ai
         })
       });
   
@@ -193,7 +196,38 @@ async function sendMessage() {
     const senderId = JSON.parse(localStorage.getItem('currentUser')).id;
     if (!message) return;
 
-    saveMessage(9, senderId, message, 0, localStorage.getItem('authToken')); // Assuming chatId is 9 for demo purposes
+    // If no current chat, create a new one
+    if (!currentChatId) {
+        try {
+            const token = localStorage.getItem('authToken');
+            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const userId = currentUser.id;
+
+            const createChatRes = await fetch('http://localhost:3000/chat/new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ userId, title: 'New Chat' })
+            });
+
+            if (!createChatRes.ok) throw new Error('Failed to create chat');
+
+            const chatData = await createChatRes.json();
+            currentChatId = chatData.chatId;
+            console.log('Created new chat with ID:', currentChatId);
+        } catch (err) {
+            console.error('Error creating chat:', err);
+            addAIMessage('Sorry, something went wrong while creating a new chat.');
+            return;
+        }
+    }
+
+    // Use current chat ID
+    const chatIdToUse = currentChatId;
+    
+    saveMessage(chatIdToUse, senderId, message, 0, localStorage.getItem('authToken'));
     addUserMessage(message);
     messageInput.value = '';
     messageInput.style.height = 'auto';
@@ -218,7 +252,7 @@ async function sendMessage() {
 
         const data = await res.json();
         hideTypingIndicator();
-        saveMessage(9, null, message, 1, localStorage.getItem('authToken')); 
+        saveMessage(chatIdToUse, null, data.reply, 1, localStorage.getItem('authToken')); 
         addAIMessage(data.reply);
     } catch (err) {
         hideTypingIndicator();
@@ -256,10 +290,17 @@ document.querySelector('.summarize-btn').addEventListener('click', () => {
     console.log('Summarize functionality would be implemented here');
 });
 
+// New Chat button functionality
+document.querySelector('.new-chat-btn').addEventListener('click', () => {
+    currentChatId = null; // Reset current chat ID
+    chatContainer.innerHTML = ''; // Clear chat container
+    addAIMessage("Hello, I'm your helpful AI assistant, here to make things easier for you. Feel free to ask me anything!");
+    messageInput.focus();
+});
+
 // Focus input on load
 window.addEventListener('load', () => {
     messageInput.focus();
     addAIMessage("Hello, I'm your helpful AI assistant, here to make things easier for you. Feel free to ask me anything!");
     loadChats(); // Load chat history on page load
-    sendMessage(); // Initial message to AI
 });

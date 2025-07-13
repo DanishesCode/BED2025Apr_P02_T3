@@ -165,7 +165,7 @@ class LoginHandler {
 
                     // Redirect to main page or dashboard
 
-                    window.location.href = '/public/index.html';
+                    window.location.href = '../index.html';
                 }, 1500);
             } else {
                 this.showMessage(result.message || 'Invalid email or password.', 'error');
