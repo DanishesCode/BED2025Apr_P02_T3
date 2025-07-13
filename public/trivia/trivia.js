@@ -9,7 +9,7 @@ const questionAsker = document.querySelector(".question-box h2");
 const topicShower = document.querySelector(".question-box p span");
 const ansButton = document.querySelectorAll(".option");
 const nextButton = document.querySelectorAll(".next-button")
-const apiBaseUrl = "http://localhost:3000";
+const apiBaseUrl = "";
 
 async function fetchQuestions(category){
   function shuffle(array) {

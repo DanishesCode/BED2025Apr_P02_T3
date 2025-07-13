@@ -12,7 +12,6 @@ dotenv.config();
 // Create Express app
 const app = express();
 const port = process.env.PORT || 3000;
-
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
@@ -24,9 +23,19 @@ app.use(cors({
         
         const allowedOrigins = [
             'http://localhost:3000',
+            'http://localhost:3001',
             'http://127.0.0.1:5500',
             'http://localhost:5500',
-            'http://127.0.0.1:3000'
+            'http://127.0.0.1:5501',
+            'http://localhost:5501',
+            'http://127.0.0.1:5502',
+            'http://localhost:5502',
+            'http://127.0.0.1:5503',
+            'http://localhost:5503',
+            'http://127.0.0.1:5504',
+            'http://localhost:5504',
+            'http://127.0.0.1:3000',
+            'http://127.0.0.1:3001'
         ];
         
         if (allowedOrigins.indexOf(origin) !== -1) {
@@ -43,8 +52,6 @@ app.use(cors({
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.options('*', cors());
-
 // controller variables
 const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
@@ -53,7 +60,9 @@ const AuthMiddleware = require("./middlewares/authMiddleware.js");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
 const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
-
+const appointmentController = require("./controllers/appointmentController");
+const birthdayController = require('./controllers/birthdayController');
+const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
 // Routes for pages
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -68,6 +77,19 @@ app.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'signup', 'signup.html'));
 });
 
+app.get("/appointment", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'appointment', 'appointment.html'));
+});
+
+
+// Environment variables endpoint for client-side usage
+app.get("/api/env", (req, res) => {
+    res.json({
+        WEATHER_API_KEY: process.env.WEATHER_API_KEY,
+        PEXELS_API_KEY: process.env.PEXELS_API_KEY
+    });
+});
+
 // SOS routes
 app.get("/sos", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'main.html'));
@@ -76,6 +98,7 @@ app.get("/sos", (req, res) => {
 app.get("/sos/settings", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'setting.html'));
 });
+
 
 // Trivia routes (DANISH)
 app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
@@ -124,11 +147,24 @@ app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.
 app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 
 
-//RUN TELEBOT(Danish)
-teleBot.startBot();
-
-
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+app.post("/chat", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+
+// Appointment API routes
+app.post("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.create);
+app.put("/api/appointments/:id", AuthMiddleware.authenticateToken, appointmentController.update);
+app.delete("/api/appointments/:id", AuthMiddleware.authenticateToken, appointmentController.delete);
+app.get("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.list);
+
+
+// Birthday routes
+app.get("/birthdays", birthdayController.getAllBirthdays);
+app.get("/birthdays/dashboard", birthdayController.getBirthdaysForDashboard);
+app.get("/birthdays/:id", birthdayController.getBirthdayById);
+app.post("/birthdays", validateAdd, birthdayController.addBirthday);
+app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
+app.delete("/birthdays/:id", birthdayController.deleteBirthday);
+
 
 
 // Start server

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Memory - My Life Gallery</title>
+    <link rel="stylesheet" href="photo.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="upload-page">
+    <div class="upload-container">
+        <div class="upload-header">
+            <a href="photo.html" class="back-button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Gallery
+            </a>
+            <h1 class="upload-title">Add New Memory</h1>
+            <p class="upload-subtitle">Share a special moment from your life</p>
+        </div>
+
+        <div class="upload-content">
+            <div class="upload-form-container">
+                <form class="upload-form" id="memory-form">
+                    <!-- Photo Upload Section -->
+                    <div class="upload-section">
+                        <div class="upload-area" id="upload-area">
+                            <input type="file" id="photo-upload" accept="image/*" multiple class="file-input">
+                            <div class="upload-placeholder">
+                                <div class="upload-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                                        <circle cx="12" cy="13" r="3"/>
+                                    </svg>
+                                </div>
+                                <h3 class="upload-text">Drop your photos here</h3>
+                                <p class="upload-subtext">or click to browse</p>
+                                <button type="button" class="browse-button" onclick="document.getElementById('photo-upload').click()">
+                                    Choose Photos
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-container" id="preview-container">
+                            <!-- Preview images will be added here -->
+                        </div>
+                    </div>
+
+                    <!-- Form Fields -->
+                    <div class="form-section">
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label for="memory-title" class="form-label">
+                                    <span class="label-text">Title</span>
+                                    <span class="label-required">*</span>
+                                </label>
+                                <input type="text" id="memory-title" class="form-input" placeholder="Give your memory a beautiful title..." required>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="memory-description" class="form-label">
+                                    <span class="label-text">Description</span>
+                                </label>
+                                <textarea id="memory-description" class="form-textarea" placeholder="Share the story behind this memory..."></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="memory-date" class="form-label">
+                                    <span class="label-text">Date</span>
+                                </label>
+                                <input type="date" id="memory-date" class="form-input">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="memory-category" class="form-label">
+                                    <span class="label-text">Category</span>
+                                </label>
+                                <select id="memory-category" class="form-select">
+                                    <option value="">Select category...</option>
+                                    <option value="family">Family</option>
+                                    <option value="travel">Travel</option>
+                                    <option value="friends">Friends</option>
+                                    <option value="nature">Nature</option>
+                                    <option value="celebrations">Celebrations</option>
+                                    <option value="hobbies">Hobbies</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="memory-location" class="form-label">
+                                    <span class="label-text">Location</span>
+                                </label>
+                                <input type="text" id="memory-location" class="form-input" placeholder="Where was this taken?">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <span class="label-text">Mark as Favorite</span>
+                                </label>
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="memory-favorite" class="form-checkbox">
+                                    <label for="memory-favorite" class="checkbox-label">
+                                        <span class="checkbox-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                            </svg>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="window.history.back()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="action-button primary">
+                            <span class="button-icon">💾</span>
+                            Save Memory
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tips Section -->
+            <div class="tips-section">
+                <h3 class="tips-title">Tips for Great Photos</h3>
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <div class="tip-icon">📸</div>
+                        <h4 class="tip-title">Good Lighting</h4>
+                        <p class="tip-description">Natural light works best for clear, beautiful photos</p>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-icon">🎯</div>
+                        <h4 class="tip-title">Focus on Details</h4>
+                        <p class="tip-description">Capture the small moments that make memories special</p>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-icon">📝</div>
+                        <h4 class="tip-title">Add Context</h4>
+                        <p class="tip-description">Write descriptions to preserve the story behind each photo</p>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-icon">🏷️</div>
+                        <h4 class="tip-title">Use Categories</h4>
+                        <p class="tip-description">Organize your photos to find them easily later</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="photo.js"></script>
+    
+</body>
+</html>

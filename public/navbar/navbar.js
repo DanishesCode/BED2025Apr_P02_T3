@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             localStorage.removeItem('authToken');
             localStorage.removeItem('currentUser');
-            window.location.href = 'login/login.html';
+            window.location.href = '/login';
         } catch (error) {
             console.error('Logout error:', error);
             localStorage.removeItem('authToken');
