@@ -4,7 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Weather Forecast</title>
-  <link rel="stylesheet" href="/weather/weather.css" />
+  <!-- Dynamic CSS loading based on environment -->
+  <script>
+    // Detect environment and load appropriate CSS path
+    const isLiveServer = window.location.port === '5500' || window.location.hostname === '127.0.0.1';
+    const cssPath = isLiveServer ? 'weather.css' : '/weather/weather.css';
+    document.write('<link rel="stylesheet" href="' + cssPath + '" />');
+  </script>
 </head>
 <body>
 
@@ -79,8 +85,49 @@
     </div>
   </section>
 
-  <!-- Only include the main weather.js file -->
-  <script src="/weather/weather.js"></script>
+  <!-- Load weather app directly - with environment-aware path -->
+  <script>
+    // Use the already detected environment from CSS loading
+    const weatherJsPath = (window.location.port === '5500' || window.location.hostname === '127.0.0.1') ? 'weather.js' : '/weather/weather.js';
+    document.write('<script src="' + weatherJsPath + '"><\/script>');
+  </script>
+  
+  <!-- Debug script to check if weather app loaded -->
+  <script>
+    setTimeout(async () => {
+      console.log('🔍 Checking weather app status...');
+      console.log('Weather controller available:', typeof window.weatherController !== 'undefined');
+      console.log('Search function available:', typeof window.searchWeather !== 'undefined');
+      
+      // Check environment
+      const isLiveServer = window.location.port === '5500' || window.location.hostname === '127.0.0.1';
+      console.log('🌐 Environment:', isLiveServer ? 'Live Server (5500)' : 'Express Server (3000)');
+      
+      if (isLiveServer) {
+        // Test if backend server is running
+        try {
+          console.log('🔍 Testing backend server connection...');
+          const response = await fetch('http://localhost:3000/api/weather?location=Singapore');
+          if (response.ok) {
+            console.log('✅ Backend server is running on localhost:3000');
+          } else {
+            console.error('❌ Backend server responded with error:', response.status);
+          }
+        } catch (error) {
+          console.error('❌ Backend server is not running or not accessible:', error.message);
+          console.warn('💡 Please start your backend server: node app.js');
+        }
+      }
+      
+      // Try to initialize weather automatically
+      if (typeof window.searchWeather === 'function') {
+        console.log('🌤️ Auto-loading Singapore weather...');
+        window.searchWeather('Singapore');
+      } else {
+        console.error('❌ searchWeather function not available');
+      }
+    }, 3000);
+  </script>
   <!-- Keep navbar separate to avoid conflicts -->
 </body>
 </html>

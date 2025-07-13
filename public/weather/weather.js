@@ -1,43 +1,18 @@
-// Main Weather App Initialization and Module Loader
-// This file loads all required modules and initializes the weather application
 
-// Weather API Configuration - Now pulls from environment
 const WEATHER_CONFIG = {
-    apiKey: getWeatherApiKey(),
-    baseURL: 'https://api.weatherapi.com/v1',
+    // Determine base URL based on environment
+    baseURL: (() => {
+        const isLiveServer = window.location.port === '5500' || window.location.hostname === '127.0.0.1';
+        return isLiveServer ? 'http://localhost:3000/api' : '/api';
+    })(),
     endpoints: {
-        forecast: '/forecast.json',
-        current: '/current.json',
-        search: '/search.json'
+        weather: '/weather',
+        search: '/weather/search'
     },
     defaultLocation: 'Singapore'
 };
 
-/**
- * Get Weather API key from environment
- * @returns {string} Weather API key
- */
-function getWeatherApiKey() {
-    // For Node.js server environment - try to get from server's /api/env endpoint
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        // This will be handled asynchronously in the actual weather fetch
-        return 'b4389571ae284ebc84d83842250607'; // Fallback for immediate use
-    }
-    
-    // Check for browser environment with exposed env vars (Live Server)
-    if (typeof window !== 'undefined' && window.ENV) {
-        const apiKey = window.ENV.WEATHER_API_KEY;
-        if (!apiKey) {
-            console.error('❌ WEATHER_API_KEY not found in window.ENV');
-            throw new Error('Weather API key not configured.');
-        }
-        return apiKey;
-    }
-    
-    // Fallback for development
-    console.warn('Using fallback Weather API key. Please configure environment variables.');
-    return 'b4389571ae284ebc84d83842250607'; // Temporary fallback
-}
+
 
 class WeatherAppLoader {
     constructor() {
@@ -49,7 +24,6 @@ class WeatherAppLoader {
     }
 
     /**
-     * Load a JavaScript file dynamically
      * @param {string} src - Source path of the JavaScript file
      * @returns {Promise} Promise that resolves when script is loaded
      */
@@ -76,18 +50,34 @@ class WeatherAppLoader {
     }
 
     /**
-     * Load all required modules in dependency order
+     
      */
     async loadAllModules() {
         try {
             console.log('🚀 Loading Weather App modules...');
 
-            // Use absolute paths that work with Express static middleware
-            const modules = [
-                '/middlewares/weatherValidation.js',
-                '/models/weatherModel.js',
-                '/controllers/weatherController.js'
-            ];
+            // Detect environment and use appropriate paths
+            const isLiveServer = window.location.port === '5500' || window.location.hostname === '127.0.0.1';
+            
+            let modules;
+            if (isLiveServer) {
+                // Relative paths for Live Server
+                modules = [
+                    '../../middlewares/weatherValidation.js',
+                    '../../models/weatherModel.js',
+                    '../../controllers/weatherController.js'
+                ];
+            } else {
+                // Absolute paths for Node.js Express server
+                modules = [
+                    '/middlewares/weatherValidation.js',
+                    '/models/weatherModel.js',
+                    '/controllers/weatherController.js'
+                ];
+            }
+
+            console.log(`🔧 Environment: ${isLiveServer ? 'Live Server' : 'Node.js Express'}`);
+            console.log('📂 Loading modules:', modules);
 
             // Load each module sequentially to maintain dependency order
             for (const module of modules) {
@@ -129,13 +119,7 @@ class WeatherAppLoader {
             this.weatherController = new WeatherController();
             window.weatherController = this.weatherController;
 
-            // Pass API configuration to the controller/model
-            if (this.weatherController.model) {
-                this.weatherController.model.apiKey = this.config.apiKey;
-                this.weatherController.model.apiEndpoints = this.config.endpoints;
-            }
-
-            // Set up global weather configuration
+            // Set up configuration
             window.WEATHER_CONFIG = this.config;
 
             // Initialize the app with default location
@@ -153,10 +137,8 @@ class WeatherAppLoader {
                     this.weatherController = new WeatherController();
                     window.weatherController = this.weatherController;
                     
-                    // Set API key again on retry
-                    if (this.weatherController.model) {
-                        this.weatherController.model.apiKey = this.config.apiKey;
-                    }
+                    // Set up global references
+                    window.weatherController = this.controller;
                     
                     await this.weatherController.init(this.config.defaultLocation);
                     console.log('🔄 Weather App initialized on retry!');
@@ -227,7 +209,7 @@ class WeatherAppLoader {
     }
 
     /**
-     * Start the application loading process
+     
      */
     async start() {
         const modulesLoaded = await this.loadAllModules();
@@ -237,7 +219,7 @@ class WeatherAppLoader {
     }
 }
 
-// Enhanced WeatherApp class that uses the loaded modules
+
 class WeatherApp {
     constructor() {
         this.controller = null;
@@ -246,9 +228,7 @@ class WeatherApp {
         this.config = WEATHER_CONFIG;
     }
 
-    /**
-     * Initialize the weather app with loaded modules
-     */
+
     async init() {
         try {
             // Wait for modules to be available
@@ -268,17 +248,11 @@ class WeatherApp {
                 throw new Error('Modules failed to load within timeout');
             }
 
-            // Initialize controller (it will create its own model instance)
+            // Initialize the weather controller
             this.controller = new WeatherController();
             
-            // Get reference to the model from controller
+            // Set up model reference
             this.model = this.controller.model;
-            
-            // Configure API settings
-            if (this.model) {
-                this.model.apiKey = this.config.apiKey;
-                this.model.apiEndpoints = this.config.endpoints;
-            }
             
             // Set up global references
             window.weatherController = this.controller;
@@ -319,17 +293,14 @@ class WeatherApp {
     }
 
     /**
-     * Validate API key configuration
+     * Validate configuration - no longer checks API key
      */
     validateConfiguration() {
-        if (!this.config.apiKey || this.config.apiKey.length < 10) {
-            throw new Error('Invalid Weather API key configuration');
-        }
+        // Configuration is always valid in backend mode
         return true;
     }
 }
 
-// Global utility functions for weather app
 window.WeatherUtils = {
     /**
      * Format temperature
@@ -355,7 +326,6 @@ window.WeatherUtils = {
     },
 
     /**
-     * Get weather icon based on condition
      * @param {string} condition - Weather condition text
      * @returns {string} Weather emoji
      */
@@ -378,7 +348,7 @@ window.WeatherUtils = {
     }
 };
 
-// Global functions for backward compatibility with existing HTML
+
 window.searchWeather = function(defaultLocation = "") {
     try {
         if (window.weatherController) {
@@ -411,7 +381,7 @@ window.getWeatherData = async function(location) {
     }
 };
 
-// Enhanced error handling for the application
+
 window.addEventListener('error', function(e) {
     console.error('Weather App Error:', e.error);
 });
@@ -420,7 +390,7 @@ window.addEventListener('unhandledrejection', function(e) {
     console.error('Unhandled Promise Rejection:', e.reason);
 });
 
-// Initialize the application when DOM is ready
+
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🌦️ Starting Weather Application...');
     
@@ -432,11 +402,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
-// Fallback initialization if DOMContentLoaded already fired
+
 if (document.readyState === 'loading') {
     // DOMContentLoaded has not fired yet, event listener above will handle it
 } else {
-    // DOM is already ready, initialize immediately
+    
     setTimeout(async () => {
         console.log('🌦️ Starting Weather Application (fallback)...');
         try {
@@ -448,7 +418,7 @@ if (document.readyState === 'loading') {
     }, 100);
 }
 
-// Additional fallback to ensure weather app is running
+
 window.addEventListener('load', function() {
     setTimeout(() => {
         if (!window.weatherController) {
@@ -459,7 +429,7 @@ window.addEventListener('load', function() {
     }, 500);
 });
 
-// Export for potential module usage
+
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { WeatherAppLoader, WeatherApp, WEATHER_CONFIG };
 }

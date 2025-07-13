@@ -74,10 +74,17 @@ const photoController = {
     }
   },
 
-  // Get all photos
+  // Get all photos for a specific user
   async getAllPhotos(req, res) {
     try {
-      const result = await photoModel.getAllPhotos();
+      const { userId } = req.query; // Get userId from query parameters
+      
+      let result;
+      if (userId) {
+        result = await photoModel.getPhotosByUserId(userId);
+      } else {
+        result = await photoModel.getAllPhotos();
+      }
       
       if (!result.success) {
         return res.status(500).json({ success: false, message: result.message });

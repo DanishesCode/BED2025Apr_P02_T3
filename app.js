@@ -68,6 +68,7 @@ const validatePhoto = require("./middlewares/PhotoValidation");
 const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
 const birthdayController = require('./controllers/birthdayController');
+const weatherApiController = require('./controllers/weatherApiController');
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
 // Routes for pages
 app.get("/", (req, res) => {
@@ -97,13 +98,9 @@ app.get("/weather", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'weather', 'weather.html'));
 });
 
-// Environment variables endpoint for client-side usage
-app.get("/api/env", (req, res) => {
-    res.json({
-        WEATHER_API_KEY: process.env.WEATHER_API_KEY,
-        PEXELS_API_KEY: process.env.PEXELS_API_KEY
-    });
-});
+// Weather API routes - secure backend endpoints
+app.get("/api/weather", weatherApiController.getWeather);
+app.get("/api/weather/search", weatherApiController.searchLocations);
 
 // SOS routes
 app.get("/sos", (req, res) => {
@@ -177,28 +174,13 @@ app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
 app.delete("/birthdays/:id", birthdayController.deleteBirthday);
 
 // Photo Gallery API Routes
-// GET all photos
+
 app.get("/photos", photoController.getAllPhotos);
-
-// GET photo by ID
 app.get("/photos/:id", photoController.getPhotoById);
+app.post("/photos/upload", upload.single("photo"), validatePhoto, photoController.uploadPhoto);
 
-// POST upload new photo with validation middleware
-app.post("/photos/upload", (req, res, next) => {
-    console.log("=== UPLOAD REQUEST RECEIVED ===");
-    console.log("Body:", req.body);
-    console.log("File:", req.file);
-    console.log("Headers:", req.headers);
-    next();
-}, upload.single("photo"), validatePhoto, photoController.uploadPhoto);
-
-// PUT toggle favorite status
 app.put("/photos/:id/favorite", photoController.toggleFavorite);
-
-// PUT update photo metadata and optionally image
 app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
-
-// DELETE photo by ID
 app.delete("/photos/:id", photoController.deletePhoto);
 
 // Error handling middleware

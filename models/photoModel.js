@@ -46,6 +46,20 @@ const photoModel = {
     }
   },
 
+
+  async getPhotosByUserId(userId) {
+    try {
+      let pool = await sql.connect(dbConfig);
+      const result = await pool.request()
+        .input('userId', sql.Int, userId)
+        .query('SELECT * FROM Photos WHERE userId = @userId ORDER BY uploadedAt DESC');
+      return { success: true, data: result.recordset };
+    } catch (err) {
+      console.error("Model: Get Photos By User ID Error", err);
+      return { success: false, message: "Failed to fetch user photos", error: err.message };
+    }
+  },
+
   // Get photo by ID
   async getPhotoById(id) {
     try {

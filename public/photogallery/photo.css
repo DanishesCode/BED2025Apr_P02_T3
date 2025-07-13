@@ -234,7 +234,7 @@ body {
     font-family: 'Playfair Display', serif;
     font-size: 3rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-secondary);
     margin-bottom: 15px;
 }
 
@@ -343,9 +343,13 @@ body {
     font-family: 'Playfair Display', serif;
     font-size: 2.7rem;
     font-weight: 700;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 8px;
     letter-spacing: 1px;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 .section-description {
     color: #7f8c8d;
@@ -750,7 +754,7 @@ body {
 }
 
 .upload-header {
-    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    background: linear-gradient(135deg, rgba(13, 74, 136, 0.9) 0%, rgba(135, 195, 255, 0.9) 100%);
     padding: 40px;
     text-align: center;
     position: relative;
@@ -1858,6 +1862,71 @@ body {
     .btn-secondary {
         width: 100%;
     }
+}
+
+/* ===============================
+   NO PHOTOS MESSAGE STYLES
+   =============================== */
+.no-photos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    min-height: 400px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.no-photos h3 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-family: 'Playfair Display', serif;
+    letter-spacing: 0.5px;
+}
+
+.no-photos p {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+    max-width: 450px;
+    font-weight: 400;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.no-photos .cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: var(--secondary-gradient);
+    color: white;
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-md);
+}
+
+.no-photos .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.no-photos .cta-button:active {
+    transform: translateY(0);
 }
 
 /* --- Overlay for Action Buttons on Hover --- */
