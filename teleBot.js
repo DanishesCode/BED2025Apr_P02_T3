@@ -3,22 +3,31 @@ const TelegramBot = require('node-telegram-bot-api');
 let bot; // will hold the bot instance
 
 function startBot() {
-  bot = new TelegramBot(process.env.TeleBot_Token, { polling: true });
+  try {
+    bot = new TelegramBot(process.env.TeleBot_Token, { polling: true });
 
-  console.log("Telegram bot started");
+    console.log("Telegram bot started");
 
-  bot.on('message', (msg) => {
-    console.log(`Received message from chatId=${msg.chat.id}: ${msg.text}`);
-  });
+    bot.on('message', (msg) => {
+      console.log(`Received message from chatId=${msg.chat.id}: ${msg.text}`);
+    });
 
-  bot.onText(/\/chatid/, (msg) => {
-    console.log(`/chatid command received from chatId=${msg.chat.id}`);
-    bot.sendMessage(msg.chat.id, `Your chat ID is: ${msg.chat.id}`);
-  });
+    bot.onText(/\/chatid/, (msg) => {
+      console.log(`/chatid command received from chatId=${msg.chat.id}`);
+      bot.sendMessage(msg.chat.id, `Your chat ID is: ${msg.chat.id}`);
+    });
 
-  bot.on('polling_error', (error) => {
-    console.error('Polling error:', error);
-  });
+    bot.on('polling_error', (error) => {
+      if (error.code === 'ETELEGRAM' && error.response?.body?.error_code === 409) {
+        console.log('Telegram bot polling conflict - another instance may be running');
+        // Don't spam the logs with the full error
+      } else {
+        console.error('Telegram polling error:', error.message);
+      }
+    });
+  } catch (error) {
+    console.error('Failed to start Telegram bot:', error.message);
+  }
 }
 
 async function sendMessage(chatId, text) {
