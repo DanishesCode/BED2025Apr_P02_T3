@@ -126,7 +126,6 @@ document.addEventListener("DOMContentLoaded", function() {
         score += 1;
         correctAnswer.style.display = "flex";
       } else {
-        score = 0;
         incorrectAnswer.style.display = "flex";
       }
       question.style.display = "none";
