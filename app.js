@@ -189,14 +189,14 @@ app.delete("/api/appointments/:id", AuthMiddleware.authenticateToken, appointmen
 app.get("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.list);
 
 
-// Birthday routes - Temporarily remove auth for testing
-app.get("/birthdays", birthdayController.getAllBirthdays);
-app.get("/birthdays/dashboard", birthdayController.getBirthdaysForDashboard);
-app.get("/birthdays/:id", birthdayController.getBirthdayById);
-app.post("/birthdays", validateAdd, birthdayController.addBirthday);
-app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
-app.delete("/birthdays/:id", birthdayController.deleteBirthday);
-app.post("/birthdays/send-sms", birthdayController.sendBirthdaySMS);
+// Birthday routes - Now with authentication
+app.get("/birthdays", AuthMiddleware.authenticateToken, birthdayController.getAllBirthdays);
+app.get("/birthdays/dashboard", AuthMiddleware.authenticateToken, birthdayController.getBirthdaysForDashboard);
+app.get("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.getBirthdayById);
+app.post("/birthdays", AuthMiddleware.authenticateToken, validateAdd, birthdayController.addBirthday);
+app.put("/birthdays/:id", AuthMiddleware.authenticateToken, validateUpdate, birthdayController.updateBirthday);
+app.delete("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.deleteBirthday);
+app.post("/birthdays/send-sms", AuthMiddleware.authenticateToken, birthdayController.sendBirthdaySMS);
 
 // Photo Gallery API Routes
 

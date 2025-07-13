@@ -38,6 +38,18 @@
   </div>
   </div>
   <script src="birthday.js"></script>
+  <script>
+    // Authentication check
+    document.addEventListener('DOMContentLoaded', function() {
+      const token = localStorage.getItem('authToken');
+      
+      if (!token) {
+        // Redirect to login if not authenticated
+        window.location.href = '/login';
+        return;
+      }
+    });
+  </script>
 </body>
 </html>
 

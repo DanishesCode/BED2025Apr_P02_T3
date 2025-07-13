@@ -62,6 +62,12 @@ const toolsData = {
             url: "/appointment"
         },
         {
+            title: "Birthday Reminder",
+            description: "Keep track of important birthdays and get timely reminders.",
+            icon: "chat",
+            url: "birthday-reminder/birthday.html"
+        },
+        {
             title: "Task Manager",
             description: "Organize and prioritize your daily tasks efficiently.",
             icon: "chat",

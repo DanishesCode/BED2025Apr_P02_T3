@@ -14,9 +14,16 @@ function getAuthHeaders() {
 
 async function loadDashboardBirthdays() {
   try {
-    const res = await fetch(`${API_BASE}/birthdays/dashboard`);
+    const res = await fetch(`${API_BASE}/birthdays/dashboard`, {
+      headers: getAuthHeaders()
+    });
     
     if (!res.ok) {
+      if (res.status === 401) {
+        // Redirect to login if unauthorized
+        window.location.href = '/login';
+        return;
+      }
       throw new Error(`HTTP ${res.status}: ${res.statusText}`);
     }
     
@@ -27,6 +34,10 @@ async function loadDashboardBirthdays() {
     renderUpcomingBirthdays(data.upcoming);
   } catch (err) {
     console.error('Failed to load birthday data:', err);
+    // Redirect to login on auth errors
+    if (err.message.includes('401')) {
+      window.location.href = '/login';
+    }
   }
 }
 
@@ -147,9 +158,16 @@ document.addEventListener('click', async (e) => {
 async function deleteBirthday(id) {
   try {
     const res = await fetch(`${API_BASE}/birthdays/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAuthHeaders()
     });
-    if (!res.ok) throw new Error('Delete failed');
+    if (!res.ok) {
+      if (res.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
+      throw new Error('Delete failed');
+    }
     console.log('Birthday deleted');
   } catch (err) {
     console.error('Failed to delete birthday:', err);
@@ -174,9 +192,7 @@ function sendSMSReminder() {
 
   fetch('http://localhost:3000/birthdays/send-sms', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ 
       name, 
       toPhone, 
