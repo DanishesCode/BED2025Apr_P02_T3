@@ -1,5 +1,5 @@
 const sql = require("mssql");
-const dbConfig = require("../public/photogallery/photoConfig");
+const dbConfig = require("../dbConfig");
 const photoModel = require("../models/photoModel");
 const fetch = require("node-fetch");
 const imgbbKey = process.env.IMGBB_API_KEY;
@@ -74,10 +74,17 @@ const photoController = {
     }
   },
 
-  // Get all photos
+  // Get all photos for a specific user
   async getAllPhotos(req, res) {
     try {
-      const result = await photoModel.getAllPhotos();
+      const { userId } = req.query; // Get userId from query parameters
+      
+      let result;
+      if (userId) {
+        result = await photoModel.getPhotosByUserId(userId);
+      } else {
+        result = await photoModel.getAllPhotos();
+      }
       
       if (!result.success) {
         return res.status(500).json({ success: false, message: result.message });

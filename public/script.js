@@ -46,6 +46,12 @@ const toolsData = {
             description: "Create interactive quizzes to test your knowledge.",
             icon: "summarizer",
             url: "#"
+        },
+        {
+            title: "Photo Gallery",
+            description: "Store and organize your precious memories with a beautiful photo gallery.",
+            icon: "chat",
+            url: "photogallery/photo.html"
         }
     ],
     scheduling: [
@@ -74,6 +80,12 @@ const toolsData = {
             description: "Generate secure passwords for all your accounts.",
             icon: "summarizer",
             url: "#"
+        },
+        {
+            title: "Weather",
+            description: "Get current weather conditions and forecasts for any location.",
+            icon: "chat",
+            url: "weather/weather.html"
         }
     ]
 };
@@ -270,10 +282,30 @@ function searchTools(query) {
     }
 }
 
-// Open tool
-function openTool(url) {
+// Handle tool click
+function handleToolClick(url, action) {
+    console.log('Handling tool click:', url, action);
+    
+    // Handle special actions
+    if (action === 'showPhotoGallery') {
+        showPhotoGallery();
+        return;
+    }
+    
+    // Check if it's a placeholder URL
+    if (url === '#') {
+        alert('This tool is coming soon!');
+        return;
+    }
+    
+    // Navigate to the tool URL
     window.location.href = url;
+}
 
+// Show photo gallery as a full page
+function showPhotoGallery() {
+    // Navigate directly to the photo gallery page
+    window.location.href = 'photogallery/photo.html';
 }
 
 // Initialize the app
