@@ -135,7 +135,6 @@ document.addEventListener('click', async (e) => {
     const recipientId = birthdayItem.getAttribute('data-id');
     const daysUntil = parseInt(birthdayItem.getAttribute('data-days-until')) || 0;
 
-    // Fill the form
     document.getElementById('sms-recipient-name').textContent = recipientName;
     document.getElementById('sms-form').style.display = 'block';
 

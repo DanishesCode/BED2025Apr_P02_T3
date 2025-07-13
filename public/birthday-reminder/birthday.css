@@ -312,7 +312,6 @@ body {
     box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
 }
 
-/* SMS Form Animation */
 #sms-form {
     animation: slideIn 0.3s ease-out;
 }
@@ -328,7 +327,7 @@ body {
     }
 }
 
-/* Close button for SMS form */
+
 .sms-close-btn {
     position: absolute;
     top: 10px;
@@ -345,7 +344,6 @@ body {
     color: #333;
 }
 
-/* Responsive adjustments for SMS form */
 @media (max-width: 600px) {
     #sms-form {
         margin: 20px 16px;

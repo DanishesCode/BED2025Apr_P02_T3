@@ -17,7 +17,7 @@ async function getAllBirthdays(req, res) {
 
 async function getBirthdayById(req, res) {
   try {
-    const userId = req.user?.userId || 1; // Use user 1 as default for testing
+    const userId = req.user?.userId || 1; 
     const id = parseInt(req.params.id);
     const birthday = await birthdayModel.getBirthdayById(id, userId);
     if (!birthday) return res.status(404).json({ error: 'Not found' });
@@ -30,7 +30,7 @@ async function getBirthdayById(req, res) {
 
 async function addBirthday(req, res) {
   try {
-    const userId = req.user?.userId || 1; // Use user 1 as default for testing
+    const userId = req.user?.userId || 1; 
     await birthdayModel.addBirthday(req.body, userId);
     res.status(201).send('Birthday added');
   } catch (err) {
@@ -41,7 +41,7 @@ async function addBirthday(req, res) {
 
 async function updateBirthday(req, res) {
   try {
-    const userId = req.user?.userId || 1; // Use user 1 as default for testing
+    const userId = req.user?.userId || 1;
     const id = parseInt(req.params.id);
     await birthdayModel.updateBirthday(id, req.body, userId);
     res.send('Birthday updated');
@@ -53,7 +53,7 @@ async function updateBirthday(req, res) {
 
 async function deleteBirthday(req, res) {
   try {
-    const userId = req.user?.userId || 1; // Use user 1 as default for testing
+    const userId = req.user?.userId || 1; 
     const id = parseInt(req.params.id);
     await birthdayModel.deleteBirthday(id, userId);
     res.send('Birthday deleted');
@@ -66,7 +66,7 @@ async function deleteBirthday(req, res) {
 // dashboard showing birthdays
 async function getBirthdaysForDashboard(req, res) {
   try {
-    const userId = req.user?.userId || 1; // Use user 1 as default for testing
+    const userId = req.user?.userId || 1; 
     const allBirthdays = await birthdayModel.getAllBirthdays(userId);
 
     const today = [];
@@ -137,11 +137,10 @@ async function sendBirthdaySMS(req, res) {
       return res.status(400).json({ error: 'Missing toPhone or name in request' });
     }
 
-    // Generate dynamic message based on timing
+    // Generate dynamic message
     let messageBody;
     
-    if (daysUntil === 0 || daysUntil === undefined) {
-      // Today's birthday
+    if (daysUntil === 0) {
       messageBody = `🎉 Happy Birthday ${name}! Hope you have an amazing day filled with joy and celebration! 🎂🎈`;
     } else if (daysUntil === 1) {
       // Tomorrow
@@ -178,8 +177,6 @@ async function sendBirthdaySMS(req, res) {
     });
   }
 }
-
-// Helper function to get a nice date display
 function getDateDisplay(daysUntil) {
   const futureDate = new Date();
   futureDate.setDate(futureDate.getDate() + daysUntil);
