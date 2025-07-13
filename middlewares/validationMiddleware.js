@@ -2,7 +2,10 @@ const validator = require('validator');
 
 class ValidationMiddleware {
     static validateSignup(req, res, next) {
+        console.log('Validation middleware - request body:', req.body);
+        console.log('Validation middleware - request headers:', req.headers);
         const { name, email, password, dob } = req.body;
+        console.log('Extracted values:', { name, email, password: password ? '***' : undefined, dob });
         const errors = [];
 
         // Validate name
@@ -29,24 +32,28 @@ class ValidationMiddleware {
         // Validate date of birth
         if (!dob) {
             errors.push('Date of birth is required');
-        } else if (!validator.isDate(dob)) {
-            errors.push('Please enter a valid date of birth');
         } else {
-            const today = new Date();
+            // Try to parse the date
             const birthDate = new Date(dob);
-            let age = today.getFullYear() - birthDate.getFullYear();
-            const monthDiff = today.getMonth() - birthDate.getMonth();
-            
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            
-            if (age < 13 || age > 120) {
-                errors.push('Age must be between 13 and 120 years');
+            if (isNaN(birthDate.getTime())) {
+                errors.push('Please enter a valid date of birth');
+            } else {
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                if (age < 13 || age > 120) {
+                    errors.push('Age must be between 13 and 120 years');
+                }
             }
         }
 
         if (errors.length > 0) {
+            console.log('Signup validation errors:', errors);
             return res.status(400).json({
                 success: false,
                 message: 'Validation failed',

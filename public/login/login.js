@@ -159,7 +159,14 @@ class LoginHandler {
 
                 this.showMessage('Login successful! Redirecting...', 'success');
                 setTimeout(() => {
+<<<<<<< Updated upstream
                     window.location.href = '/public/index.html';
+=======
+
+                    // Redirect to main page or dashboard
+
+                    window.location.href = '/index.html';
+>>>>>>> Stashed changes
                 }, 1500);
             } else {
                 this.showMessage(result.message || 'Invalid email or password.', 'error');
