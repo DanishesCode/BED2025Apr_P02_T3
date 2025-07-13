@@ -118,6 +118,7 @@ app.get("/api/weather", weatherApiController.getWeather);
 app.get("/api/weather/search", weatherApiController.searchLocations);
 
 
+
 // SOS routes
 app.get("/sos", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'main.html'));
@@ -165,6 +166,18 @@ app.put(
     userController.updateProfile
 );
 
+app.post("/chat/", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+
+// Retrive Chats and Messages
+app.get("/chat/:id", AuthMiddleware.authenticateToken, aichatController.retrieveChats);
+app.get("/chat/messages/:chatId", AuthMiddleware.authenticateToken, aichatController.retrieveMessages);
+
+// Save Messages
+app.post("/chat/messages", AuthMiddleware.authenticateToken, aichatController.saveMessage);
+
+// Add route for creating new chat
+app.post("/chat/new", AuthMiddleware.authenticateToken, aichatController.createChat);
+
 
 //ROUTES FOR SOS(Danish)
 app.get("/caretaker/getrecord/:id",sosController.retrieveRecord);
@@ -175,8 +188,7 @@ app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.
 app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 
 
-//RUN TELEBOT(Danish) - Temporarily disabled to prevent spam
-teleBot.startBot();
+
 
 
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);

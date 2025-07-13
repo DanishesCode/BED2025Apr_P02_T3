@@ -5,7 +5,7 @@ const toolsData = {
             title: "AI Chat Bot",
             description: "Get instant help and answers anytime using our smart assistant.",
             icon: "chat",
-            url: "#"
+            url: "aichat/aichat.html"
         },
         {
             title: "Summarizer",
@@ -19,7 +19,7 @@ const toolsData = {
             title: "Book Health Appointment",
             description: "Schedule an appointment with your personalized health coach or AI assistant.",
             icon: "chat",
-            url: "/appointment"
+            url: "appointment/appointment.html"
         },
         {
             title: "Health Tracker",
@@ -55,12 +55,6 @@ const toolsData = {
         }
     ],
     scheduling: [
-        {
-            title: "Book Appointment",
-            description: "Schedule an appointment with your personalized health coach or AI assistant.",
-            icon: "chat",
-            url: "/appointment"
-        },
         {
             title: "Birthday Reminder",
             description: "Keep track of important birthdays and get timely reminders.",
@@ -103,23 +97,11 @@ const toolsData = {
 };
 
 let currentCategory = 'ai';
-let allTools = [];
 
 // Initialize
 function init() {
-    flattenAllTools();
-    renderTools(toolsData[currentCategory]);
     setupEventListeners();
-}
-
-// Flatten all tools for search
-function flattenAllTools() {
-    allTools = [];
-    Object.keys(toolsData).forEach(category => {
-        toolsData[category].forEach(tool => {
-            allTools.push({ ...tool, category });
-        });
-    });
+    showCategoryTools('ai');
 }
 
 // Setup event listeners
@@ -154,7 +136,7 @@ function setupEventListeners() {
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
             if (query === '') {
-                renderTools(toolsData[currentCategory]);
+                showCategoryTools(currentCategory);
             } else {
                 searchTools(query);
             }
@@ -219,46 +201,91 @@ function switchCategory(category, clickedItem) {
     // Clear search
     document.getElementById('searchInput').value = '';
 
-    // Render tools
-    renderTools(toolsData[category]);
+    // Show category tools
+    showCategoryTools(category);
+}
+
+// Show tools for specific category
+function showCategoryTools(category) {
+    renderToolCards(category);
+}
+
+function renderToolCards(category) {
+    const toolsGrid = document.getElementById('toolsGrid');
+    toolsGrid.innerHTML = '';
+    
+    const tools = toolsData[category] || [];
+    if (tools.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.innerHTML = `
+            <h3>No tools found</h3>
+            <p>Try searching for something else or browse different categories.</p>
+        `;
+        toolsGrid.appendChild(emptyState);
+        return;
+    }
+    
+    tools.forEach(tool => {
+        const card = document.createElement('div');
+        card.className = `tool-card ${category}-tool`;
+        card.innerHTML = `
+            <div class="tool-icon ${tool.icon}"></div>
+            <div class="tool-title">${tool.title}</div>
+            <div class="tool-description">${tool.description}</div>
+            <button class="tool-button">Open</button>
+        `;
+        card.querySelector('.tool-button').addEventListener('click', (e) => {
+            e.stopPropagation();
+            openTool(tool.url);
+        });
+        card.addEventListener('click', () => openTool(tool.url));
+        toolsGrid.appendChild(card);
+    });
 }
 
 // Search tools
 function searchTools(query) {
-    const filteredTools = allTools.filter(tool => 
-        tool.title.toLowerCase().includes(query) || 
-        tool.description.toLowerCase().includes(query)
-    );
-    renderTools(filteredTools);
-}
+    // Hide all tools first
+    document.querySelectorAll('.tool-card').forEach(card => {
+        card.style.display = 'none';
+    });
 
-// Render tools
-function renderTools(tools) {
+    // Show tools that match the search query
+    document.querySelectorAll('.tool-card').forEach(card => {
+        const title = card.querySelector('.tool-title').textContent.toLowerCase();
+        const description = card.querySelector('.tool-description').textContent.toLowerCase();
+        
+        if (title.includes(query) || description.includes(query)) {
+            card.style.display = 'block';
+        }
+    });
+
+    // Show empty state if no tools found
+    const visibleTools = document.querySelectorAll('.tool-card[style="display: block;"]');
     const toolsGrid = document.getElementById('toolsGrid');
     
-    if (tools.length === 0) {
-        toolsGrid.innerHTML = `
-            <div class="empty-state">
-                <h3>No tools found</h3>
-                <p>Try searching for something else or browse different categories.</p>
-            </div>
+    if (visibleTools.length === 0) {
+        // Remove existing empty state if any
+        const existingEmptyState = toolsGrid.querySelector('.empty-state');
+        if (existingEmptyState) {
+            existingEmptyState.remove();
+        }
+        
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.innerHTML = `
+            <h3>No tools found</h3>
+            <p>Try searching for something else or browse different categories.</p>
         `;
-        return;
+        toolsGrid.appendChild(emptyState);
+    } else {
+        // Remove empty state if tools are found
+        const existingEmptyState = toolsGrid.querySelector('.empty-state');
+        if (existingEmptyState) {
+            existingEmptyState.remove();
+        }
     }
-
-    toolsGrid.innerHTML = tools.map(tool => `
-        <div class="tool-card" onclick="handleToolClick('${tool.url}', '${tool.action || ''}')">
-            <div class="tool-icon ${tool.icon}">
-                <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
-            </div>
-            <h3 class="tool-title">${tool.title}</h3>
-            <p class="tool-description">${tool.description}</p>
-            <button class="tool-button" onclick="event.stopPropagation(); handleToolClick('${tool.url}', '${tool.action || ''}')">
-                Open Tool
-                <div class="button-icon"></div>
-            </button>
-        </div>
-    `).join('');
 }
 
 // Handle tool click
@@ -285,6 +312,10 @@ function handleToolClick(url, action) {
 function showPhotoGallery() {
     // Navigate directly to the photo gallery page
     window.location.href = 'photogallery/photo.html';
+}
+
+function openTool(url) {
+    window.location.href = url;
 }
 
 // Initialize the app

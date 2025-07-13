@@ -55,19 +55,20 @@ async function getGeminiResponse (userMessage, name = 'User') {
     }
 }
 
-async function savemessage(chatId, senderId, message) {
+async function saveMessage(chatId, senderId, message, is_ai) {
     let connection;
     try {
       connection = await sql.connect(dbConfig);
       const query = `
-        INSERT INTO Messages (chat_id, sender_id, message)
-        VALUES (@chatId, @senderId, @message);
-        SELECT SCOPE_IDENTITY() AS id;
+        INSERT INTO Messages (chat_id, sender_id, message, is_ai)
+        OUTPUT INSERTED.id
+        VALUES (@chatId, @senderId, @message, @is_ai);
       `;
       const request = connection.request();
       request.input("chatId", sql.Int, chatId);
       request.input("senderId", sql.Int, senderId);
       request.input("message", sql.NVarChar, message);
+      request.input("is_ai", sql.Int, is_ai);
       const result = await request.query(query);
       return result.recordset[0].id;
     } catch (error) {
@@ -83,8 +84,97 @@ async function savemessage(chatId, senderId, message) {
       }
     }
 }
-  
+
+async function retrieveChats(userId) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const query = `
+      SELECT id, title, created_at
+      FROM Chats
+      WHERE userId = @userId
+      ORDER BY created_at DESC
+    `;
+    const request = connection.request();
+    request.input("userId", sql.Int, userId);
+    const result = await request.query(query);
+    return result.recordset;
+
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+}
+
+async function retrieveMessages(chat_id) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const query = `
+      SELECT chat_id, sender_id, message, created_at, is_ai
+      FROM Messages
+      WHERE chat_id = @chat_id
+      ORDER BY created_at ASC
+    `;
+    const request = connection.request();
+    request.input("chat_id", sql.Int, chat_id);
+    const result = await request.query(query);
+    return result.recordset;
+
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+}
+
+async function createChat(userId, title = 'New Chat') {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const query = `
+      INSERT INTO Chats (userId, title)
+      OUTPUT INSERTED.id
+      VALUES (@userId, @title);
+    `;
+    const request = connection.request();
+    request.input("userId", sql.Int, userId);
+    request.input("title", sql.NVarChar, title);
+    const result = await request.query(query);
+    return result.recordset[0].id;
+  } catch (error) {
+    console.error("Database error:", error);
+    throw error;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+}
+
 module.exports = {
     getGeminiResponse,
-    savemessage
+    retrieveChats,
+    retrieveMessages,
+    saveMessage,
+    createChat
   };

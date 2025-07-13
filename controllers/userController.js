@@ -25,7 +25,7 @@ class UserController {
                 success: true,
                 message: 'User created successfully',
                 user: {
-                    id: result.user.id,
+                    id: result.user.userId,
                     name: result.user.name,
                     email: result.user.email
                 }
@@ -74,7 +74,7 @@ class UserController {
                 success: true,
                 message: 'Login successful',
                 user: {
-                    id: result.user.id,
+                    id: result.user.userId,
                     name: result.user.name,
                     email: result.user.email
                 },

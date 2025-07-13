@@ -156,14 +156,23 @@ class LoginHandler {
                 
                 // Store user info
                 if (result.user) {
-                    localStorage.setItem('currentUser', JSON.stringify(result.user));
-                    console.log('User info stored in localStorage:', result.user);
+                    console.log('Raw result.user:', result.user);
+
+                    // Only store id, name, and email
+                    const userToStore = {
+                        id: result.user.id,
+                        name: result.user.name,
+                        email: result.user.email
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(userToStore));
+                    console.log('User info stored in localStorage:', userToStore);
                 }
 
                 this.showMessage('Login successful! Redirecting...', 'success');
                 setTimeout(() => {
                     // Redirect to main page or dashboard
-                    window.location.href = 'http://localhost:3000/';
+
+                    window.location.href = '../index.html';
                 }, 1500);
             } else {
                 this.showMessage(result.message || 'Invalid email or password.', 'error');

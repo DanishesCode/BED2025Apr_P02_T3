@@ -19,6 +19,7 @@ body {
     display: flex;
     flex: 1;
     overflow: hidden;
+    padding-top: 60px;
 }
 
 .sidebar {
