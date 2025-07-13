@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather Forecast</title>
+  <link rel="stylesheet" href="weather.css" />
+
+</head>
+<body>
+
+  <div class="main-container">
+    <section class="hero-section">
+      <div class="location-display">
+        <div class="location-icon">📍</div>
+        <span id="displayLocation">Loading...</span>
+      </div>
+      <h1 class="hero-title">The only weather forecast you need</h1>
+      <div class="search-container">
+        <input type="text" class="search-box" placeholder="Enter Location" id="locationInput" />
+        <button class="search-btn" onclick="searchWeather()">Search</button>
+      </div>
+    </section>
+
+    <aside class="weather-sidebar">
+      <div class="nav-tabs">
+        <button class="nav-tab active">Weather</button>
+        <button class="nav-tab">News</button>
+        <button class="nav-tab">Alert</button>
+      </div>
+
+      <div class="weather-section">
+        <h2 class="section-title">Today</h2>
+
+        <div class="current-weather">
+          <div>
+            <div class="temp-display">
+              <span id="tempValue">--</span><span class="temp-unit">°C</span>
+            </div>
+            <div class="temp-description" id="tempDescription">--</div>
+            <div class="day-info">
+              <span id="weatherDesc" class="day-name">--</span>
+            </div>
+          </div>
+          <div class="weather-details">
+            <div id="humidity">Humidity: --</div>
+            <div id="realFeel">RealFeel: --</div>
+            <div id="uvIndex">UV Index: --</div>
+            <div id="visibility">Visibility: --</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="weather-section">
+        <h2 class="section-title">Next 10 Hours <span class="last-refresh"></span></h2>
+        <div class="hourly-forecast-container">
+          <!-- Hourly forecast will be dynamically populated here -->
+        </div>
+      </div>
+
+      <div class="weather-section">
+        <h2 class="section-title">7-Day Forecast</h2>
+        <div class="daily-forecast-container">
+          <!-- Forecast days will be dynamically populated here -->
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Modern Weather Activities Section -->
+  <section class="elderly-activities-full-section">
+    <div class="activities-wrapper">
+      <div class="activities-header">
+        <h2 class="activities-main-title">🌤️ Weather-Smart Activities</h2>
+        <p class="activities-main-subtitle">Thoughtfully curated recommendations for seniors based on current weather conditions and safety considerations</p>
+      </div>
+      <div class="activities-grid">
+        <!-- Activities will be dynamically populated here with new card structure -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Only include the main weather.js file -->
+  <script src="weather.js"></script>
+  <!-- Keep navbar separate to avoid conflicts -->
+</body>
+</html>

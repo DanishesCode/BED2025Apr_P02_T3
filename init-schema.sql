@@ -291,4 +291,43 @@ INSERT INTO Answers (answer_text, question_text, is_correct) VALUES
 ('Ice Hockey', 'Which sport uses a puck?', 1),
 ('Basketball', 'Which sport uses a puck?', 0),
 ('Baseball', 'Which sport uses a puck?', 0),
+
 ('Cricket', 'Which sport uses a puck?', 0);
+-- [Tze Wei] - [Birthday Reminder Table] - [Last Modified Date: 2025-07-12]
+CREATE TABLE Birthdays (
+    birthdayId INT PRIMARY KEY IDENTITY(1,1),
+    userId INT NOT NULL,                         
+    firstName VARCHAR(50) NOT NULL,              
+    lastName VARCHAR(50),
+    birthDate DATE NOT NULL,
+    relationship VARCHAR(50),                    
+    notes TEXT,                                   
+    FOREIGN KEY (userId) REFERENCES Users(userId)
+);
+-- Sample data for Birthdays table
+INSERT INTO Birthdays (userId, firstName, lastName, birthDate, relationship, notes) VALUES
+-- userId, firstName, lastName, birthDate, relationship, notes
+(1, 'John', 'Doe', '1990-05-12', 'Friend', 'Loves hiking and camping'),
+(1, 'Mary', 'Smith', '1988-11-23', 'Colleague', 'Worked together at ABC Corp'),
+(2, 'Alex', 'Johnson', '2000-02-29', 'Sibling', 'Close since childhood'),
+(2, 'Sophia', 'Lee', '1995-07-04', 'Partner', 'Met in university'),
+(3, 'Michael', NULL, '1982-12-31', 'Uncle', 'Lives in Australia'),
+(3, 'Emma', 'Brown', '2010-09-15', 'Daughter', NULL);
+
+
+('Cricket', 'Which sport uses a puck?', 0);
+
+-- [Danish] - [added caretaker adatabase] - [9/7/2025]
+CREATE TABLE Caretaker (
+    id INT PRIMARY KEY, -- Same type as Users.id
+    telegram_name NVARCHAR(100) NOT NULL,
+    chat_id BIGINT NOT NULL,
+    FOREIGN KEY (id) REFERENCES Users(id)
+);
+INSERT INTO Users (name, email, password, date_of_birth)
+VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
+
+
+('Cricket', 'Which sport uses a puck?', 0);
+
+
