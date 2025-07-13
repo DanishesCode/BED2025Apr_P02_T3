@@ -2,13 +2,8 @@
 
 class WeatherModel {
     constructor() {
-        // Initialize API keys as null, will be loaded async if needed
-        this.apiKey = null;
-        this.pexelsApiKey = null;
-        this.keysInitialized = false;
-        
-        // Load API keys
-        this.initializeApiKeys();
+        // Frontend model no longer needs API keys - handled by backend
+        this.keysInitialized = true;
         
         // Curated location keywords for better image searches
         this.locationImageKeywords = {
@@ -298,117 +293,71 @@ class WeatherModel {
     }
 
     /**
-     * Initialize API keys from environment variables or server endpoint
+     * @deprecated 
      */
     async initializeApiKeys() {
-        try {
-            // Try to get keys synchronously first (server environment)
-            if (typeof process !== 'undefined' && process.env) {
-                this.apiKey = process.env.WEATHER_API_KEY;
-                this.pexelsApiKey = process.env.PEXELS_API_KEY;
-                
-                if (this.apiKey && this.pexelsApiKey) {
-                    console.log('✅ API keys loaded from server environment');
-                    this.keysInitialized = true;
-                    return;
-                }
-            }
-            
-            // For browser environment, fetch from server API
-            if (typeof window !== 'undefined' && typeof fetch !== 'undefined') {
-                try {
-                    const response = await fetch('/api/env');
-                    if (response.ok) {
-                        const envData = await response.json();
-                        this.apiKey = envData.WEATHER_API_KEY;
-                        this.pexelsApiKey = envData.PEXELS_API_KEY;
-                        console.log('✅ API keys loaded from server API');
-                        this.keysInitialized = true;
-                        return;
-                    }
-                } catch (error) {
-                    console.warn('Failed to load API keys from server:', error.message);
-                }
-            }
-            
-            // Check for window.ENV as fallback
-            if (typeof window !== 'undefined' && window.ENV) {
-                this.apiKey = window.ENV.WEATHER_API_KEY;
-                this.pexelsApiKey = window.ENV.PEXELS_API_KEY;
-                if (this.apiKey && this.pexelsApiKey) {
-                    console.log('✅ API keys loaded from window.ENV');
-                    this.keysInitialized = true;
-                    return;
-                }
-            }
-            
-            // Use fallback keys for development
-            console.warn('Using fallback API keys for development');
-            this.apiKey = this.apiKey || 'b4389571ae284ebc84d83842250607';
-            this.pexelsApiKey = this.pexelsApiKey || 'Hltk1QVIqUo6cwCZRhG4gf0GXbU8B467dbtSpGZYuPbXX8BdOtvWM5p6';
-            this.keysInitialized = true;
-            
-        } catch (error) {
-            console.error('❌ Error initializing API keys:', error);
-            // Use fallback keys
-            this.apiKey = 'b4389571ae284ebc84d83842250607';
-            this.pexelsApiKey = 'Hltk1QVIqUo6cwCZRhG4gf0GXbU8B467dbtSpGZYuPbXX8BdOtvWM5p6';
-            this.keysInitialized = true;
-        }
+      // API keys are now handled by the backend
+        this.keysInitialized = true;
+        console.log('✅ Weather API configured (backend mode)');
     }
 
     /**
-     * Ensure API keys are initialized before use
+     * @deprecated 
      */
     async ensureApiKeysInitialized() {
-        if (!this.keysInitialized) {
-            await this.initializeApiKeys();
-        }
-    }
-
-    /**
-     * Validate API key
-     * @returns {boolean} True if API key is valid
-     */
-    validateApiKey() {
-        if (!this.apiKey || this.apiKey.length < 10) {
-            console.error('❌ Invalid or missing Weather API key');
-            return false;
-        }
         return true;
     }
 
     /**
-     * Fetch weather data from WeatherAPI
+     * @deprecated 
+     * @returns {boolean} 
+     */
+    validateApiKey() {
+        return true;
+    }
+
+    /**
      * @param {string} location - Location to get weather for
      * @returns {Promise<Object>} Weather data object
      */
     async fetchWeatherData(location) {
-        // Ensure API keys are initialized
-        await this.ensureApiKeysInitialized();
-        
-        // Validate API key before making request
-        if (!this.validateApiKey()) {
-            return {
-                success: false,
-                error: 'Weather API key is not configured properly'
-            };
-        }
-
-        const url = `https://api.weatherapi.com/v1/forecast.json?key=${this.apiKey}&q=${encodeURIComponent(location)}&days=7&aqi=no&alerts=no`;
+        // Determine the correct API URL based on environment
+        const isLiveServer = window.location.port === '5500' || window.location.hostname === '127.0.0.1';
+        const baseUrl = isLiveServer ? 'http://localhost:3000' : '';
+        const url = `${baseUrl}/api/weather?location=${encodeURIComponent(location)}`;
         
         try {
             console.log('🌤️ Fetching weather data for:', location);
+            console.log('🔗 Request URL:', url);
+            console.log('🌐 Environment:', isLiveServer ? 'Live Server (5500)' : 'Express Server (3000)');
             
             const response = await fetch(url);
-            const data = await response.json();
+            console.log('📡 Response status:', response.status, response.statusText);
+            console.log('📋 Response headers:', Object.fromEntries(response.headers.entries()));
             
-            if (!response.ok) {
-                throw new Error(data.error?.message || 'Location not found');
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('❌ Received non-JSON response:', {
+                    status: response.status,
+                    contentType,
+                    content: text.substring(0, 200)
+                });
+                throw new Error(`Server returned HTML instead of JSON. Content: ${text.substring(0, 100)}...`);
             }
             
+            const result = await response.json();
+            console.log('📦 Response data:', result);
+            
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || `HTTP ${response.status}: Failed to fetch weather data`);
+            }
+            
+            const data = result.data;
+            
             // Get hourly forecast for next 10 hours (from first 2 days)
-            const hourlyForecast = this.extractHourlyForecast(data.forecast.forecastday.slice(0, 2));
+            const hourlyForecast = this.extractHourlyForecast(data.forecast.slice(0, 2));
             
             console.log('✅ Weather data fetched successfully');
             
@@ -429,7 +378,7 @@ class WeatherModel {
                         uv: data.current.uv,
                         vis_km: data.current.vis_km
                     },
-                    forecast: data.forecast.forecastday.map(day => ({
+                    forecast: data.forecast.map(day => ({
                         date: day.date,
                         day: {
                             maxtemp_c: Math.round(day.day.maxtemp_c),
@@ -534,10 +483,9 @@ class WeatherModel {
      */
     async fetchFromPexels(locationName, countryName) {
         // Ensure API keys are initialized
-        await this.ensureApiKeysInitialized();
         
         // Check if Pexels API key is available
-        if (!this.pexelsApiKey || this.pexelsApiKey === 'ENTER_YOUR_PEXELS_API_KEY_HERE') {
+        if (!this.pexelsApiKey || this.pexelsApiKey === 'No API Key Yet') {
             console.warn('Pexels API key not configured, using fallback');
             return null;
         }

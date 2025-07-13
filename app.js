@@ -4,10 +4,15 @@ const dotenv = require("dotenv");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const multer = require("multer");
 const teleBot = require("./teleBot");
 
-// Load environment variables
+// Load environment variables FIRST
 dotenv.config();
+
+// Import dbConfig AFTER loading environment variables
+const dbConfig = require("./dbConfig");
+
 
 // Create Express app
 const app = express();
@@ -52,16 +57,29 @@ app.use(cors({
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve MVC files for browser-side loading
+app.use('/middlewares', express.static(path.join(__dirname, 'middlewares')));
+app.use('/models', express.static(path.join(__dirname, 'models')));
+app.use('/controllers', express.static(path.join(__dirname, 'controllers')));
+
+// Multer setup for file uploads
+const upload = multer();
+
+app.options('*', cors());
+
 // controller variables
 const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
 const sosController = require("./controllers/sosController");
+const photoController = require("./controllers/photoController");
 const AuthMiddleware = require("./middlewares/authMiddleware.js");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
+const validatePhoto = require("./middlewares/PhotoValidation");
 const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
 const appointmentController = require("./controllers/appointmentController");
 const birthdayController = require('./controllers/birthdayController');
+const weatherApiController = require('./controllers/weatherApiController');
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
 // Routes for pages
 app.get("/", (req, res) => {
@@ -81,14 +99,23 @@ app.get("/appointment", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'appointment', 'appointment.html'));
 });
 
-
-// Environment variables endpoint for client-side usage
-app.get("/api/env", (req, res) => {
-    res.json({
-        WEATHER_API_KEY: process.env.WEATHER_API_KEY,
-        PEXELS_API_KEY: process.env.PEXELS_API_KEY
-    });
+// Photo Gallery routes
+app.get("/photogallery", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'photogallery', 'photo.html'));
 });
+
+app.get("/photoupload", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'photogallery', 'photoupload.html'));
+});
+
+// Weather route
+app.get("/weather", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'weather', 'weather.html'));
+});
+
+// Weather API routes - secure backend endpoints
+app.get("/api/weather", weatherApiController.getWeather);
+app.get("/api/weather/search", weatherApiController.searchLocations);
 
 // SOS routes
 app.get("/sos", (req, res) => {
@@ -165,10 +192,36 @@ app.post("/birthdays", validateAdd, birthdayController.addBirthday);
 app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
 app.delete("/birthdays/:id", birthdayController.deleteBirthday);
 
+// Photo Gallery API Routes
 
+app.get("/photos", photoController.getAllPhotos);
+app.get("/photos/:id", photoController.getPhotoById);
+app.post("/photos/upload", upload.single("photo"), validatePhoto, photoController.uploadPhoto);
+
+app.put("/photos/:id/favorite", photoController.toggleFavorite);
+app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
+app.delete("/photos/:id", photoController.deletePhoto);
+
+// Error handling middleware
+app.use((error, req, res, next) => {
+    console.error("=== SERVER ERROR ===");
+    console.error(error);
+    res.status(500).json({ 
+        success: false, 
+        message: "Server error", 
+        error: error.message 
+    });
+});
 
 // Start server
-app.listen(port, () => {
+app.listen(port, async () => {
+    try {
+        await sql.connect(dbConfig);
+        console.log("Database connected");
+    } catch (err) {
+        console.error("DB connection error:", err);
+        process.exit(1);
+    }
     console.log(`Server running on port ${port}`);
 });
 

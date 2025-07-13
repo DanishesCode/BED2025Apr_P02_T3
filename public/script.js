@@ -46,6 +46,12 @@ const toolsData = {
             description: "Create interactive quizzes to test your knowledge.",
             icon: "summarizer",
             url: "#"
+        },
+        {
+            title: "Photo Gallery",
+            description: "Store and organize your precious memories with a beautiful photo gallery.",
+            icon: "chat",
+            url: "photogallery/photo.html"
         }
     ],
     scheduling: [
@@ -80,6 +86,12 @@ const toolsData = {
             description: "Generate secure passwords for all your accounts.",
             icon: "summarizer",
             url: "#"
+        },
+        {
+            title: "Weather",
+            description: "Get current weather conditions and forecasts for any location.",
+            icon: "chat",
+            url: "weather/weather.html"
         }
     ]
 };
@@ -229,13 +241,13 @@ function renderTools(tools) {
     }
 
     toolsGrid.innerHTML = tools.map(tool => `
-        <div class="tool-card" onclick="openTool('${tool.url}')">
+        <div class="tool-card" onclick="handleToolClick('${tool.url}', '${tool.action || ''}')">
             <div class="tool-icon ${tool.icon}">
                 <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
             </div>
             <h3 class="tool-title">${tool.title}</h3>
             <p class="tool-description">${tool.description}</p>
-            <button class="tool-button" onclick="event.stopPropagation(); openTool('${tool.url}')">
+            <button class="tool-button" onclick="event.stopPropagation(); handleToolClick('${tool.url}', '${tool.action || ''}')">
                 Open Tool
                 <div class="button-icon"></div>
             </button>
@@ -243,18 +255,30 @@ function renderTools(tools) {
     `).join('');
 }
 
-// Open tool
-function openTool(url) {
-    console.log('Opening tool:', url);
+// Handle tool click
+function handleToolClick(url, action) {
+    console.log('Handling tool click:', url, action);
     
-    // Handle appointment booking
-    if (url === '/appointment') {
-        window.location.href = '/appointment';
+    // Handle special actions
+    if (action === 'showPhotoGallery') {
+        showPhotoGallery();
         return;
     }
     
-    // Add your tool opening logic here for other tools
-    alert('Tool would open here: ' + url);
+    // Check if it's a placeholder URL
+    if (url === '#') {
+        alert('This tool is coming soon!');
+        return;
+    }
+    
+    // Navigate to the tool URL
+    window.location.href = url;
+}
+
+// Show photo gallery as a full page
+function showPhotoGallery() {
+    // Navigate directly to the photo gallery page
+    window.location.href = 'photogallery/photo.html';
 }
 
 // Initialize the app

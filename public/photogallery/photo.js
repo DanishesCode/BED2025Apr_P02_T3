@@ -22,6 +22,14 @@ const modalArrowRight = document.getElementById('modal-arrow-right');
 
 // Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on the upload page
+    const uploadForm = document.getElementById('memory-form');
+    if (uploadForm) {
+        setupUploadForm();
+        return; // Don't load gallery functionality on upload page
+    }
+    
+    // Gallery page functionality
     loadPhotos();
     setupEventListeners();
     // Move arrows outside modal-content
@@ -71,12 +79,31 @@ function setupEventListeners() {
 // Load photos from the server
 async function loadPhotos() {
     try {
+        console.log('Loading photos...');
         showLoading();
         
-        const response = await fetch('http://localhost:3001/photos');
+        // Get userId from localStorage
+        let userId = 1; // Default fallback
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            try {
+                const user = JSON.parse(currentUser);
+                userId = user.id || user.userId || 1;
+                console.log('Loading photos for userId:', userId);
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+        }
+        
+        console.log('Making API call to /photos with userId:', userId);
+        const response = await fetch(`http://localhost:3000/photos?userId=${userId}`);
+        console.log('Response status:', response.status);
+        
         const result = await response.json();
+        console.log('API Result:', result);
         
         if (result.success && result.data) {
+            console.log('Photos loaded successfully:', result.data.length, 'photos');
             allPhotos = result.data;
             filteredPhotos = [...allPhotos];
             displayPhotos(filteredPhotos);
@@ -307,7 +334,7 @@ async function toggleFavorite(photoId, buttonElement) {
         const photo = allPhotos.find(p => p.id === photoId);
         const newFavoriteStatus = !photo.isFavorite;
         
-        const response = await fetch(`http://localhost:3001/photos/${photoId}/favorite`, {
+        const response = await fetch(`http://localhost:3000/photos/${photoId}/favorite`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -349,7 +376,7 @@ async function deletePhoto(photoId) {
     }
     
     try {
-        const response = await fetch(`http://localhost:3001/photos/${photoId}`, {
+        const response = await fetch(`http://localhost:3000/photos/${photoId}`, {
             method: 'DELETE'
         });
         
@@ -494,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     formData.append('photo', imageFile);
                 }
 
-                const response = await fetch(`http://localhost:3001/photos/${currentEditingPhotoId}`, {
+                const response = await fetch(`http://localhost:3000/photos/${currentEditingPhotoId}`, {
                     method: 'PUT',
                     body: formData
                 });
@@ -541,6 +568,190 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Handle upload form submission
+function setupUploadForm() {
+    const uploadForm = document.getElementById('memory-form');
+    const fileInput = document.getElementById('photo-upload');
+    const uploadArea = document.getElementById('upload-area');
+    const previewContainer = document.getElementById('preview-container');
+    const browseButton = document.getElementById('browse-btn');
+    
+    if (!uploadForm || !fileInput || !uploadArea || !previewContainer) {
+        console.log('Upload form elements not found');
+        return;
+    }
+    
+    // Handle file selection
+    fileInput.addEventListener('change', function(e) {
+        console.log('File input changed', e.target.files);
+        handleFileSelection(e);
+    });
+    
+    // Handle browse button click
+    if (browseButton) {
+        browseButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Browse button clicked');
+            fileInput.click();
+        });
+    }
+    
+    // Handle upload area click (but not when clicking the button)
+    uploadArea.addEventListener('click', function(e) {
+        // Don't trigger if the click was on the browse button
+        if (e.target.id === 'browse-btn' || e.target.closest('#browse-btn')) {
+            return;
+        }
+        console.log('Upload area clicked');
+        fileInput.click();
+    });
+    
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', handleDragOver);
+    uploadArea.addEventListener('drop', handleFileDrop);
+    
+    // Handle form submission
+    uploadForm.addEventListener('submit', handleUploadSubmission);
+}
+
+function handleFileSelection(e) {
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+        console.log('Displaying preview for:', files[0].name);
+        displayFilePreview(files[0]); // For now, handle single file
+    }
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+}
+
+function handleFileDrop(e) {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    if (imageFiles.length > 0) {
+        document.getElementById('photo-upload').files = e.dataTransfer.files;
+        displayFilePreview(imageFiles[0]);
+    }
+}
+
+function displayFilePreview(file) {
+    const previewContainer = document.getElementById('preview-container');
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+        previewContainer.innerHTML = `
+            <div class="preview-item">
+                <img src="${e.target.result}" alt="Preview" class="preview-image">
+                <div class="preview-info">
+                    <span class="preview-name">${file.name}</span>
+                    <span class="preview-size">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                </div>
+                <button type="button" class="remove-preview" onclick="removeFilePreview()">×</button>
+            </div>
+        `;
+        previewContainer.style.display = 'block';
+    };
+    
+    reader.readAsDataURL(file);
+}
+
+function removeFilePreview() {
+    const previewContainer = document.getElementById('preview-container');
+    const fileInput = document.getElementById('photo-upload');
+    
+    previewContainer.innerHTML = '';
+    previewContainer.style.display = 'none';
+    fileInput.value = '';
+}
+
+async function handleUploadSubmission(e) {
+    e.preventDefault();
+    
+    const fileInput = document.getElementById('photo-upload');
+    const file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Please select a photo to upload');
+        return;
+    }
+    
+    // Get form data
+    const title = document.getElementById('memory-title').value.trim();
+    const description = document.getElementById('memory-description').value.trim();
+    const date = document.getElementById('memory-date').value;
+    const category = document.getElementById('memory-category').value || 'General';
+    const location = document.getElementById('memory-location').value.trim();
+    const isFavorite = document.getElementById('memory-favorite').checked;
+    
+    if (!title) {
+        alert('Please enter a title for your memory');
+        return;
+    }
+    
+    try {
+        // Show loading state
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        const originalText = submitButton.innerHTML;
+        submitButton.innerHTML = '<span class="button-icon">⏳</span> Saving...';
+        submitButton.disabled = true;
+        
+        // Get userId from localStorage
+        let userId = 1; // Default fallback
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            try {
+                const user = JSON.parse(currentUser);
+                userId = user.id || user.userId || 1;
+                console.log('Using userId:', userId, 'from user:', user);
+            } catch (e) {
+                console.error('Error parsing user data:', e);
+            }
+        }
+        
+        // Create FormData
+        const formData = new FormData();
+        formData.append('photo', file);
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('date', date || new Date().toISOString().split('T')[0]);
+        formData.append('category', category);
+        formData.append('location', location);
+        formData.append('isFavorite', isFavorite);
+        formData.append('userId', userId);
+        
+        console.log('Uploading photo with userId:', userId);
+        
+        // Upload to server
+        const response = await fetch('http://localhost:3000/photos/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('Memory saved successfully!');
+            // Redirect to gallery
+            window.location.href = 'photo.html';
+        } else {
+            console.error('Upload failed:', result.message);
+            alert('Failed to save memory: ' + (result.message || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Upload error:', error);
+        alert('Error uploading photo. Please try again.');
+    } finally {
+        // Reset button state
+        const submitButton = e.target.querySelector('button[type="submit"]');
+        submitButton.innerHTML = originalText;
+        submitButton.disabled = false;
+    }
+}
 
 // Utility functions for loading states
 function showLoading() {
