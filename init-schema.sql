@@ -44,11 +44,10 @@ CREATE TABLE Messages (
     sender_id INT NULL,
     message NVARCHAR(MAX) NOT NULL,
     created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
-	is_ai BIT NOT NULL DEFAULT 0,
+ is_ai BIT NOT NULL DEFAULT 0,
 
     FOREIGN KEY (chat_id) REFERENCES Chats(id) ON DELETE CASCADE
 );
-
 CREATE TABLE Photos (
     id INT PRIMARY KEY IDENTITY(1,1),
     title NVARCHAR(100) NOT NULL,
@@ -328,6 +327,4 @@ CREATE TABLE Caretaker (
 );
 INSERT INTO Users (name, email, password, date_of_birth)
 VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
-
-
 
