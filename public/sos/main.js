@@ -159,7 +159,7 @@ document.addEventListener("DOMContentLoaded",async function(){
     // Add error handling
     try {
         console.log("Navigating to settings...");
-        const url = "/sos/setting.html";
+        const url = "/public/sos/setting.html";
         console.log("URL:", url);
         window.location.href = url;
     } catch (error) {

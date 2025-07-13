@@ -37,8 +37,6 @@ CREATE TABLE Chats (
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
 
-
-
 -- Messages table
 CREATE TABLE Messages (
     id INT IDENTITY(1,1) PRIMARY KEY,
@@ -46,6 +44,7 @@ CREATE TABLE Messages (
     sender_id INT NULL,
     message NVARCHAR(MAX) NOT NULL,
     created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+	is_ai BIT NOT NULL DEFAULT 0,
 
     FOREIGN KEY (chat_id) REFERENCES Chats(id) ON DELETE CASCADE
 );
