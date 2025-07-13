@@ -5,7 +5,7 @@ const toolsData = {
             title: "AI Chat Bot",
             description: "Get instant help and answers anytime using our smart assistant.",
             icon: "chat",
-            url: "#"
+            url: "aichat/aichat.html"
         },
         {
             title: "Summarizer",
@@ -19,7 +19,7 @@ const toolsData = {
             title: "Book Health Appointment",
             description: "Schedule an appointment with your personalized health coach or AI assistant.",
             icon: "chat",
-            url: "/appointment"
+            url: "appointment/appointment.html"
         },
         {
             title: "Health Tracker",
@@ -49,12 +49,6 @@ const toolsData = {
         }
     ],
     scheduling: [
-        {
-            title: "Book Appointment",
-            description: "Schedule an appointment with your personalized health coach or AI assistant.",
-            icon: "chat",
-            url: "/appointment"
-        },
         {
             title: "Task Manager",
             description: "Organize and prioritize your daily tasks efficiently.",
@@ -195,40 +189,41 @@ function switchCategory(category, clickedItem) {
 
 // Show tools for specific category
 function showCategoryTools(category) {
-    // Hide all tool cards
-    document.querySelectorAll('.tool-card').forEach(card => {
-        card.style.display = 'none';
-    });
+    renderToolCards(category);
+}
 
-    // Show tools for the selected category
-    if (category === 'ai') {
-        // Show AI tools (first two cards are AI tools)
-        document.querySelectorAll('.tool-card').forEach((card, index) => {
-            if (index < 2) {
-                card.style.display = 'block';
-            }
-        });
-    } else if (category === 'health') {
-        // Show health tools
-        document.querySelectorAll('.health-tool').forEach(card => {
-            card.style.display = 'block';
-        });
-    } else if (category === 'learning') {
-        // Show learning tools
-        document.querySelectorAll('.learning-tool').forEach(card => {
-            card.style.display = 'block';
-        });
-    } else if (category === 'scheduling') {
-        // Show scheduling tools
-        document.querySelectorAll('.scheduling-tool').forEach(card => {
-            card.style.display = 'block';
-        });
-    } else if (category === 'utilities') {
-        // Show utilities tools
-        document.querySelectorAll('.utilities-tool').forEach(card => {
-            card.style.display = 'block';
-        });
+function renderToolCards(category) {
+    const toolsGrid = document.getElementById('toolsGrid');
+    toolsGrid.innerHTML = '';
+    
+    const tools = toolsData[category] || [];
+    if (tools.length === 0) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.innerHTML = `
+            <h3>No tools found</h3>
+            <p>Try searching for something else or browse different categories.</p>
+        `;
+        toolsGrid.appendChild(emptyState);
+        return;
     }
+    
+    tools.forEach(tool => {
+        const card = document.createElement('div');
+        card.className = `tool-card ${category}-tool`;
+        card.innerHTML = `
+            <div class="tool-icon ${tool.icon}"></div>
+            <div class="tool-title">${tool.title}</div>
+            <div class="tool-description">${tool.description}</div>
+            <button class="tool-button">Open</button>
+        `;
+        card.querySelector('.tool-button').addEventListener('click', (e) => {
+            e.stopPropagation();
+            openTool(tool.url);
+        });
+        card.addEventListener('click', () => openTool(tool.url));
+        toolsGrid.appendChild(card);
+    });
 }
 
 // Search tools
@@ -277,16 +272,8 @@ function searchTools(query) {
 
 // Open tool
 function openTool(url) {
-    console.log('Opening tool:', url);
-    
-    // Handle appointment booking
-    if (url === '/appointment') {
-        window.location.href = '/appointment';
-        return;
-    }
-    
-    // Add your tool opening logic here for other tools
-    alert('Tool would open here: ' + url);
+    window.location.href = url;
+
 }
 
 // Initialize the app

@@ -159,11 +159,6 @@ app.post("/caretaker/create/:id",sosMiddleware.validateCaretakerId,sosMiddleware
 app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
 app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 
-
-
-
-
-
 // Birthday routes
 app.get("/birthdays", birthdayController.getAllBirthdays);
 app.get("/birthdays/dashboard", birthdayController.getBirthdaysForDashboard);
@@ -185,5 +180,4 @@ process.on("SIGINT", async () => {
     await sql.close();
     console.log("Database connections closed");
     process.exit(0);
-});
 });

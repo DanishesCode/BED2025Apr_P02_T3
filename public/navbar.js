@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const currentUser = localStorage.getItem('currentUser');
 
     if (!token) {
-        window.location.href = '/login';
+        window.location.href = '/login/login.html';
         return;
     }
 
@@ -69,12 +69,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             localStorage.removeItem('authToken');
             localStorage.removeItem('currentUser');
-            window.location.href = '/login';
+            window.location.href = 'login/login.html';
         } catch (error) {
             console.error('Logout error:', error);
             localStorage.removeItem('authToken');
             localStorage.removeItem('currentUser');
-            window.location.href = '/login';
+            window.location.href = 'login/login.html';
         }
     });
 
