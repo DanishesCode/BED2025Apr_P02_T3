@@ -37,8 +37,6 @@ CREATE TABLE Chats (
     FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
 
-
-
 -- Messages table
 CREATE TABLE Messages (
     id INT IDENTITY(1,1) PRIMARY KEY,
@@ -329,5 +327,6 @@ CREATE TABLE Caretaker (
 );
 INSERT INTO Users (name, email, password, date_of_birth)
 VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
+
 
 
