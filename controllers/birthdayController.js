@@ -6,7 +6,7 @@ const twilioNumber = process.env.TWILIO_PHONE;
 const twilioClient = twilio(accountSid, authToken);
 async function getAllBirthdays(req, res) {
   try {
-    const userId = req.user?.userId || 1; // Use user 1 as default for testing
+    const userId = req.user.userId; // Now required due to auth middleware
     const birthdays = await birthdayModel.getAllBirthdays(userId);
     res.json(birthdays);
   } catch (err) {
@@ -17,7 +17,7 @@ async function getAllBirthdays(req, res) {
 
 async function getBirthdayById(req, res) {
   try {
-    const userId = req.user?.userId || 1; 
+    const userId = req.user.userId; // Now required due to auth middleware
     const id = parseInt(req.params.id);
     const birthday = await birthdayModel.getBirthdayById(id, userId);
     if (!birthday) return res.status(404).json({ error: 'Not found' });
@@ -30,7 +30,7 @@ async function getBirthdayById(req, res) {
 
 async function addBirthday(req, res) {
   try {
-    const userId = req.user?.userId || 1; 
+    const userId = req.user.userId; // Now required due to auth middleware
     await birthdayModel.addBirthday(req.body, userId);
     res.status(201).send('Birthday added');
   } catch (err) {
@@ -41,7 +41,7 @@ async function addBirthday(req, res) {
 
 async function updateBirthday(req, res) {
   try {
-    const userId = req.user?.userId || 1;
+    const userId = req.user.userId; // Now required due to auth middleware
     const id = parseInt(req.params.id);
     await birthdayModel.updateBirthday(id, req.body, userId);
     res.send('Birthday updated');
@@ -53,7 +53,7 @@ async function updateBirthday(req, res) {
 
 async function deleteBirthday(req, res) {
   try {
-    const userId = req.user?.userId || 1; 
+    const userId = req.user.userId; // Now required due to auth middleware
     const id = parseInt(req.params.id);
     await birthdayModel.deleteBirthday(id, userId);
     res.send('Birthday deleted');
@@ -66,7 +66,7 @@ async function deleteBirthday(req, res) {
 // dashboard showing birthdays
 async function getBirthdaysForDashboard(req, res) {
   try {
-    const userId = req.user?.userId || 1; 
+    const userId = req.user.userId; // Now required due to auth middleware
     const allBirthdays = await birthdayModel.getAllBirthdays(userId);
 
     const today = [];
