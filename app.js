@@ -148,6 +148,7 @@ app.get("/birthdays/:id", birthdayController.getBirthdayById);
 app.post("/birthdays", validateAdd, birthdayController.addBirthday);
 app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
 app.delete("/birthdays/:id", birthdayController.deleteBirthday);
+app.post("/birthdays/send-sms", birthdayController.sendBirthdaySMS);
 
 
 

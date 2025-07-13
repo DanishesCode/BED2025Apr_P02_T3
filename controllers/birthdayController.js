@@ -1,5 +1,9 @@
 const birthdayModel = require('../models/birthdayModel');
-
+const twilio = require('twilio');
+const accountSid = process.env.TWILIO_SID;
+const authToken = process.env.TWILIO_TOKEN;
+const twilioNumber = process.env.TWILIO_PHONE;
+const twilioClient = twilio(accountSid, authToken);
 async function getAllBirthdays(req, res) {
   try {
     const userId = req.user?.userId || 1; // Use user 1 as default for testing
@@ -124,11 +128,74 @@ function getInitials(firstName, lastName) {
   return (fi + li).trim();
 }
 
+// SMS function for sending birthday reminders
+async function sendBirthdaySMS(req, res) {
+  try {
+    const { toPhone, name, daysUntil, birthdayId } = req.body;
+
+    if (!toPhone || !name) {
+      return res.status(400).json({ error: 'Missing toPhone or name in request' });
+    }
+
+    // Generate dynamic message based on timing
+    let messageBody;
+    
+    if (daysUntil === 0 || daysUntil === undefined) {
+      // Today's birthday
+      messageBody = `🎉 Happy Birthday ${name}! Hope you have an amazing day filled with joy and celebration! 🎂🎈`;
+    } else if (daysUntil === 1) {
+      // Tomorrow
+      messageBody = `⏰ Reminder: It's ${name}'s birthday tomorrow! Don't forget to wish them well! 🎂`;
+    } else if (daysUntil <= 7) {
+      // Within a week
+      messageBody = `📅 Reminder: ${name}'s birthday is coming up in ${daysUntil} days (${getDateDisplay(daysUntil)})! 🎉`;
+    } else if (daysUntil <= 30) {
+      // Within a month
+      messageBody = `📝 Heads up: ${name}'s birthday is in ${daysUntil} days. Mark your calendar! 🗓️`;
+    } else {
+      // More than a month
+      messageBody = `📌 Save the date: ${name}'s birthday is coming up in ${daysUntil} days! 🎂`;
+    }
+
+    console.log(`📱 Sending SMS to ${toPhone}: "${messageBody}"`);
+
+    const message = await twilioClient.messages.create({
+      body: messageBody,
+      from: twilioNumber,
+      to: toPhone,
+    });
+
+    res.json({ 
+      success: true, 
+      sid: message.sid,
+      message: `Birthday reminder sent for ${name} (${daysUntil === 0 ? 'today' : `${daysUntil} days away`})`
+    });
+  } catch (err) {
+    console.error('Error sending SMS:', err);
+    res.status(500).json({ 
+      error: 'Failed to send SMS',
+      details: err.message 
+    });
+  }
+}
+
+// Helper function to get a nice date display
+function getDateDisplay(daysUntil) {
+  const futureDate = new Date();
+  futureDate.setDate(futureDate.getDate() + daysUntil);
+  return futureDate.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    month: 'short', 
+    day: 'numeric' 
+  });
+}
+
 module.exports = {
   getAllBirthdays,
   getBirthdayById,
   addBirthday,
   updateBirthday,
   deleteBirthday,
-  getBirthdaysForDashboard
+  getBirthdaysForDashboard,
+  sendBirthdaySMS
 };
