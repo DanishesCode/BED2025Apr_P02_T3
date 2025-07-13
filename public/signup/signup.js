@@ -235,7 +235,7 @@ class SignupHandler {
             if (result.success) {
                 this.showMessage('Account created successfully! Redirecting to login...', 'success');
                 setTimeout(() => {
-                    window.location.href = '/login';
+                    window.location.href = 'http://localhost:3000/login';
                 }, 2000);
             } else {
                 this.showMessage(result.message || 'Failed to create account.', 'error');

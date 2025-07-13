@@ -249,7 +249,7 @@ function openTool(url) {
     
     // Handle appointment booking
     if (url === '/appointment') {
-        window.location.href = 'http://localhost:3000/appointment';
+        window.location.href = '/appointment';
         return;
     }
     

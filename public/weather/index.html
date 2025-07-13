@@ -82,7 +82,7 @@
             
             if (!token) {
                                     // Redirect to login if not authenticated
-                    window.location.href = 'http://localhost:3000/login';
+                    window.location.href = '/public/login/login.html';
                     return;
                 }
                 
@@ -109,7 +109,7 @@
                     console.log('Logout button clicked');
                     try {
                         console.log('Attempting logout with token:', token);
-                        const response = await fetch('http://localhost:3000/auth/logout', {
+                        const response = await fetch('/auth/logout', {
                             method: 'POST',
                             headers: {
                                 'Authorization': `Bearer ${token}`,
@@ -126,14 +126,14 @@
                         
                         console.log('LocalStorage cleared, redirecting to login');
                         // Redirect to login
-                        window.location.href = 'http://localhost:3000/login';
+                        window.location.href = '/public/login/login.html';
                     } catch (error) {
                         console.error('Logout error:', error);
                         // Still clear localStorage and redirect
                         localStorage.removeItem('authToken');
                         localStorage.removeItem('currentUser');
                         console.log('Error occurred, still redirecting to login');
-                        window.location.href = 'http://localhost:3000/login';
+                        window.location.href = '/public/login/login.html';
                 }
             });
             

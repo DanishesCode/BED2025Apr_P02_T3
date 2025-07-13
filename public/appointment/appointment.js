@@ -248,15 +248,102 @@ function deleteAppointment(id) {
     .catch(err => alert('Error deleting appointment: ' + err));
 }
 
-// Edit appointment logic (simple prompt for demo)
+// Edit appointment logic with modal
 function startEditAppointment(id, oldDate, oldTime, oldConsultationType) {
-    const newDate = prompt('Enter new date (YYYY-MM-DD):', oldDate);
-    if (!newDate) return;
-    const newTime = prompt('Enter new time (HH:MM):', oldTime);
-    if (!newTime) return;
-    const newConsultationType = prompt('Enter consultation type (coach/ai):', oldConsultationType);
-    if (!newConsultationType) return;
-    updateAppointment(id, newDate, newTime, newConsultationType);
+    // Create modal overlay
+    const modalOverlay = document.createElement('div');
+    modalOverlay.className = 'edit-modal-overlay';
+    modalOverlay.innerHTML = `
+        <div class="edit-modal">
+            <div class="edit-modal-header">
+                <h2>Edit Appointment</h2>
+                <button class="close-modal-btn">&times;</button>
+            </div>
+            <div class="edit-modal-content">
+                <div class="edit-form-group">
+                    <label>Date:</label>
+                    <input type="date" id="edit-date" value="${oldDate}" class="edit-input">
+                </div>
+                <div class="edit-form-group">
+                    <label>Time:</label>
+                    <select id="edit-time" class="edit-input">
+                        <option value="09:00" ${oldTime === '09:00' ? 'selected' : ''}>09:00</option>
+                        <option value="09:30" ${oldTime === '09:30' ? 'selected' : ''}>09:30</option>
+                        <option value="10:00" ${oldTime === '10:00' ? 'selected' : ''}>10:00</option>
+                        <option value="10:30" ${oldTime === '10:30' ? 'selected' : ''}>10:30</option>
+                        <option value="11:00" ${oldTime === '11:00' ? 'selected' : ''}>11:00</option>
+                        <option value="11:30" ${oldTime === '11:30' ? 'selected' : ''}>11:30</option>
+                        <option value="12:00" ${oldTime === '12:00' ? 'selected' : ''}>12:00</option>
+                        <option value="12:30" ${oldTime === '12:30' ? 'selected' : ''}>12:30</option>
+                        <option value="13:00" ${oldTime === '13:00' ? 'selected' : ''}>13:00</option>
+                        <option value="13:30" ${oldTime === '13:30' ? 'selected' : ''}>13:30</option>
+                        <option value="14:00" ${oldTime === '14:00' ? 'selected' : ''}>14:00</option>
+                        <option value="14:30" ${oldTime === '14:30' ? 'selected' : ''}>14:30</option>
+                        <option value="15:00" ${oldTime === '15:00' ? 'selected' : ''}>15:00</option>
+                        <option value="15:30" ${oldTime === '15:30' ? 'selected' : ''}>15:30</option>
+                        <option value="16:00" ${oldTime === '16:00' ? 'selected' : ''}>16:00</option>
+                        <option value="16:30" ${oldTime === '16:30' ? 'selected' : ''}>16:30</option>
+                        <option value="17:00" ${oldTime === '17:00' ? 'selected' : ''}>17:00</option>
+                    </select>
+                </div>
+                <div class="edit-form-group">
+                    <label>Consultation Type:</label>
+                    <div class="edit-consultation-options">
+                        <label class="edit-consultation-option">
+                            <input type="radio" name="edit-consultation" value="coach" ${oldConsultationType === 'coach' ? 'checked' : ''}>
+                            <span class="edit-consultation-label">
+                                <span class="edit-consultation-icon">👨‍⚕️</span>
+                                <span>Health Coach</span>
+                            </span>
+                        </label>
+                        <label class="edit-consultation-option">
+                            <input type="radio" name="edit-consultation" value="ai" ${oldConsultationType === 'ai' ? 'checked' : ''}>
+                            <span class="edit-consultation-label">
+                                <span class="edit-consultation-icon">🤖</span>
+                                <span>AI Assistant</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="edit-modal-actions">
+                <button class="edit-cancel-btn">Cancel</button>
+                <button class="edit-save-btn">Save Changes</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modalOverlay);
+    
+    // Close modal functionality
+    const closeBtn = modalOverlay.querySelector('.close-modal-btn');
+    const cancelBtn = modalOverlay.querySelector('.edit-cancel-btn');
+    const saveBtn = modalOverlay.querySelector('.edit-save-btn');
+    
+    function closeModal() {
+        modalOverlay.remove();
+    }
+    
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => {
+        if (e.target === modalOverlay) closeModal();
+    });
+    
+    // Save functionality
+    saveBtn.addEventListener('click', () => {
+        const newDate = document.getElementById('edit-date').value;
+        const newTime = document.getElementById('edit-time').value;
+        const newConsultationType = document.querySelector('input[name="edit-consultation"]:checked').value;
+        
+        if (!newDate || !newTime || !newConsultationType) {
+            alert('Please fill in all fields');
+            return;
+        }
+        
+        updateAppointment(id, newDate, newTime, newConsultationType);
+        closeModal();
+    });
 }
 
 function updateAppointment(id, date, time, consultationType) {

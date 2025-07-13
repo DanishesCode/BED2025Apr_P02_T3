@@ -30,10 +30,12 @@ app.use(cors({
             'http://localhost:5501',
             'http://127.0.0.1:5502',
             'http://localhost:5502',
+            'http://127.0.0.1:5503',
+            'http://localhost:5503',
+            'http://127.0.0.1:5504',
+            'http://localhost:5504',
             'http://127.0.0.1:3000',
-            'http://127.0.0.1:3001',
-            'http://localhost:5502',
-            'http://127.0.0.1:5502'
+            'http://127.0.0.1:3001'
         ];
         
         if (allowedOrigins.indexOf(origin) !== -1) {
@@ -49,8 +51,6 @@ app.use(cors({
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
-
-app.options('*', cors());
 
 // controller variables
 const triviaController = require("./controllers/trivIaController");
@@ -88,6 +88,7 @@ app.get("/api/env", (req, res) => {
         WEATHER_API_KEY: process.env.WEATHER_API_KEY,
         PEXELS_API_KEY: process.env.PEXELS_API_KEY
     });
+});
 
 // SOS routes
 app.get("/sos", (req, res) => {
@@ -96,8 +97,8 @@ app.get("/sos", (req, res) => {
 
 app.get("/sos/settings", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'setting.html'));
-
 });
+
 
 // Trivia routes (DANISH)
 app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
@@ -146,11 +147,8 @@ app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.
 app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 
 
-//RUN TELEBOT(Danish)
-teleBot.startBot();
-
-
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+app.post("/chat", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
 
 // Appointment API routes
 app.post("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.create);
@@ -181,5 +179,3 @@ process.on("SIGINT", async () => {
     console.log("Database connections closed");
     process.exit(0);
 });
-
-    });

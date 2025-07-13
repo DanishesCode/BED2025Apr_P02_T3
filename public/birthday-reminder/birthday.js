@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   loadDashboardBirthdays();
 });
-const API_BASE = 'http://localhost:3000';
+const API_BASE = '';
 async function loadDashboardBirthdays() {
   try {
      const res = await fetch(`${API_BASE}/birthdays/dashboard`);

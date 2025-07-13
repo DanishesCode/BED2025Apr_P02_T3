@@ -162,10 +162,8 @@ class LoginHandler {
 
                 this.showMessage('Login successful! Redirecting...', 'success');
                 setTimeout(() => {
-
                     // Redirect to main page or dashboard
-
-                    window.location.href = '/public/index.html';
+                    window.location.href = 'http://localhost:3000/';
                 }, 1500);
             } else {
                 this.showMessage(result.message || 'Invalid email or password.', 'error');
@@ -211,7 +209,7 @@ class LoginHandler {
             .then(result => {
                 if (result.success) {
                     // User is already authenticated, redirect
-                    window.location.href = '/public/index.html';
+                    window.location.href = 'http://localhost:3000/';
                 } else {
                     // Token is invalid, clear it
                     localStorage.removeItem('authToken');
@@ -354,10 +352,18 @@ class RippleEffect {
 
 // Fade-in/slide-up animation on page load
 window.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('.login-image-section').style.opacity = '1';
-  document.querySelector('.login-image-section').style.transform = 'translateY(0)';
-  document.querySelector('.login-form-section').style.opacity = '1';
-  document.querySelector('.login-form-section').style.transform = 'translateY(0)';
+  const loginImageSection = document.querySelector('.login-image-section');
+  const loginFormSection = document.querySelector('.login-form-section');
+  
+  if (loginImageSection) {
+    loginImageSection.style.opacity = '1';
+    loginImageSection.style.transform = 'translateY(0)';
+  }
+  
+  if (loginFormSection) {
+    loginFormSection.style.opacity = '1';
+    loginFormSection.style.transform = 'translateY(0)';
+  }
 });
 
 // Ripple effect for login button

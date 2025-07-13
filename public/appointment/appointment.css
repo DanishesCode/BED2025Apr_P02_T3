@@ -1,204 +1,299 @@
 body {
     margin: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #fafbfc;
-    color: #222;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    min-height: 100vh;
 }
 
 .topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #fff;
-    padding: 18px 24px;
-    border-bottom: 1px solid #e5e7eb;
-    font-size: 1.2rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 20px 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
+
 .logo {
-    font-weight: bold;
-    font-size: 1.4rem;
+    font-weight: 700;
+    font-size: 1.6rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
+
 .topbar-right {
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 20px;
 }
 
 .home-link {
-    color: #a78bfa;
+    color: #667eea;
     text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background: rgba(102, 126, 234, 0.1);
 }
 
 .home-link:hover {
-    color: #7c3aed;
+    background: rgba(102, 126, 234, 0.2);
+    transform: translateY(-2px);
 }
+
+.credit {
+    color: #666;
+    font-weight: 500;
+}
+
+.profile-name {
+    color: #333;
+    font-weight: 600;
+}
+
 .profile-icon {
-    font-size: 1.5rem;
-    margin-left: 6px;
+    font-size: 1.8rem;
     cursor: pointer;
-    transition: opacity 0.2s;
+    transition: all 0.3s ease;
+    padding: 8px;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.1);
 }
 
 .profile-icon:hover {
-    opacity: 0.7;
+    background: rgba(102, 126, 234, 0.2);
+    transform: scale(1.1);
 }
 
 .container {
     display: flex;
-    height: calc(100vh - 60px);
+    min-height: calc(100vh - 80px);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    margin: 20px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 .sidebar {
-    width: 240px;
-    background: #f5f7fa;
-    padding: 32px 18px 0 32px;
-    border-right: 1px solid #e5e7eb;
+    width: 280px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px 30px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
+
 .sidebar-section {
-    margin-bottom: 36px;
+    margin-bottom: 40px;
 }
+
 .sidebar-section h2 {
-    color: #b0b7c3;
-    font-size: 1.1rem;
-    margin-bottom: 12px;
-    font-weight: 600;
+    color: #667eea;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
+
 .sidebar-section ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
+
 .sidebar-section li {
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     font-size: 1rem;
-    color: #222;
+    color: #555;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     cursor: pointer;
-    transition: color 0.2s;
+    transition: all 0.3s ease;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.5);
 }
+
 .sidebar-section li:hover {
-    color: #2563eb;
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    transform: translateX(5px);
 }
+
 .icon {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
 }
 
 .main-content {
     flex: 1;
-    padding: 40px 32px 0 32px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    padding: 50px 40px;
+    background: rgba(255, 255, 255, 0.95);
+    overflow-y: auto;
 }
+
 .appointment-section {
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
 }
+
 .appointment-section h3 {
     margin-top: 0;
-    margin-bottom: 16px;
-    font-size: 1.2rem;
-    font-weight: 600;
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #333;
+    position: relative;
 }
+
+.appointment-section h3::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 2px;
+}
+
 .date-picker {
-    margin-bottom: 32px;
+    margin-bottom: 40px;
 }
+
 .calendar {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    padding: 24px 32px 18px 32px;
-    margin-bottom: 18px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
 .calendar-header {
     display: flex;
-    gap: 10px;
+    gap: 15px;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
 }
+
+.calendar-header select {
+    padding: 8px 16px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 8px;
+    background: white;
+    font-size: 1rem;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.calendar-header select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
 .calendar-table {
     width: 100%;
     border-collapse: collapse;
     text-align: center;
     font-size: 1rem;
 }
+
 .calendar-table th {
-    color: #b0b7c3;
-    font-weight: 500;
-    padding-bottom: 6px;
+    color: #667eea;
+    font-weight: 600;
+    padding: 12px 8px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
+
 .calendar-table td {
-    padding: 7px 0;
-    border-radius: 6px;
+    padding: 12px 8px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
+
 .calendar-table td.selected {
-    background: #2563eb;
-    color: #fff;
-    font-weight: 600;
-}
-.calendar-table td:hover:not(.selected) {
-    background: #e0e7ff;
-}
-.calendar-day.today {
-    border: 1.5px solid #a78bfa;
-    background: #ede9fe;
-    font-weight: 600;
-}
-.calendar-day.selected {
-    background: #a78bfa;
-    color: #fff;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
     font-weight: 700;
-    border: none;
+    transform: scale(1.1);
+}
+
+.calendar-table td:hover:not(.selected) {
+    background: rgba(102, 126, 234, 0.1);
+    transform: scale(1.05);
 }
 
 .time-picker {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-bottom: 28px;
+    gap: 15px;
+    margin-bottom: 35px;
 }
+
 .time-row {
     display: flex;
-    gap: 18px;
+    gap: 15px;
     justify-content: flex-start;
+    flex-wrap: wrap;
 }
+
 .time-btn {
-    background: #f3f6fa;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 28px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 12px;
+    padding: 12px 24px;
     font-size: 1rem;
-    color: #222;
+    color: #333;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    min-width: 100px;
 }
+
 .time-btn.selected, .time-btn:active {
-    background: #2563eb;
-    color: #fff;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
     font-weight: 600;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
+
 .time-btn:hover:not(.selected) {
-    background: #e0e7ff;
+    background: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+    transform: translateY(-1px);
 }
 
 .consultation-picker {
     display: flex;
-    gap: 20px;
-    margin-bottom: 28px;
+    gap: 25px;
+    margin-bottom: 35px;
 }
 
 .consultation-option {
     flex: 1;
-    background: #fff;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 16px;
+    padding: 25px;
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
@@ -206,26 +301,27 @@ body {
 }
 
 .consultation-option:hover {
-    border-color: #a78bfa;
-    box-shadow: 0 4px 12px rgba(167, 139, 250, 0.15);
-    transform: translateY(-2px);
+    border-color: #667eea;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
 }
 
 .consultation-option.selected {
-    border-color: #a78bfa;
-    background: linear-gradient(135deg, #f3f4f6 0%, #ede9fe 100%);
-    box-shadow: 0 8px 25px rgba(167, 139, 250, 0.25);
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.2);
 }
 
 .consultation-option.selected::before {
     content: '✓';
     position: absolute;
-    top: 12px;
-    right: 12px;
-    background: #a78bfa;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: white;
-    width: 24px;
-    height: 24px;
+    width: 25px;
+    height: 25px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -236,106 +332,127 @@ body {
 
 .consultation-icon {
     font-size: 2.5rem;
-    margin-bottom: 16px;
-    text-align: center;
+    margin-bottom: 15px;
+    display: block;
 }
 
 .consultation-content h4 {
-    margin: 0 0 8px 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #1f2937;
+    margin: 0 0 10px 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #333;
 }
 
 .consultation-content p {
-    margin: 0 0 16px 0;
-    color: #6b7280;
-    font-size: 0.9rem;
-    line-height: 1.5;
+    margin: 0 0 15px 0;
+    color: #666;
+    line-height: 1.6;
 }
 
 .consultation-features {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
 .consultation-features span {
-    font-size: 0.85rem;
-    color: #059669;
+    color: #667eea;
+    font-size: 0.9rem;
     font-weight: 500;
 }
 
 .action-buttons {
     display: flex;
-    gap: 18px;
-    margin-top: 18px;
+    gap: 20px;
     justify-content: flex-end;
+    margin-top: 30px;
 }
+
 .back-btn, .continue-btn {
-    background: #fff;
-    border: 1.5px solid #2563eb;
-    color: #2563eb;
-    border-radius: 8px;
-    padding: 8px 24px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-}
-.continue-btn {
-    background: #2563eb;
-    color: #fff;
+    padding: 15px 30px;
     border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
 }
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.8);
+    color: #666;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.continue-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
 .back-btn:hover {
-    background: #e0e7ff;
+    background: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+    transform: translateY(-2px);
 }
+
 .continue-btn:hover {
-    background: #1746a2;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
 }
 
 .appointments-sidebar {
-    width: 280px;
-    background: #fff;
-    border-left: 1px solid #e5e7eb;
-    padding: 40px 24px 0 24px;
+    width: 300px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px 30px;
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
 }
+
 .appointments-sidebar h3 {
     margin-top: 0;
-    margin-bottom: 18px;
-    font-size: 1.1rem;
-    font-weight: 600;
+    margin-bottom: 25px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #333;
 }
+
 .mini-calendar {
-    background: #f5f7fa;
-    border-radius: 10px;
-    padding: 18px 12px;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
+
 .mini-calendar-table {
     width: 100%;
     border-collapse: collapse;
     text-align: center;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
+
 .mini-calendar-table th {
-    color: #b0b7c3;
-    font-weight: 500;
-    padding-bottom: 4px;
+    color: #667eea;
+    font-weight: 600;
+    padding: 8px 4px;
+    font-size: 0.8rem;
 }
+
 .mini-calendar-table td {
-    padding: 4px 0;
-    border-radius: 5px;
+    padding: 6px 4px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition: all 0.3s ease;
 }
+
 .mini-calendar-table td.mini-selected {
-    background: #2563eb;
-    color: #fff;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
     font-weight: 600;
 }
+
 .mini-calendar-table td:hover:not(.mini-selected) {
-    background: #e0e7ff;
+    background: rgba(102, 126, 234, 0.1);
 }
 
 @media (max-width: 1100px) {
@@ -343,11 +460,277 @@ body {
         display: none;
     }
 }
+
 @media (max-width: 900px) {
     .sidebar {
         display: none;
     }
+    
     .main-content {
-        padding-left: 0;
+        padding: 30px 20px;
+    }
+    
+    .container {
+        margin: 10px;
+        border-radius: 15px;
+    }
+    
+    .consultation-picker {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .time-row {
+        justify-content: center;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+    }
+} 
+
+/* Edit Modal Styles */
+.edit-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.edit-modal {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
+
+.edit-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 25px 30px;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+}
+
+.edit-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.close-modal-btn:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    transform: scale(1.1);
+}
+
+.edit-modal-content {
+    padding: 30px;
+}
+
+.edit-form-group {
+    margin-bottom: 25px;
+}
+
+.edit-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+}
+
+.edit-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 10px;
+    font-size: 1rem;
+    color: #333;
+    background: white;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.edit-consultation-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.edit-consultation-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 15px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.edit-consultation-option:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+    transform: translateY(-2px);
+}
+
+.edit-consultation-option input[type="radio"] {
+    display: none;
+}
+
+.edit-consultation-option input[type="radio"]:checked + .edit-consultation-label {
+    color: #667eea;
+}
+
+.edit-consultation-option input[type="radio"]:checked {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+}
+
+.edit-consultation-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    color: #555;
+    transition: color 0.3s ease;
+}
+
+.edit-consultation-icon {
+    font-size: 1.5rem;
+}
+
+.edit-modal-actions {
+    display: flex;
+    gap: 15px;
+    padding: 25px 30px;
+    border-top: 1px solid rgba(102, 126, 234, 0.1);
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.edit-cancel-btn, .edit-save-btn {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.edit-cancel-btn {
+    background: rgba(255, 255, 255, 0.8);
+    color: #666;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.edit-cancel-btn:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+.edit-save-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.edit-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive design for modal */
+@media (max-width: 600px) {
+    .edit-modal {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .edit-modal-header {
+        padding: 20px 25px;
+    }
+    
+    .edit-modal-content {
+        padding: 25px;
+    }
+    
+    .edit-modal-actions {
+        padding: 20px 25px;
+        flex-direction: column;
+    }
+    
+    .edit-consultation-options {
+        gap: 10px;
+    }
+    
+    .edit-consultation-option {
+        padding: 12px;
     }
 } 
