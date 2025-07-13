@@ -118,6 +118,7 @@ app.get("/api/weather", weatherApiController.getWeather);
 app.get("/api/weather/search", weatherApiController.searchLocations);
 
 
+
 // SOS routes
 app.get("/sos", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'main.html'));
@@ -186,13 +187,28 @@ app.post("/caretaker/create/:id",sosMiddleware.validateCaretakerId,sosMiddleware
 app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
 app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 
-// Birthday routes
+
+
+
+
+app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+app.post("/chat", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+
+// Appointment API routes
+app.post("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.create);
+app.put("/api/appointments/:id", AuthMiddleware.authenticateToken, appointmentController.update);
+app.delete("/api/appointments/:id", AuthMiddleware.authenticateToken, appointmentController.delete);
+app.get("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.list);
+
+
+// Birthday routes - Temporarily remove auth for testing
 app.get("/birthdays", birthdayController.getAllBirthdays);
 app.get("/birthdays/dashboard", birthdayController.getBirthdaysForDashboard);
 app.get("/birthdays/:id", birthdayController.getBirthdayById);
 app.post("/birthdays", validateAdd, birthdayController.addBirthday);
 app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
 app.delete("/birthdays/:id", birthdayController.deleteBirthday);
+app.post("/birthdays/send-sms", birthdayController.sendBirthdaySMS);
 
 // Photo Gallery API Routes
 
