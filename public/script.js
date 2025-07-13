@@ -308,5 +308,9 @@ function showPhotoGallery() {
     window.location.href = 'photogallery/photo.html';
 }
 
+function openTool(url) {
+    window.location.href = url;
+}
+
 // Initialize the app
 init();
