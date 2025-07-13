@@ -16,6 +16,14 @@ CREATE TABLE Users (
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
     updated_at DATETIME NOT NULL DEFAULT GETDATE()
 );
+CREATE TABLE Appointments (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    appointmentDate DATE NOT NULL,
+    appointmentTime VARCHAR(10) NOT NULL,
+    consultationType NVARCHAR(50) NOT NULL,
+    createdAt DATETIME DEFAULT GETDATE()
+);
 
 
 -- [Linn] - [Chat and Messages table to store chats and messages between user and AI] - [Last Modified Date: 2025-07-09]

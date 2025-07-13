@@ -239,7 +239,7 @@ async function sendMessage() {
         const userId = currentUser.id;
         const name = currentUser.name;
 
-        const res = await fetch('http://localhost:3000/chat', {
+        const res = await fetch('/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

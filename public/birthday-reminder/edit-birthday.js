@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE = 'http://localhost:3000/birthdays';
+  const API_BASE = '/birthdays';
   const birthdayId = new URLSearchParams(window.location.search).get('id');
   const firstNameInput = document.getElementById('first_name');
   const lastNameInput = document.getElementById('last_name');

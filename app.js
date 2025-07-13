@@ -22,10 +22,20 @@ app.use(cors({
         if (!origin) return callback(null, true);
         
         const allowedOrigins = [
-            'http://localhost:3000',              
+            'http://localhost:3000',
+            'http://localhost:3001',
             'http://127.0.0.1:5500',
             'http://localhost:5500',
-            'http://127.0.0.1:3000'
+            'http://127.0.0.1:5501',
+            'http://localhost:5501',
+            'http://127.0.0.1:5502',
+            'http://localhost:5502',
+            'http://127.0.0.1:5503',
+            'http://localhost:5503',
+            'http://127.0.0.1:5504',
+            'http://localhost:5504',
+            'http://127.0.0.1:3000',
+            'http://127.0.0.1:3001'
         ];
         
         if (allowedOrigins.indexOf(origin) !== -1) {
@@ -42,8 +52,6 @@ app.use(cors({
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.options('*', cors());
-
 // controller variables
 const triviaController = require("./controllers/trivIaController");
 const userController = require("./controllers/userController");
@@ -52,6 +60,7 @@ const AuthMiddleware = require("./middlewares/authMiddleware.js");
 const ValidationMiddleware = require("./middlewares/validationMiddleware");
 const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
+const appointmentController = require("./controllers/appointmentController");
 const birthdayController = require('./controllers/birthdayController');
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
 // Routes for pages
@@ -66,6 +75,10 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'signup', 'signup.html'));
+});
+
+app.get("/appointment", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'appointment', 'appointment.html'));
 });
 
 
@@ -85,8 +98,8 @@ app.get("/sos", (req, res) => {
 
 app.get("/sos/settings", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'setting.html'));
-
 });
+
 
 // Trivia routes (DANISH)
 app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
@@ -172,4 +185,5 @@ process.on("SIGINT", async () => {
     await sql.close();
     console.log("Database connections closed");
     process.exit(0);
+});
 });

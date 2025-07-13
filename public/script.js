@@ -1,3 +1,89 @@
+// Tool data
+const toolsData = {
+    ai: [
+        {
+            title: "AI Chat Bot",
+            description: "Get instant help and answers anytime using our smart assistant.",
+            icon: "chat",
+            url: "#"
+        },
+        {
+            title: "Summarizer",
+            description: "Instantly get summaries of long text or websites/links for easy reading.",
+            icon: "summarizer",
+            url: "#"
+        }
+    ],
+    health: [
+        {
+            title: "Book Health Appointment",
+            description: "Schedule an appointment with your personalized health coach or AI assistant.",
+            icon: "chat",
+            url: "/appointment"
+        },
+        {
+            title: "Health Tracker",
+            description: "Monitor your daily health metrics and wellness goals.",
+            icon: "chat",
+            url: "#"
+        },
+        {
+            title: "Meditation Guide",
+            description: "Guided meditation sessions for stress relief and mindfulness.",
+            icon: "summarizer",
+            url: "#"
+        }
+    ],
+    learning: [
+        {
+            title: "Study Planner",
+            description: "Organize your study schedule and track learning progress.",
+            icon: "chat",
+            url: "#"
+        },
+        {
+            title: "Quiz Generator",
+            description: "Create interactive quizzes to test your knowledge.",
+            icon: "summarizer",
+            url: "#"
+        }
+    ],
+    scheduling: [
+        {
+            title: "Book Appointment",
+            description: "Schedule an appointment with your personalized health coach or AI assistant.",
+            icon: "chat",
+            url: "/appointment"
+        },
+        {
+            title: "Task Manager",
+            description: "Organize and prioritize your daily tasks efficiently.",
+            icon: "chat",
+            url: "#"
+        },
+        {
+            title: "Calendar Sync",
+            description: "Sync and manage events across all your calendars.",
+            icon: "summarizer",
+            url: "#"
+        }
+    ],
+    utilities: [
+        {
+            title: "File Converter",
+            description: "Convert files between different formats quickly and easily.",
+            icon: "chat",
+            url: "#"
+        },
+        {
+            title: "Password Generator",
+            description: "Generate secure passwords for all your accounts.",
+            icon: "summarizer",
+            url: "#"
+        }
+    ]
+};
+
 let currentCategory = 'ai';
 
 // Initialize
@@ -191,7 +277,16 @@ function searchTools(query) {
 
 // Open tool
 function openTool(url) {
-    window.location.href = url;
+    console.log('Opening tool:', url);
+    
+    // Handle appointment booking
+    if (url === '/appointment') {
+        window.location.href = '/appointment';
+        return;
+    }
+    
+    // Add your tool opening logic here for other tools
+    alert('Tool would open here: ' + url);
 }
 
 // Initialize the app

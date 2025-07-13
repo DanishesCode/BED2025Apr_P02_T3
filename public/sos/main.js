@@ -1,4 +1,4 @@
-const apiBaseUrl = "http://localhost:3000";
+const apiBaseUrl = "";
 
 function showNotification(message, type) {
     const notification = document.getElementById("notification");
@@ -159,7 +159,7 @@ document.addEventListener("DOMContentLoaded",async function(){
     // Add error handling
     try {
         console.log("Navigating to settings...");
-        const url = "http://localhost:3000/sos/setting.html";
+        const url = "/sos/setting.html";
         console.log("URL:", url);
         window.location.href = url;
     } catch (error) {

@@ -25,7 +25,7 @@ class UserController {
                 success: true,
                 message: 'User created successfully',
                 user: {
-                    id: result.user.userId,
+                    id: result.user.id,
                     name: result.user.name,
                     email: result.user.email
                 }
@@ -56,7 +56,7 @@ class UserController {
             // Generate JWT token
             const token = jwt.sign(
                 { 
-                    userId: result.user.userId, 
+                    userId: result.user.id, 
                     email: result.user.email 
                 },
                 process.env.JWT_SECRET || 'your-secret-key',
@@ -74,7 +74,7 @@ class UserController {
                 success: true,
                 message: 'Login successful',
                 user: {
-                    id: result.user.userId,
+                    id: result.user.id,
                     name: result.user.name,
                     email: result.user.email
                 },
