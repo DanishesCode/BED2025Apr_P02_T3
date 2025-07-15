@@ -174,6 +174,7 @@ async function deleteBirthday(id) {
     alert('Failed to delete. Please try again.');
   }
 }
+
 function sendSMSReminder() {
   const smsForm = document.getElementById('sms-form');
   const name = smsForm.getAttribute('data-recipient-name').trim();

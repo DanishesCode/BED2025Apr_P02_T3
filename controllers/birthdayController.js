@@ -1,4 +1,5 @@
 const birthdayModel = require('../models/birthdayModel');
+const userModel = require('../models/userModel');
 const twilio = require('twilio');
 const accountSid = process.env.TWILIO_SID;
 const authToken = process.env.TWILIO_TOKEN;
@@ -6,7 +7,18 @@ const twilioNumber = process.env.TWILIO_PHONE;
 const twilioClient = twilio(accountSid, authToken);
 async function getAllBirthdays(req, res) {
   try {
-    const userId = req.user.userId; // Now required due to auth middleware
+    let userId = req.user.userId;
+    
+    // Fallback: if userId is missing, look it up by email
+    if (!userId && req.user.email) {
+      const user = await userModel.findUserByEmail(req.user.email);
+      userId = user ? user.userId : null;
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID not found' });
+    }
+    
     const birthdays = await birthdayModel.getAllBirthdays(userId);
     res.json(birthdays);
   } catch (err) {
@@ -17,7 +29,18 @@ async function getAllBirthdays(req, res) {
 
 async function getBirthdayById(req, res) {
   try {
-    const userId = req.user.userId; // Now required due to auth middleware
+    let userId = req.user.userId;
+    
+    // Fallback: if userId is missing, look it up by email
+    if (!userId && req.user.email) {
+      const user = await userModel.findUserByEmail(req.user.email);
+      userId = user ? user.userId : null;
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID not found' });
+    }
+    
     const id = parseInt(req.params.id);
     const birthday = await birthdayModel.getBirthdayById(id, userId);
     if (!birthday) return res.status(404).json({ error: 'Not found' });
@@ -30,18 +53,45 @@ async function getBirthdayById(req, res) {
 
 async function addBirthday(req, res) {
   try {
-    const userId = req.user.userId; // Now required due to auth middleware
+    console.log('addBirthday - req.user:', req.user);
+    console.log('addBirthday - req.user.userId:', req.user.userId);
+    
+    let userId = req.user.userId;
+    
+    // Fallback: if userId is missing, look it up by email
+    if (!userId && req.user.email) {
+      console.log('Looking up user by email:', req.user.email);
+      const user = await userModel.findUserByEmail(req.user.email);
+      userId = user ? user.userId : null;
+      console.log('Found userId:', userId);
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID not found' });
+    }
+    
     await birthdayModel.addBirthday(req.body, userId);
     res.status(201).send('Birthday added');
   } catch (err) {
-    console.error(err);
+    console.error('Database error (addBirthday):', err);
     res.status(500).json({ error: 'Server error' });
   }
 }
 
 async function updateBirthday(req, res) {
   try {
-    const userId = req.user.userId; // Now required due to auth middleware
+    let userId = req.user.userId;
+    
+    // Fallback: if userId is missing, look it up by email
+    if (!userId && req.user.email) {
+      const user = await userModel.findUserByEmail(req.user.email);
+      userId = user ? user.userId : null;
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID not found' });
+    }
+    
     const id = parseInt(req.params.id);
     await birthdayModel.updateBirthday(id, req.body, userId);
     res.send('Birthday updated');
@@ -53,7 +103,18 @@ async function updateBirthday(req, res) {
 
 async function deleteBirthday(req, res) {
   try {
-    const userId = req.user.userId; // Now required due to auth middleware
+    let userId = req.user.userId;
+    
+    // Fallback: if userId is missing, look it up by email
+    if (!userId && req.user.email) {
+      const user = await userModel.findUserByEmail(req.user.email);
+      userId = user ? user.userId : null;
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID not found' });
+    }
+    
     const id = parseInt(req.params.id);
     await birthdayModel.deleteBirthday(id, userId);
     res.send('Birthday deleted');
@@ -66,7 +127,18 @@ async function deleteBirthday(req, res) {
 // dashboard showing birthdays
 async function getBirthdaysForDashboard(req, res) {
   try {
-    const userId = req.user.userId; // Now required due to auth middleware
+    let userId = req.user.userId;
+    
+    // Fallback: if userId is missing, look it up by email
+    if (!userId && req.user.email) {
+      const user = await userModel.findUserByEmail(req.user.email);
+      userId = user ? user.userId : null;
+    }
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'User ID not found' });
+    }
+    
     const allBirthdays = await birthdayModel.getAllBirthdays(userId);
 
     const today = [];

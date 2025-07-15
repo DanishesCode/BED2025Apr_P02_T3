@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE = '/birthdays';
+  const API_BASE = 'http://localhost:3000/birthdays';
   const birthdayId = new URLSearchParams(window.location.search).get('id');
   const firstNameInput = document.getElementById('first_name');
   const lastNameInput = document.getElementById('last_name');
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(res => {
         if (res.status === 401) {
           alert('Please log in to access this page');
-          window.location.href = '/login';
+          window.location.href = 'http://localhost:3000/login';
           return;
         }
         if (!res.ok) throw new Error('Birthday not found');
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(res => {
         if (res.status === 401) {
           alert('Please log in to save birthdays');
-          window.location.href = '/login';
+          window.location.href = 'http://localhost:3000/login';
           return;
         }
         if (!res.ok) throw new Error('Save failed');
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
           .then(res => {
             if (res.status === 401) {
               alert('Please log in to delete birthdays');
-              window.location.href = '/login';
+              window.location.href = 'http://localhost:3000/login';
               return;
             }
             if (!res.ok) throw new Error('Delete failed');
