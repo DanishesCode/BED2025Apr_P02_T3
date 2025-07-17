@@ -337,34 +337,92 @@ CREATE TABLE Hospitals (
     longitude DECIMAL(9,6),
     ownership VARCHAR(20),
     emergency_services BIT,
-    services NVARCHAR(MAX),
-    rating DECIMAL(2,1)  -- Ratings from 1.0 to 5.0
+    services TEXT,
+    rating DECIMAL(2,1),
+    telephone VARCHAR(20)
 );
 
-INSERT INTO Hospitals (name, address, latitude, longitude, ownership, emergency_services, services, rating)
+INSERT INTO Hospitals (name, address, latitude, longitude, ownership, emergency_services, services, rating, telephone)
 VALUES
 -- Public Acute & Specialist Hospitals
-('Singapore General Hospital', 'Outram Road, Singapore 169608', 1.279300, 103.834400, 'Public', 1, 'Acute care, emergency, specialist services, national centers', 4.5),
-('Tan Tock Seng Hospital', '11 Jalan Tan Tock Seng, Singapore 308433', 1.321900, 103.846200, 'Public', 1, 'General acute, trauma, infectious diseases, geriatrics', 4.3),
-('National University Hospital', '5 Lower Kent Ridge Road, Singapore 119074', 1.293100, 103.783400, 'Public', 1, 'General acute, surgical, oncology, cardiology, pediatrics', 4.4),
-('Changi General Hospital', '2 Simei Street 3, Singapore 529889', 1.341800, 103.953400, 'Public', 1, 'General acute, emergency, geriatrics, rehabilitation', 4.2),
-('Khoo Teck Puat Hospital', '90 Yishun Central, Singapore 768828', 1.424500, 103.838800, 'Public', 1, 'Acute care, emergency, internal medicine, surgery', 4.1),
-('Sengkang General Hospital', '110 Sengkang East Way, Singapore 544886', 1.393800, 103.897700, 'Public', 1, 'Acute care, surgical, internal medicine, rehabilitation', 4.0),
-('Ng Teng Fong General Hospital', '1 Jurong East Street 21, Singapore 609606', 1.333300, 103.743000, 'Public', 1, 'Acute care, emergency, multispecialty, surgery', 4.2),
-('KK Women''s and Children''s Hospital', '100 Bukit Timah Road, Singapore 229899', 1.313800, 103.845200, 'Public', 1, 'Obstetrics, gynecology, pediatrics, neonatology', 4.6),
-('Alexandra Hospital', '378 Alexandra Road, Singapore 159964', 1.288700, 103.803000, 'Public', 1, 'Urgent care, internal medicine, community care', 4.1),
-('Woodlands Health Campus', '2 Woodlands Drive 17, Singapore 737754', 1.442300, 103.796900, 'Public', 1, 'Emergency, general medicine, rehabilitation', 4.0),
+('Singapore General Hospital', 'Outram Road, Singapore 169608', 1.279300, 103.834400, 'Public', 1,
+ 'Acute care, emergency, specialist services, national centers, surgery, cardiology, oncology, orthopedics, plastic surgery, liver transplant, ICU, operating theatres, radiology, pharmacy, health screening, ambulance service',
+ 4.5, '6321 4377'),
+
+('Tan Tock Seng Hospital', '11 Jalan Tan Tock Seng, Singapore 308433', 1.321900, 103.846200, 'Public', 1,
+ 'General acute, trauma, infectious diseases, geriatrics, emergency, isolation ward, internal medicine, outpatient services, diagnostics, rehabilitation',
+ 4.3, '6256 6011'),
+
+('National University Hospital', '5 Lower Kent Ridge Road, Singapore 119074', 1.293100, 103.783400, 'Public', 1,
+ 'General acute, surgical, oncology, cardiology, pediatrics, cancer treatment, heart centre, specialist clinics, operating theatres, ICU, imaging services',
+ 4.4, '6779 5555'),
+
+('Changi General Hospital', '2 Simei Street 3, Singapore 529889', 1.341800, 103.953400, 'Public', 1,
+ 'General acute, emergency, geriatrics, rehabilitation, diagnostics, surgery, outpatient clinics',
+ 4.2, '6850 3333'),
+
+('Khoo Teck Puat Hospital', '90 Yishun Central, Singapore 768828', 1.424500, 103.838800, 'Public', 1,
+ 'Acute care, emergency, internal medicine, surgery, diagnostics, outpatient services, physiotherapy',
+ 4.3, '6555 8000'),
+
+('Sengkang General Hospital', '110 Sengkang East Way, Singapore 544886', 1.393800, 103.897700, 'Public', 1,
+ 'Acute care, surgical, internal medicine, rehabilitation, specialist clinics, imaging',
+ 4.1, '6930 6000'),
+
+('Ng Teng Fong General Hospital', '1 Jurong East Street 21, Singapore 609606', 1.333300, 103.743000, 'Public', 1,
+ 'Acute care, emergency, multispecialty, surgery, outpatient clinics, diagnostics',
+ 4.2, '6716 2000'),
+
+('KK Women''s and Children''s Hospital', '100 Bukit Timah Road, Singapore 229899', 1.313800, 103.845200, 'Public', 1,
+ 'Obstetrics, gynecology, pediatrics, neonatology, adolescent medicine, fertility, emergency for women and children',
+ 4.5, '6225 5554'),
+
+('Alexandra Hospital', '378 Alexandra Road, Singapore 159964', 1.288700, 103.803000, 'Public', 1,
+ 'Urgent care, internal medicine, community care, geriatric services, rehabilitation',
+ 4.0, '6908 2222'),
+
+('Woodlands Health Campus', '2 Woodlands Drive 17, Singapore 737754', 1.442300, 103.796900, 'Public', 1,
+ 'Emergency, general medicine, rehabilitation, specialist outpatient services, diagnostics',
+ 4.1, '6363 8000'),
 
 -- Public Psychiatric Hospital
-('Institute of Mental Health', '10 Buangkok View, Singapore 539747', 1.382200, 103.879800, 'Public', 0, 'Psychiatric care, inpatient and outpatient mental health, geriatrics', 4.2),
+('Institute of Mental Health', '10 Buangkok View, Singapore 539747', 1.382200, 103.879800, 'Public', 0,
+ 'Psychiatric care, inpatient and outpatient mental health, geriatrics, addiction treatment, counselling',
+ 4.0, '6389 2000'),
 
 -- Private Hospitals
-('Mount Elizabeth Hospital (Orchard)', '3 Mount Elizabeth, Singapore 228510', 1.305400, 103.835600, 'Private', 1, 'Cardiology, oncology, surgery, transplant', 4.7),
-('Mount Elizabeth Novena Hospital', '38 Irrawaddy Road, Singapore 329563', 1.321900, 103.844200, 'Private', 1, 'Specialist services, surgical care, diagnostics', 4.5),
-('Gleneagles Hospital', '6A Napier Road, Singapore 258500', 1.305200, 103.822100, 'Private', 1, 'Cardiology, gastroenterology, oncology, surgery', 4.6),
-('Raffles Hospital', '585 North Bridge Road, Singapore 188770', 1.302700, 103.860800, 'Private', 1, 'General surgery, emergency, diagnostics, specialist services', 4.4),
-('Parkway East Hospital', '321 Joo Chiat Place, Singapore 427990', 1.313500, 103.905800, 'Private', 1, 'General medicine, orthopedics, emergency, surgery', 4.3),
-('Farrer Park Hospital', '1 Farrer Park Station Road, Singapore 217562', 1.312300, 103.854500, 'Private', 1, 'Multispecialty, surgical, imaging, emergency', 4.2),
-('Thomson Medical Centre', '339 Thomson Road, Singapore 307677', 1.324400, 103.842400, 'Private', 1, 'Obstetrics, pediatrics, general medicine, urgent care', 4.1),
-('Mount Alvernia Hospital', '820 Thomson Road, Singapore 574623', 1.344100, 103.839600, 'Not-for-Profit', 1, 'General medicine, pediatrics, maternity, UCC', 4.0),
-('Crawfurd Hospital', '339 Changi Road, Singapore 419821', 1.318500, 103.909700, 'Private', 0, 'Day surgery, wellness, rehabilitation', 3.8);
+('Mount Elizabeth Hospital (Orchard)', '3 Mount Elizabeth, Singapore 228510', 1.305400, 103.835600, 'Private', 1,
+ 'Cardiology, oncology, surgery, transplant, emergency, specialist clinics, diagnostics, imaging',
+ 4.6, '6737 2666'),
+
+('Mount Elizabeth Novena Hospital', '38 Irrawaddy Road, Singapore 329563', 1.321900, 103.844200, 'Private', 1,
+ 'Specialist services, surgical care, diagnostics, cardiology, gastroenterology, neurology, orthopedics',
+ 4.5, '6898 6898'),
+
+('Gleneagles Hospital', '6A Napier Road, Singapore 258500', 1.305200, 103.822100, 'Private', 1,
+ 'Cardiology, gastroenterology, oncology, surgery, diagnostics, emergency, imaging',
+ 4.4, '6473 7222'),
+
+('Raffles Hospital', '585 North Bridge Road, Singapore 188770', 1.302700, 103.860800, 'Private', 1,
+ 'General surgery, emergency, diagnostics, specialist services, executive health screening',
+ 4.3, '6311 1111'),
+
+('Parkway East Hospital', '321 Joo Chiat Place, Singapore 427990', 1.313500, 103.905800, 'Private', 1,
+ 'General medicine, orthopedics, emergency, surgery, diagnostics, ENT, health screening',
+ 4.2, '6344 7588'),
+
+('Farrer Park Hospital', '1 Farrer Park Station Road, Singapore 217562', 1.312300, 103.854500, 'Private', 1,
+ 'Multispecialty, surgical, imaging, emergency, specialist outpatient clinics, medical aesthetics',
+ 4.3, '6363 1818'),
+
+('Thomson Medical Centre', '339 Thomson Road, Singapore 307677', 1.324400, 103.842400, 'Private', 1,
+ 'Obstetrics, pediatrics, general medicine, urgent care, fertility centre, specialist services',
+ 4.4, '6250 2222'),
+
+('Mount Alvernia Hospital', '820 Thomson Road, Singapore 574623', 1.344100, 103.839600, 'Not-for-Profit', 1,
+ 'General medicine, pediatrics, maternity, urgent care centre, diagnostics, outpatient clinics',
+ 4.5, '6347 6688'),
+
+('Crawfurd Hospital', '339 Changi Road, Singapore 419821', 1.318500, 103.909700, 'Private', 0,
+ 'Day surgery, wellness, rehabilitation, diagnostics, preventive health, specialist consultation',
+ 4.0, '6344 2333');
