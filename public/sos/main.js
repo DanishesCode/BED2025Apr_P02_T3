@@ -1,5 +1,13 @@
 const apiBaseUrl = "http://localhost:3000";
 
+function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+
 function showNotification(message, type) {
     const notification = document.getElementById("notification");
     const text = document.getElementById("notification-text");
@@ -24,7 +32,9 @@ function showNotification(message, type) {
 
   async function retrieveData(id){
     try{
-        const response = await fetch(`${apiBaseUrl}/caretaker/getrecord/${id}`)
+        const response = await fetch(`${apiBaseUrl}/caretaker/getrecord/${id}`,  {
+          headers: getAuthHeaders()
+        });
         if (!response.ok) {
             // Handle HTTP errors (e.g., 404, 500)
             // Attempt to read error body if available, otherwise use status text
@@ -56,6 +66,7 @@ async function convertAddress(data){
       method: "POST", // Specify the HTTP method
       headers: {
         "Content-Type": "application/json", // Tell the API we are sending JSON
+        ...getAuthHeaders()
       },
       body: JSON.stringify(data), // Send the data as a JSON string in the request body
     });
@@ -95,6 +106,7 @@ async function sendMessage(data){
       method: "POST", // Specify the HTTP method
       headers: {
         "Content-Type": "application/json", // Tell the API we are sending JSON
+        ...getAuthHeaders()
       },
       body: JSON.stringify(data), // Send the data as a JSON string in the request body
     });

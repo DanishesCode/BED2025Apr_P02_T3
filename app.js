@@ -130,8 +130,8 @@ app.get("/sos/settings", (req, res) => {
 
 
 // Trivia routes (DANISH)
-app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
-app.get("/trivia/options/:questionText", triviaController.getOptionsByQuestion);
+app.get("/trivia/questions/:categoryName",AuthMiddleware.authenticateToken, triviaController.getQuestionsByCategory);
+app.get("/trivia/options/:questionText",AuthMiddleware.authenticateToken, triviaController.getOptionsByQuestion);
 
 // User authentication routes
 app.post(
@@ -180,12 +180,12 @@ app.post("/chat/new", AuthMiddleware.authenticateToken, aichatController.createC
 
 
 //ROUTES FOR SOS(Danish)
-app.get("/caretaker/getrecord/:id",sosController.retrieveRecord);
-app.post("/caretaker/convertaddress",sosController.convertLocation);
-app.post('/caretaker/send-message', sosController.sendTelegramMessage);
-app.post("/caretaker/create/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.createRecord);
-app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
-app.delete("/caretaker/delete/:id", sosController.deleteRecord);
+app.get("/caretaker/getrecord/:id",AuthMiddleware.authenticateToken,sosController.retrieveRecord);
+app.post("/caretaker/convertaddress",AuthMiddleware.authenticateToken,sosController.convertLocation);
+app.post('/caretaker/send-message', AuthMiddleware.authenticateToken,sosController.sendTelegramMessage);
+app.post("/caretaker/create/:id",AuthMiddleware.authenticateToken,sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.createRecord);
+app.put("/caretaker/update/:id",AuthMiddleware.authenticateToken,sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
+app.delete("/caretaker/delete/:id", AuthMiddleware.authenticateToken,sosController.deleteRecord);
 
 
 
