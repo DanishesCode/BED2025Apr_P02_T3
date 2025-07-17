@@ -138,7 +138,7 @@ class LoginHandler {
 
         try {
 
-            const response = await fetch('http://localhost:3000/auth/login', {
+            const response = await fetch('http://127.0.0.1:3000/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include', // Include cookies
@@ -156,23 +156,16 @@ class LoginHandler {
                 
                 // Store user info
                 if (result.user) {
-                    console.log('Raw result.user:', result.user);
-
-                    // Only store id, name, and email
-                    const userToStore = {
-                        id: result.user.id,
-                        name: result.user.name,
-                        email: result.user.email
-                    };
-                    localStorage.setItem('currentUser', JSON.stringify(userToStore));
-                    console.log('User info stored in localStorage:', userToStore);
+                    localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    console.log('User info stored in localStorage:', result.user);
                 }
 
                 this.showMessage('Login successful! Redirecting...', 'success');
                 setTimeout(() => {
+
                     // Redirect to main page or dashboard
 
-                    window.location.href = '../index.html';
+                    window.location.href = '/public/index.html';
                 }, 1500);
             } else {
                 this.showMessage(result.message || 'Invalid email or password.', 'error');
@@ -205,7 +198,7 @@ class LoginHandler {
         const token = localStorage.getItem('authToken');
         if (token) {
             // Validate token with server
-            fetch('http://localhost:3000/user/profile', {
+            fetch('http://127.0.0.1:3000/user/profile', {
 
                 method: 'GET',
                 headers: {
@@ -218,7 +211,7 @@ class LoginHandler {
             .then(result => {
                 if (result.success) {
                     // User is already authenticated, redirect
-                    window.location.href = 'http://localhost:3000/';
+                    window.location.href = '/public/index.html';
                 } else {
                     // Token is invalid, clear it
                     localStorage.removeItem('authToken');
@@ -242,6 +235,7 @@ class Carousel {
         this.totalImages = this.images.length;
         this.interval = null;
         
+        // Only initialize if there are carousel images
         if (this.totalImages > 0) {
             this.init();
         }
@@ -361,17 +355,10 @@ class RippleEffect {
 
 // Fade-in/slide-up animation on page load
 window.addEventListener('DOMContentLoaded', () => {
-  const loginImageSection = document.querySelector('.login-image-section');
-  const loginFormSection = document.querySelector('.login-form-section');
-  
-  if (loginImageSection) {
-    loginImageSection.style.opacity = '1';
-    loginImageSection.style.transform = 'translateY(0)';
-  }
-  
-  if (loginFormSection) {
-    loginFormSection.style.opacity = '1';
-    loginFormSection.style.transform = 'translateY(0)';
+  const formSection = document.querySelector('.login-form-section');
+  if (formSection) {
+    formSection.style.opacity = '1';
+    formSection.style.transform = 'translateY(0)';
   }
 });
 

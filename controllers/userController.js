@@ -56,7 +56,7 @@ class UserController {
             // Generate JWT token
             const token = jwt.sign(
                 { 
-                    userId: result.user.id, 
+                    userId: result.user.userId, 
                     email: result.user.email 
                 },
                 process.env.JWT_SECRET || 'your-secret-key',
