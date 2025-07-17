@@ -140,7 +140,9 @@ catch (error) {
 }
 
 document.addEventListener("DOMContentLoaded",async function(){
-    let userId = 1
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    console.log(currentUser);
+    let userId = currentUser.id;
     data = await retrieveData(userId);
     teleBox = document.querySelector("#telegram");
     chatBox = document.querySelector("#chatId");
