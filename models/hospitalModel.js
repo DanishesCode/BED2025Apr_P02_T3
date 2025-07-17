@@ -1,3 +1,6 @@
+const sql = require("mssql");
+const dbConfig = require("../dbConfig");
+
 async function getHospitals(){
     let connection;
     try{

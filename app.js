@@ -80,6 +80,7 @@ const aichatController = require("./controllers/aichatController");
 const appointmentController = require("./controllers/appointmentController");
 const birthdayController = require('./controllers/birthdayController');
 const weatherApiController = require('./controllers/weatherApiController');
+const hospitalController = require("./controllers/hospitalController");
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
 // Routes for pages
 app.get("/", (req, res) => {
@@ -219,6 +220,9 @@ app.post("/photos/upload", upload.single("photo"), validatePhoto, photoControlle
 app.put("/photos/:id/favorite", photoController.toggleFavorite);
 app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
 app.delete("/photos/:id", photoController.deletePhoto);
+
+//Routes for nearest hospital(danish)
+app.get("/hospital/getall",AuthMiddleware.authenticateToken,hospitalController.getHopsitals);
 
 //start telebot
 try{
