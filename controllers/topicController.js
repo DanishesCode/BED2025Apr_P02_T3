@@ -33,12 +33,35 @@ const upload = multer({
     limits: {
         fileSize: 50 * 1024 * 1024 // 50MB limit
     }
-});
+}).single('file');
+
+// Custom upload middleware with error handling
+const uploadFile = (req, res, next) => {
+    console.log('=== UPLOAD FILE MIDDLEWARE ===');
+    console.log('Request content-type:', req.headers['content-type']);
+    console.log('Request method:', req.method);
+    
+    upload(req, res, (err) => {
+        if (err) {
+            console.error('Multer error:', err);
+            return res.status(400).json({
+                success: false,
+                message: 'File upload error',
+                error: err.message
+            });
+        }
+        console.log('File upload successful, proceeding to next middleware');
+        next();
+    });
+};
 
 const topicController = {
     // Get all topics
     getAllTopics: async (req, res) => {
         try {
+            console.log('=== GET ALL TOPICS REQUEST ===');
+            console.log('Query parameters:', req.query);
+            
             const { category, contentType, search, limit = 20, offset = 0 } = req.query;
             
             const filters = {};
@@ -46,7 +69,12 @@ const topicController = {
             if (contentType && contentType !== 'all') filters.content_type = contentType;
             if (search) filters.search = search;
             
+            console.log('Filters:', filters);
+            
             const topics = await topicModel.getAllTopics(filters, limit, offset);
+            
+            console.log('Topics retrieved:', topics.length);
+            console.log('First topic:', topics[0]);
             
             res.status(200).json({
                 success: true,
@@ -96,6 +124,9 @@ const topicController = {
     createTopic: async (req, res) => {
         try {
             console.log('=== CREATE TOPIC REQUEST ===');
+            console.log('Request method:', req.method);
+            console.log('Request URL:', req.originalUrl);
+            console.log('Request headers:', req.headers);
             console.log('Request body:', req.body);
             console.log('Request file:', req.file);
             console.log('Request user:', req.user);
@@ -298,7 +329,7 @@ const topicController = {
     },
 
     // Upload middleware
-    uploadFile: upload.single('file')
+    uploadFile: uploadFile
 };
 
 module.exports = topicController;

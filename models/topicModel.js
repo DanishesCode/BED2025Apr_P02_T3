@@ -49,10 +49,19 @@ const topicModel = {
             
             const result = await request.query(query);
             
-            // Parse tags JSON for each topic
+            // Parse tags JSON for each topic and map field names
             return result.recordset.map(topic => ({
-                ...topic,
-                tags: topic.tags ? JSON.parse(topic.tags) : []
+                id: topic.id,
+                title: topic.title,
+                content: topic.content,
+                contentType: topic.content_type, // Map content_type to contentType
+                category: topic.category,
+                description: topic.description,
+                tags: topic.tags ? JSON.parse(topic.tags) : [],
+                createdAt: topic.created_at, // Map created_at to createdAt
+                updatedAt: topic.updated_at, // Map updated_at to updatedAt
+                author: topic.author,
+                userId: topic.user_id || topic.userId // Handle both field names
             }));
         } catch (error) {
             console.error('Error in getAllTopics:', error);
@@ -94,8 +103,17 @@ const topicModel = {
             
             const topic = result.recordset[0];
             return {
-                ...topic,
-                tags: topic.tags ? JSON.parse(topic.tags) : []
+                id: topic.id,
+                title: topic.title,
+                content: topic.content,
+                contentType: topic.content_type, // Map content_type to contentType
+                category: topic.category,
+                description: topic.description,
+                tags: topic.tags ? JSON.parse(topic.tags) : [],
+                createdAt: topic.created_at, // Map created_at to createdAt
+                updatedAt: topic.updated_at, // Map updated_at to updatedAt
+                author: topic.author,
+                userId: topic.userId
             };
         } catch (error) {
             console.error('Error in getTopicById:', error);

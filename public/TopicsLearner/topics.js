@@ -12,8 +12,39 @@ const emptyState = document.getElementById('emptyState');
 const topicModal = document.getElementById('topicModal');
 const uploadForm = document.getElementById('uploadForm');
 
-// Initialize the page
+// Add page navigation debugging
+window.addEventListener('beforeunload', function(event) {
+    console.warn('Page is about to unload/refresh! This might explain the redirect.');
+    console.warn('Event:', event);
+});
+
+// Add global error handler for debugging
+window.addEventListener('error', function(error) {
+    console.error('Global JavaScript error:', error);
+    console.error('Error details:', {
+        message: error.message,
+        filename: error.filename,
+        lineno: error.lineno,
+        colno: error.colno,
+        error: error.error
+    });
+});
+
+// Add unhandled promise rejection handler
+window.addEventListener('unhandledrejection', function(event) {
+    console.error('Unhandled promise rejection:', event.reason);
+    console.error('Promise rejection details:', event);
+});
+
+// Initialize the page (ensure this only runs once)
+let isInitialized = false;
 document.addEventListener('DOMContentLoaded', function() {
+    if (isInitialized) {
+        console.log('Already initialized, skipping duplicate initialization');
+        return;
+    }
+    isInitialized = true;
+    console.log('Initializing page...');
     checkAuthentication();
     
     if (window.location.pathname.includes('topics.html')) {
@@ -62,7 +93,7 @@ async function loadTopics() {
     try {
         showLoading(true);
         
-        const response = await fetch('/api/topics', {
+        const response = await fetch('http://localhost:3000/api/topics', {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
@@ -183,21 +214,47 @@ function createTopicCard(topic) {
     const preview = getContentPreview(topic);
     const tags = topic.tags ? topic.tags.slice(0, 3) : [];
     
+    // Create media content based on type
+    let mediaContent = '';
+    if (topic.contentType === 'image') {
+        mediaContent = `
+            <div class="topic-media">
+                <img src="http://localhost:3000${topic.content}" alt="${escapeHtml(topic.title)}" class="topic-thumbnail" onerror="this.src='../images/placeholder.png'">
+            </div>
+        `;
+    } else if (topic.contentType === 'video') {
+        mediaContent = `
+            <div class="topic-media">
+                <video class="topic-thumbnail" preload="metadata">
+                    <source src="http://localhost:3000${topic.content}#t=0.1" type="video/mp4">
+                </video>
+                <div class="video-overlay">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                </div>
+            </div>
+        `;
+    }
+    
     return `
         <div class="topic-card" onclick="openTopicModal(${topic.id})">
             <div class="topic-header">
                 <span class="content-type-badge ${topic.contentType}">${topic.contentType}</span>
             </div>
-            <h3 class="topic-title">${escapeHtml(topic.title)}</h3>
-            <p class="topic-preview">${preview}</p>
-            ${tags.length > 0 ? `
-                <div class="topic-tags">
-                    ${tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
+            ${mediaContent}
+            <div class="topic-content">
+                <h3 class="topic-title">${escapeHtml(topic.title)}</h3>
+                <p class="topic-preview">${preview}</p>
+                ${tags.length > 0 ? `
+                    <div class="topic-tags">
+                        ${tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
+                    </div>
+                ` : ''}
+                <div class="topic-meta">
+                    <span class="author">By ${escapeHtml(topic.author)}</span>
+                    <span class="date">${formattedDate}</span>
                 </div>
-            ` : ''}
-            <div class="topic-meta">
-                <span class="author">By ${escapeHtml(topic.author)}</span>
-                <span class="date">${formattedDate}</span>
             </div>
         </div>
     `;
@@ -278,7 +335,7 @@ function openTopicModal(topicId) {
     } else if (topic.contentType === 'image') {
         modalContent.innerHTML = `
             <div class="image-content">
-                <img src="${topic.content}" alt="${topic.title}" onerror="this.src='../images/placeholder.png'">
+                <img src="http://localhost:3000${topic.content}" alt="${topic.title}" onerror="this.src='../images/placeholder.png'">
                 ${topic.description ? `<p>${escapeHtml(topic.description)}</p>` : ''}
             </div>
         `;
@@ -286,7 +343,7 @@ function openTopicModal(topicId) {
         modalContent.innerHTML = `
             <div class="video-content">
                 <video controls>
-                    <source src="${topic.content}" type="video/mp4">
+                    <source src="http://localhost:3000${topic.content}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
                 ${topic.description ? `<p>${escapeHtml(topic.description)}</p>` : ''}
@@ -327,7 +384,11 @@ function initializeUploadForm() {
     }
     
     // Set up form submission
-    uploadForm.addEventListener('submit', handleFormSubmit);
+    // Add form submit handler (remove any existing listeners first)
+    if (uploadForm) {
+        uploadForm.removeEventListener('submit', handleFormSubmit);
+        uploadForm.addEventListener('submit', handleFormSubmit);
+    }
     
     // Initialize content type
     toggleContentInput();
@@ -458,8 +519,21 @@ function clearFilePreview() {
 }
 
 // Handle form submission
+// Flag to prevent multiple submissions
+let isSubmitting = false;
+
 async function handleFormSubmit(event) {
     event.preventDefault();
+    event.stopPropagation();
+    
+    // Prevent multiple submissions
+    if (isSubmitting) {
+        console.log('Already submitting, ignoring duplicate submission');
+        return;
+    }
+    
+    isSubmitting = true;
+    console.log('Form submission prevented, handling upload...');
     
     const submitBtn = document.getElementById('submitBtn');
     const btnText = submitBtn.querySelector('.btn-text');
@@ -472,6 +546,10 @@ async function handleFormSubmit(event) {
     
     try {
         const formData = new FormData(uploadForm);
+        
+        // Get content type for success message
+        const contentType = formData.get('contentType');
+        console.log('Content type:', contentType);
         
         // Log form data for debugging
         console.log('FormData contents:');
@@ -487,22 +565,31 @@ async function handleFormSubmit(event) {
         }
         
         // Send the data to backend
-        const response = await fetch('/api/topics', {
+        const response = await fetch('http://localhost:3000/api/topics', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${authToken}`
             },
             body: formData
         });
-        
+
         console.log('Response status:', response.status);
         console.log('Response headers:', response.headers);
+        console.log('Response URL:', response.url);
         
         // Check if response is JSON
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
+        const contentTypeHeader = response.headers.get('content-type');
+        console.log('Content-Type:', contentTypeHeader);
+        
+        if (!contentTypeHeader || !contentTypeHeader.includes('application/json')) {
             const textResponse = await response.text();
             console.error('Non-JSON response:', textResponse);
+            console.error('Full response details:', {
+                status: response.status,
+                statusText: response.statusText,
+                headers: Array.from(response.headers.entries()),
+                url: response.url
+            });
             throw new Error(`Server returned non-JSON response: ${textResponse.substring(0, 100)}...`);
         }
         
@@ -513,13 +600,20 @@ async function handleFormSubmit(event) {
             throw new Error(data.message || 'Failed to upload content');
         }
         
-        showSuccessModal();
-        resetForm();
+        console.log('Upload successful! Showing success modal...');
+        showSuccessModal(contentType);
+        
+        console.log('Success modal should now be visible. Form will not be reset automatically.');
+        
+        // Don't do anything else - let the user decide what to do next
+        // No automatic form reset, no automatic page refresh, no automatic loadTopics calls
         
     } catch (error) {
         console.error('Error uploading content:', error);
         alert('Failed to upload content. Please try again. Error: ' + error.message);
     } finally {
+        console.log('Finally block - resetting button state');
+        isSubmitting = false;
         submitBtn.disabled = false;
         btnText.style.display = 'block';
         btnLoading.style.display = 'none';
@@ -528,19 +622,60 @@ async function handleFormSubmit(event) {
 
 // Reset form
 function resetForm() {
+    console.log('resetForm called');
     if (uploadForm) {
+        console.log('Resetting upload form...');
         uploadForm.reset();
         toggleContentInput();
         clearFilePreview();
+        console.log('Form reset completed');
+    } else {
+        console.log('Upload form not found, skipping reset');
     }
 }
 
-// Show success modal
-function showSuccessModal() {
+// Show success modal (prevent multiple calls)
+let isShowingSuccessModal = false;
+function showSuccessModal(contentType) {
+    if (isShowingSuccessModal) {
+        console.log('Success modal already showing, ignoring duplicate call');
+        return;
+    }
+    
+    isShowingSuccessModal = true;
+    console.log('showSuccessModal called with contentType:', contentType);
     const modal = document.getElementById('successModal');
+    const titleElement = document.getElementById('successTitle');
+    const messageElement = document.getElementById('successMessage');
+    
+    console.log('Success modal element:', modal);
+    
     if (modal) {
+        // Set content-specific messages
+        if (contentType === 'image') {
+            titleElement.textContent = 'Image Uploaded Successfully!';
+            messageElement.textContent = 'Your image has been shared with the community.';
+        } else if (contentType === 'video') {
+            titleElement.textContent = 'Video Uploaded Successfully!';
+            messageElement.textContent = 'Your video has been shared with the community.';
+        } else if (contentType === 'text') {
+            titleElement.textContent = 'Text Content Uploaded Successfully!';
+            messageElement.textContent = 'Your text content has been shared with the community.';
+        } else {
+            titleElement.textContent = 'Content Uploaded Successfully!';
+            messageElement.textContent = 'Your knowledge has been shared with the community.';
+        }
+        
+        console.log('Showing success modal...');
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+        console.log('Success modal shown and will stay open until user closes it');
+        
+        // Don't auto-close - let user decide what to do next
+        
+    } else {
+        console.error('Success modal element not found!');
+        isShowingSuccessModal = false;
     }
 }
 
@@ -550,6 +685,17 @@ function closeSuccessModal() {
     if (modal) {
         modal.style.display = 'none';
         document.body.style.overflow = 'auto';
+        isShowingSuccessModal = false; // Reset the flag
+        
+        // Reset the form when user closes modal to upload another
+        console.log('Resetting form after modal close...');
+        resetForm();
+        
+        // Only refresh topics if we're on the topics viewing page, not upload page
+        if (window.location.pathname.includes('topics.html') && typeof loadTopics === 'function') {
+            console.log('Refreshing topics list...');
+            loadTopics();
+        }
     }
 }
 

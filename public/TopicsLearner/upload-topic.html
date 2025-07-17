@@ -64,10 +64,10 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="contentType">Content Type *</label>
+                    <label for="contentType-text">Content Type *</label>
                     <div class="content-type-selector">
                         <label class="radio-option">
-                            <input type="radio" name="contentType" value="text" checked onchange="toggleContentInput()">
+                            <input type="radio" id="contentType-text" name="contentType" value="text" checked onchange="toggleContentInput()">
                             <span class="radio-custom"></span>
                             <div class="option-content">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -80,7 +80,7 @@
                             </div>
                         </label>
                         <label class="radio-option">
-                            <input type="radio" name="contentType" value="image" onchange="toggleContentInput()">
+                            <input type="radio" id="contentType-image" name="contentType" value="image" onchange="toggleContentInput()">
                             <span class="radio-custom"></span>
                             <div class="option-content">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -92,7 +92,7 @@
                             </div>
                         </label>
                         <label class="radio-option">
-                            <input type="radio" name="contentType" value="video" onchange="toggleContentInput()">
+                            <input type="radio" id="contentType-video" name="contentType" value="video" onchange="toggleContentInput()">
                             <span class="radio-custom"></span>
                             <div class="option-content">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -167,8 +167,8 @@
                     <polyline points="20,6 9,17 4,12"/>
                 </svg>
             </div>
-            <h2>Content Uploaded Successfully!</h2>
-            <p>Your knowledge has been shared with the community.</p>
+            <h2 id="successTitle">Content Uploaded Successfully!</h2>
+            <p id="successMessage">Your knowledge has been shared with the community.</p>
             <div class="modal-actions">
                 <button class="btn-secondary" onclick="closeSuccessModal()">Upload Another</button>
                 <button class="btn-primary" onclick="viewTopics()">View All Topics</button>
