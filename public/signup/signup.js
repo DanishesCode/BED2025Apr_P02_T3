@@ -198,7 +198,7 @@ class SignupHandler {
 
             console.log('Attempting signup with:', { ...userData, password: '***' });
 
-            const response = await fetch('http://localhost:3000/auth/signup', {
+            const response = await fetch('http://127.0.0.1:3000/auth/signup', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -213,7 +213,19 @@ class SignupHandler {
 
             // Check if response is ok
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // Try to get the error message from the backend
+                let errorMsg = `HTTP error! status: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    if (errorData && errorData.errors) {
+                        errorMsg = errorData.errors.join(', ');
+                    } else if (errorData && errorData.message) {
+                        errorMsg = errorData.message;
+                    }
+                } catch (e) {
+                    // Ignore JSON parse errors
+                }
+                throw new Error(errorMsg);
             }
 
             // Get response text first

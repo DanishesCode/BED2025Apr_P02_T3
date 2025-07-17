@@ -1,7 +1,16 @@
 // UI logic for selecting date and time
 
 // Base URL for API calls
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://127.0.0.1:3000';
+
+// Helper function to get auth headers
+function getAuthHeaders() {
+    const token = localStorage.getItem('authToken');
+    return {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` })
+    };
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     // --- Calendar Setup ---
@@ -145,7 +154,10 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function fetchAppointments() {
-    fetch(`${API_BASE_URL}/api/appointments`, { credentials: 'include' })
+    fetch(`${API_BASE_URL}/api/appointments`, { 
+        headers: getAuthHeaders(),
+        credentials: 'include' 
+    })
         .then(res => {
             if (!res.ok) {
                 if (res.status === 401) {
@@ -198,7 +210,7 @@ function renderAppointments(appointments) {
 function createAppointment(date, time, consultationType) {
     fetch(`${API_BASE_URL}/api/appointments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify({ date, time, consultationType })
     })
@@ -234,6 +246,7 @@ function deleteAppointment(id) {
     if (!confirm('Delete this appointment?')) return;
     fetch(`${API_BASE_URL}/api/appointments/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
         credentials: 'include'
     })
     .then(res => res.json())
@@ -349,7 +362,7 @@ function startEditAppointment(id, oldDate, oldTime, oldConsultationType) {
 function updateAppointment(id, date, time, consultationType) {
     fetch(`${API_BASE_URL}/api/appointments/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify({ date, time, consultationType })
     })
