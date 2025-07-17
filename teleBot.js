@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 
 let bot; // will hold the bot instance
+let pollingConflict = false;
 
 function startBot() {
   try {
@@ -19,8 +20,12 @@ function startBot() {
 
     bot.on('polling_error', (error) => {
       if (error.code === 'ETELEGRAM' && error.response?.body?.error_code === 409) {
-        console.log('Telegram bot polling conflict - another instance may be running');
-        // Don't spam the logs with the full error
+        if (!pollingConflict) {
+          console.log('Telegram bot polling conflict - another instance may be running');
+          pollingConflict = true;
+        }
+        // Optionally, you could stop the bot here:
+        // bot.stopPolling();
       } else {
         console.error('Telegram polling error:', error.message);
       }
@@ -46,4 +51,3 @@ async function sendMessage(chatId, text) {
 
 
 module.exports = { startBot,sendMessage};
-

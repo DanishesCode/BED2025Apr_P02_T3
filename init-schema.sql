@@ -328,3 +328,27 @@ CREATE TABLE Caretaker (
 INSERT INTO Users (name, email, password, date_of_birth)
 VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
 
+-- [Assistant] - [Topics Learner table for user-generated content] - [2025-07-17]
+CREATE TABLE Topics (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    title NVARCHAR(255) NOT NULL,
+    content NTEXT NOT NULL,
+    content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('text', 'image', 'video')),
+    category VARCHAR(50) NOT NULL DEFAULT 'general',
+    description NTEXT,
+    tags NTEXT, -- JSON array of tags
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    updated_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_Topics_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
+);
+
+-- Sample data for Topics table
+INSERT INTO Topics (userId, title, content, content_type, category, description, tags) VALUES
+(1, 'Introduction to JavaScript Promises', 'JavaScript Promises are a powerful way to handle asynchronous operations. They provide a clean alternative to callback functions and help avoid callback hell. A Promise represents a value that may be available now, in the future, or never.', 'text', 'technology', 'A comprehensive guide to understanding and using JavaScript Promises', '["javascript", "promises", "async", "programming"]'),
+(2, 'Healthy Morning Routine', 'Starting your day with a healthy routine can significantly improve your productivity and well-being. Here are some key practices: 1. Wake up early and get sunlight exposure, 2. Drink water immediately, 3. Exercise or stretch, 4. Eat a nutritious breakfast, 5. Practice mindfulness or meditation.', 'text', 'health', 'A guide to building a healthy and productive morning routine', '["health", "morning", "routine", "wellness"]'),
+(3, 'React Best Practices', 'When developing React applications, following best practices ensures maintainable and performant code. Key practices include: using functional components with hooks, proper state management, avoiding prop drilling, and implementing proper error boundaries.', 'text', 'technology', 'Essential best practices for React development', '["react", "best-practices", "frontend", "development"]'),
+(1, 'Beautiful Sunset Photo', '/uploads/topics/sunset_2025_001.jpg', 'image', 'photography', 'A stunning sunset captured during my vacation in Bali', '["sunset", "photography", "bali", "nature"]'),
+(2, 'Cooking Tutorial Video', '/uploads/topics/pasta_recipe_2025_002.mp4', 'video', 'cooking', 'Step-by-step guide to making authentic Italian pasta', '["cooking", "pasta", "italian", "tutorial"]'),
+(3, 'Mountain Hiking Adventure', '/uploads/topics/mountain_hike_2025_003.jpg', 'image', 'travel', 'Epic mountain hiking experience with breathtaking views', '["hiking", "mountain", "adventure", "nature"]');
+

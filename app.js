@@ -70,6 +70,7 @@ const aichatController = require("./controllers/aichatController");
 const birthdayController = require('./controllers/birthdayController');
 const weatherApiController = require('./controllers/weatherApiController');
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
+const topicController = require('./controllers/topicController');
 // Routes for pages
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -182,6 +183,24 @@ app.post("/photos/upload", upload.single("photo"), validatePhoto, photoControlle
 app.put("/photos/:id/favorite", photoController.toggleFavorite);
 app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
 app.delete("/photos/:id", photoController.deletePhoto);
+
+// Topics Learner routes
+app.get("/topics", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'TopicsLearner', 'topics.html'));
+});
+
+app.get("/topics/upload", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'TopicsLearner', 'upload-topic.html'));
+});
+
+// Topics API routes
+app.get("/api/topics", topicController.getAllTopics);
+app.get("/api/topics/user", AuthMiddleware.authenticateToken, topicController.getUserTopics);
+app.get("/api/topics/category/:category", topicController.getTopicsByCategory);
+app.get("/api/topics/:id", topicController.getTopicById);
+app.post("/api/topics", AuthMiddleware.authenticateToken, topicController.uploadFile, topicController.createTopic);
+app.put("/api/topics/:id", AuthMiddleware.authenticateToken, topicController.updateTopic);
+app.delete("/api/topics/:id", AuthMiddleware.authenticateToken, topicController.deleteTopic);
 
 //start telebot
 try{

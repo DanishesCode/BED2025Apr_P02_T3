@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topics Learner - Browse Content</title>
+    <link rel="stylesheet" href="topics.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-left">
+                <button class="back-btn" onclick="goBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <h1 class="page-title">Topics Learner</h1>
+            </div>
+            <div class="navbar-right">
+                <button class="upload-btn" onclick="window.location.href='upload-topic.html'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17,8 12,3 7,8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Upload Content
+                </button>
+                <div class="user-info">
+                    <span id="userName">User</span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="content-header">
+            <div class="search-filter-container">
+                <div class="search-bar">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="21 21l-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search topics..." onkeyup="filterTopics()">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-type="all" onclick="filterByType('all')">All</button>
+                    <button class="filter-btn" data-type="text" onclick="filterByType('text')">Text</button>
+                    <button class="filter-btn" data-type="image" onclick="filterByType('image')">Images</button>
+                    <button class="filter-btn" data-type="video" onclick="filterByType('video')">Videos</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="topics-grid" id="topicsGrid">
+            <!-- Topics will be loaded here dynamically -->
+            <div class="loading-message">
+                <svg class="loading-spinner" width="24" height="24" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="60" stroke-dashoffset="60" opacity="0.3"/>
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="15" stroke-dashoffset="15"/>
+                </svg>
+                Loading topics...
+            </div>
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                </svg>
+            </div>
+            <h3>No topics found</h3>
+            <p>Be the first to share some knowledge!</p>
+            <button class="upload-btn" onclick="window.location.href='upload-topic.html'">
+                Upload Content
+            </button>
+        </div>
+    </div>
+
+    <!-- Topic Detail Modal -->
+    <div class="modal-overlay" id="topicModal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="modalTitle">Topic Title</h2>
+                <button class="close-btn" onclick="closeModal()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="topic-meta">
+                    <span class="author">By <span id="modalAuthor">Author</span></span>
+                    <span class="date" id="modalDate">Date</span>
+                    <span class="content-type" id="modalType">Type</span>
+                </div>
+                <div class="topic-content" id="modalContent">
+                    <!-- Content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="topics.js"></script>
+</body>
+</html>

@@ -36,6 +36,12 @@ const toolsData = {
     ],
     learning: [
         {
+            title: "Topics Learner",
+            description: "Share and discover knowledge through text, images, and videos uploaded by the community.",
+            icon: "chat",
+            url: "TopicsLearner/topics.html"
+        },
+        {
             title: "Study Planner",
             description: "Organize your study schedule and track learning progress.",
             icon: "chat",

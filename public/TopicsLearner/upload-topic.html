@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topics Learner - Upload Content</title>
+    <link rel="stylesheet" href="topics.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-left">
+                <button class="back-btn" onclick="goBack()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+                <h1 class="page-title">Upload Content</h1>
+            </div>
+            <div class="navbar-right">
+                <button class="browse-btn" onclick="window.location.href='topics.html'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
+                        <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                        <path d="M21 17v2a2 2 0 0 1-2 2h-2"/>
+                        <path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+                    </svg>
+                    Browse Topics
+                </button>
+                <div class="user-info">
+                    <span id="userName">User</span>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="upload-container">
+        <div class="upload-form-container">
+            <div class="upload-header">
+                <h2>Share Your Knowledge</h2>
+                <p>Upload text, images, or videos to help others learn</p>
+            </div>
+
+            <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="topicTitle">Topic Title *</label>
+                    <input type="text" id="topicTitle" name="title" required placeholder="Enter a descriptive title for your content">
+                </div>
+
+                <div class="form-group">
+                    <label for="topicCategory">Category</label>
+                    <select id="topicCategory" name="category">
+                        <option value="general">General</option>
+                        <option value="technology">Technology</option>
+                        <option value="science">Science</option>
+                        <option value="arts">Arts & Culture</option>
+                        <option value="business">Business</option>
+                        <option value="health">Health & Wellness</option>
+                        <option value="education">Education</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="contentType">Content Type *</label>
+                    <div class="content-type-selector">
+                        <label class="radio-option">
+                            <input type="radio" name="contentType" value="text" checked onchange="toggleContentInput()">
+                            <span class="radio-custom"></span>
+                            <div class="option-content">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14,2 14,8 20,8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                </svg>
+                                Text Content
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="contentType" value="image" onchange="toggleContentInput()">
+                            <span class="radio-custom"></span>
+                            <div class="option-content">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21,15 16,10 5,21"/>
+                                </svg>
+                                Image
+                            </div>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="contentType" value="video" onchange="toggleContentInput()">
+                            <span class="radio-custom"></span>
+                            <div class="option-content">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="23 7 16 12 23 17 23 7"/>
+                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                                </svg>
+                                Video
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Text Content Input -->
+                <div class="form-group" id="textContentGroup">
+                    <label for="textContent">Content *</label>
+                    <textarea id="textContent" name="textContent" rows="8" placeholder="Share your knowledge, tips, tutorials, or any educational content..."></textarea>
+                </div>
+
+                <!-- File Upload Input -->
+                <div class="form-group file-upload-group" id="fileUploadGroup" style="display: none;">
+                    <label>Upload File *</label>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <input type="file" id="fileInput" name="file" accept="" onchange="handleFileSelect(event)">
+                        <div class="upload-placeholder" id="uploadPlaceholder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17,8 12,3 7,8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            <h3>Drop your file here or click to browse</h3>
+                            <p>Supported formats: Images (JPG, PNG, GIF) and Videos (MP4, AVI, MOV)</p>
+                        </div>
+                        <div class="file-preview" id="filePreview" style="display: none;">
+                            <!-- File preview will be shown here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="topicDescription">Description (Optional)</label>
+                    <textarea id="topicDescription" name="description" rows="3" placeholder="Add a brief description or context for your content..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="topicTags">Tags (Optional)</label>
+                    <input type="text" id="topicTags" name="tags" placeholder="Enter tags separated by commas (e.g., tutorial, beginner, programming)">
+                    <small>Tags help others find your content more easily</small>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
+                    <button type="submit" class="btn-primary" id="submitBtn">
+                        <span class="btn-text">Upload Content</span>
+                        <div class="btn-loading" style="display: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="60" stroke-dashoffset="60" opacity="0.3"/>
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="15" stroke-dashoffset="15"/>
+                            </svg>
+                            Uploading...
+                        </div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal" style="display: none;">
+        <div class="modal-content success-modal">
+            <div class="success-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20,6 9,17 4,12"/>
+                </svg>
+            </div>
+            <h2>Content Uploaded Successfully!</h2>
+            <p>Your knowledge has been shared with the community.</p>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeSuccessModal()">Upload Another</button>
+                <button class="btn-primary" onclick="viewTopics()">View All Topics</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="topics.js"></script>
+</body>
+</html>
