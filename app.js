@@ -27,20 +27,10 @@ app.use(cors({
         if (!origin) return callback(null, true);
         
         const allowedOrigins = [
-            'http://localhost:3000',
-            'http://localhost:3001',
+            'http://localhost:3000',              
             'http://127.0.0.1:5500',
             'http://localhost:5500',
-            'http://127.0.0.1:5501',
-            'http://localhost:5501',
-            'http://127.0.0.1:5502',
-            'http://localhost:5502',
-            'http://127.0.0.1:5503',
-            'http://localhost:5503',
-            'http://127.0.0.1:5504',
-            'http://localhost:5504',
-            'http://127.0.0.1:3000',
-            'http://127.0.0.1:3001'
+            'http://127.0.0.1:3000'
         ];
         
         if (allowedOrigins.indexOf(origin) !== -1) {
@@ -77,7 +67,6 @@ const ValidationMiddleware = require("./middlewares/validationMiddleware");
 const validatePhoto = require("./middlewares/PhotoValidation");
 const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
-const appointmentController = require("./controllers/appointmentController");
 const birthdayController = require('./controllers/birthdayController');
 const weatherApiController = require('./controllers/weatherApiController');
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
@@ -93,10 +82,6 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'signup', 'signup.html'));
-});
-
-app.get("/appointment", (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'appointment', 'appointment.html'));
 });
 
 // Photo Gallery routes
@@ -117,8 +102,6 @@ app.get("/weather", (req, res) => {
 app.get("/api/weather", weatherApiController.getWeather);
 app.get("/api/weather/search", weatherApiController.searchLocations);
 
-
-
 // SOS routes
 app.get("/sos", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'main.html'));
@@ -127,7 +110,6 @@ app.get("/sos", (req, res) => {
 app.get("/sos/settings", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'setting.html'));
 });
-
 
 // Trivia routes (DANISH)
 app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
@@ -166,18 +148,6 @@ app.put(
     userController.updateProfile
 );
 
-app.post("/chat/", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
-
-// Retrive Chats and Messages
-app.get("/chat/:id", AuthMiddleware.authenticateToken, aichatController.retrieveChats);
-app.get("/chat/messages/:chatId", AuthMiddleware.authenticateToken, aichatController.retrieveMessages);
-
-// Save Messages
-app.post("/chat/messages", AuthMiddleware.authenticateToken, aichatController.saveMessage);
-
-// Add route for creating new chat
-app.post("/chat/new", AuthMiddleware.authenticateToken, aichatController.createChat);
-
 
 //ROUTES FOR SOS(Danish)
 app.get("/caretaker/getrecord/:id",sosController.retrieveRecord);
@@ -188,27 +158,20 @@ app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.
 app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 
 
-
+//RUN TELEBOT(Danish)
+teleBot.startBot();
 
 
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
-app.post("/chat", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
-
-// Appointment API routes
-app.post("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.create);
-app.put("/api/appointments/:id", AuthMiddleware.authenticateToken, appointmentController.update);
-app.delete("/api/appointments/:id", AuthMiddleware.authenticateToken, appointmentController.delete);
-app.get("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.list);
 
 
-// Birthday routes - Now with authentication
-app.get("/birthdays", AuthMiddleware.authenticateToken, birthdayController.getAllBirthdays);
-app.get("/birthdays/dashboard", AuthMiddleware.authenticateToken, birthdayController.getBirthdaysForDashboard);
-app.get("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.getBirthdayById);
-app.post("/birthdays", AuthMiddleware.authenticateToken, validateAdd, birthdayController.addBirthday);
-app.put("/birthdays/:id", AuthMiddleware.authenticateToken, validateUpdate, birthdayController.updateBirthday);
-app.delete("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.deleteBirthday);
-app.post("/birthdays/send-sms", AuthMiddleware.authenticateToken, birthdayController.sendBirthdaySMS);
+// Birthday routes
+app.get("/birthdays", birthdayController.getAllBirthdays);
+app.get("/birthdays/dashboard", birthdayController.getBirthdaysForDashboard);
+app.get("/birthdays/:id", birthdayController.getBirthdayById);
+app.post("/birthdays", validateAdd, birthdayController.addBirthday);
+app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
+app.delete("/birthdays/:id", birthdayController.deleteBirthday);
 
 // Photo Gallery API Routes
 
