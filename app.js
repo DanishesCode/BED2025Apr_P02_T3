@@ -188,9 +188,6 @@ app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.
 app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 
 
-
-
-
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
 app.post("/chat", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
 
@@ -257,3 +254,6 @@ process.on("SIGINT", async () => {
     console.log("Database connections closed");
     process.exit(0);
 });
+
+app.put("/chat/:id", AuthMiddleware.authenticateToken, aichatController.renameChat);
+app.delete("/chat/:id", AuthMiddleware.authenticateToken, aichatController.deleteChat);

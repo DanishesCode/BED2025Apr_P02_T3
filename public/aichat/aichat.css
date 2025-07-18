@@ -419,3 +419,62 @@ body {
         margin-left: 20px;
     }
 }
+
+/* Three-dots menu for chat item */
+.chat-item-title-wrapper {
+    position: relative;
+}
+.chat-item-menu {
+    display: none;
+    color: #868e96;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: background 0.2s, color 0.2s;
+}
+.chat-item:hover .chat-item-menu {
+    display: inline;
+    background: #dee2e6;
+    color: #343a40;
+}
+.chat-item-menu:active {
+    background: #adb5bd;
+}
+
+/* Dropdown menu for chat item */
+.chat-item-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 24px;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    z-index: 10;
+    min-width: 120px;
+}
+.dropdown-option {
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s, color 0.2s;
+}
+.dropdown-option:hover {
+    background: #f1f3f5;
+}
+.dropdown-option.delete-option {
+    color: #fa5252;
+}
+.dropdown-option.delete-option:hover {
+    background: #fff0f0;
+    color: #c92a2a;
+}
+.chat-rename-input {
+    font-size: 14px;
+    padding: 2px 6px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-right: 4px;
+    outline: none;
+}

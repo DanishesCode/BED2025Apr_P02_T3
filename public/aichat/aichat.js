@@ -43,14 +43,91 @@ async function loadChats() {
                 ? created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 : created.toLocaleDateString();
 
+            // Chat item content with three-dots and dropdown
             div.innerHTML = `
-                <div class="chat-item-title">${chat.title}</div>
+                <div class="chat-item-title-wrapper" style="display: flex; align-items: center; justify-content: space-between; position: relative;">
+                    <span class="chat-item-title">${chat.title}</span>
+                    <span class="chat-item-menu" style="cursor:pointer; padding: 0 6px; font-size: 18px;">&#8942;</span>
+                    <div class="chat-item-dropdown" style="display:none; position:absolute; right:0; top:24px; background:#fff; border:1px solid #dee2e6; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:10; min-width:120px;">
+                        <div class="dropdown-option rename-option" style="padding:8px 16px; cursor:pointer;">Rename chat</div>
+                        <div class="dropdown-option delete-option" style="padding:8px 16px; cursor:pointer; color:#fa5252;">Delete chat</div>
+                    </div>
+                </div>
                 <div class="chat-item-date">${displayTime}</div>
             `;
 
-            // Optional: click handler for loading messages
-            div.addEventListener('click', () => {
-                console.log(`Loading messages for chat ID: ${chat.id}`);
+            // Dropdown menu logic
+            const menuBtn = div.querySelector('.chat-item-menu');
+            const dropdown = div.querySelector('.chat-item-dropdown');
+            let dropdownOpen = false;
+
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Close other open dropdowns
+                document.querySelectorAll('.chat-item-dropdown').forEach(d => { if (d !== dropdown) d.style.display = 'none'; });
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                dropdownOpen = dropdown.style.display === 'block';
+            });
+            // Hide dropdown on click outside
+            document.addEventListener('click', (e) => {
+                if (!div.contains(e.target)) dropdown.style.display = 'none';
+            });
+
+            // Rename logic
+            dropdown.querySelector('.rename-option').addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.style.display = 'none';
+                // Replace title with input
+                const titleSpan = div.querySelector('.chat-item-title');
+                const oldTitle = titleSpan.textContent;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = oldTitle;
+                input.className = 'chat-rename-input';
+                input.style.width = '90%';
+                input.style.fontSize = '14px';
+                input.style.padding = '2px 6px';
+                input.style.border = '1px solid #dee2e6';
+                input.style.borderRadius = '4px';
+                input.style.marginRight = '4px';
+                titleSpan.replaceWith(input);
+                input.focus();
+                input.select();
+                // Save on Enter or blur
+                input.addEventListener('keydown', (ev) => {
+                    if (ev.key === 'Enter') {
+                        finishRename();
+                    } else if (ev.key === 'Escape') {
+                        cancelRename();
+                    }
+                });
+                input.addEventListener('blur', cancelRename);
+                function finishRename() {
+                    const newTitle = input.value.trim();
+                    if (newTitle && newTitle !== oldTitle) {
+                        renameChat(chat.id, newTitle);
+                    } else {
+                        cancelRename();
+                    }
+                }
+                function cancelRename() {
+                    input.replaceWith(titleSpan);
+                }
+            });
+
+            // Delete logic
+            dropdown.querySelector('.delete-option').addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.style.display = 'none';
+                if (confirm('Are you sure you want to delete this chat?')) {
+                    deleteChat(chat.id);
+                }
+            });
+
+            // Click handler for loading messages
+            div.addEventListener('click', (e) => {
+                // Prevent loading messages if menu or dropdown is clicked
+                if (e.target.classList.contains('chat-item-menu') || e.target.classList.contains('dropdown-option') || e.target.classList.contains('chat-rename-input')) return;
                 loadChatMessages(chat.id);
             });
 
@@ -239,7 +316,7 @@ async function sendMessage() {
         const userId = currentUser.id;
         const name = currentUser.name;
 
-        const res = await fetch('/chat', {
+        const res = await fetch('http://localhost:3000/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -304,3 +381,58 @@ window.addEventListener('load', () => {
     addAIMessage("Hello, I'm your helpful AI assistant, here to make things easier for you. Feel free to ask me anything!");
     loadChats(); // Load chat history on page load
 });
+
+async function renameChat(chatId, newTitle) {
+    const token = localStorage.getItem('authToken');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const userId = currentUser.id;
+    try {
+        const res = await fetch(`http://localhost:3000/chat/${chatId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ newTitle, userId })
+        });
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            alert(data.message || 'Failed to rename chat');
+            return;
+        }
+        loadChats(); // Refresh chat list
+    } catch (err) {
+        alert('Failed to rename chat');
+        console.error('Error renaming chat:', err);
+    }
+}
+
+async function deleteChat(chatId) {
+    const token = localStorage.getItem('authToken');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const userId = currentUser.id;
+    try {
+        const res = await fetch(`http://localhost:3000/chat/${chatId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ userId })
+        });
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            alert(data.message || 'Failed to delete chat');
+            return;
+        }
+        // If the deleted chat was open, clear the chat container
+        if (currentChatId == chatId) {
+            currentChatId = null;
+            chatContainer.innerHTML = '';
+        }
+        loadChats();
+    } catch (err) {
+        alert('Failed to delete chat');
+        console.error('Error deleting chat:', err);
+    }
+}
