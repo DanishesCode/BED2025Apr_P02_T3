@@ -40,62 +40,88 @@ async function getHospitals(){
 
 document.addEventListener("DOMContentLoaded",async function(){
     const hospitalData = await getHospitals();
-    console.log(hospitalData);
-
-    const hospitalList = document.querySelector(".hospitals-list");
-    const hospitalCard = document.querySelector(".hospital-card");
+    console.log(hospitalData);    
     const search = document.querySelector(".search-area input");
     const map = document.querySelector(".map");
 
     //load all hospitals
-    hospitalData.forEach(function(hospital) {
-        let address = hospital.address;
-        let emergency = hospital.emergency_services;
-        let lat = hospital.latitude;
-        let long = hospital.longitude;        ;
-        let name = hospital.name;
-        let ownership = hospital.ownership;
-        let rating = hospital.rating;
-        let telephone = hospital.telephone;
-        let services = hospital.services.split(",").map(item => item.trim());
-        
-        let clone = hospitalCard.cloneNode(true);
-        clone.querySelector(".hospital-name").textContent = name;
-        clone.querySelector(".rating").textContent = "⭐ "+rating;
-        clone.querySelector(".hospital-address").textContent = address;
-        clone.querySelector(".hospital-info .telephone").textContent = "+65 "+telephone;
-        clone.querySelector(".type").textContent = ownership;
-        clone.setAttribute("name",name);
-        clone.setAttribute("services",services);
-        clone.setAttribute("emergency",emergency);
-        clone.setAttribute("longtitude", long);
-        clone.setAttribute("latitutde", lat);
-        clone.setAttribute("ownership",ownership);
-
-        const serviceTag = clone.querySelector(".service-tag");
-        const servicesSect = clone.querySelector(".services");
-        if(!emergency){
-            clone.querySelector(".emergency-badge").style.display = "none";
-            
-        }
-            let serviceLength = services.length;//load services
-            for(i=0; i <serviceLength;i++){
-                let currentService = services[i];
-                let newTag = serviceTag.cloneNode(true);
-                newTag.textContent = currentService;
-                servicesSect.appendChild(newTag);
+    function loadHospitals(data){
+        const hospitalList = document.querySelector(".hospitals-list");
+        const hospitalCard = document.querySelector(".hospital-card");
+        Array.from(hospitalList.children).forEach(function(c) {
+            if (c.getAttribute("cloned") == "true") {
+                c.remove();
             }
-            serviceTag.style.display = "none";
-            //click selected
+        });
+        data.forEach(function(hospital) {
+            let address = hospital.address;
+            let emergency = hospital.emergency_services;
+            let lat = hospital.latitude;
+            let long = hospital.longitude;        ;
+            let name = hospital.name;
+            let ownership = hospital.ownership;
+            let rating = hospital.rating;
+            let telephone = hospital.telephone;
+            let services = hospital.services.split(",").map(item => item.trim());
             
-            clone.addEventListener("click",function(){
-                Array.from(hospitalList.children).forEach(function(child) {
-                    child.setAttribute("selected",0);
-                });
-                clone.setAttribute("selected",1);
-            })
+            let clone = hospitalCard.cloneNode(true);
+            clone.querySelector(".hospital-name").textContent = name;
+            clone.querySelector(".rating").textContent = "⭐ "+rating;
+            clone.querySelector(".hospital-address").textContent = address;
+            clone.querySelector(".hospital-info .telephone").textContent = "+65 "+telephone;
+            clone.querySelector(".type").textContent = ownership;
+            clone.setAttribute("name",name);
+            clone.setAttribute("services",services);
+            clone.setAttribute("emergency",emergency);
+            clone.setAttribute("longtitude", long);
+            clone.setAttribute("latitutde", lat);
+            clone.setAttribute("ownership",ownership);
+            clone.style.display = "flex";
+            clone.setAttribute("cloned","true");
 
-        hospitalList.appendChild(clone);
-    });
-    hospitalCard.style.display = "none";
+            const serviceTag = clone.querySelector(".service-tag");
+            const servicesSect = clone.querySelector(".services");
+            if(!emergency){
+                clone.querySelector(".emergency-badge").style.display = "none";
+                
+            }
+                let serviceLength = services.length;//load services
+                for(i=0; i <serviceLength;i++){
+                    let currentService = services[i];
+                    let newTag = serviceTag.cloneNode(true);
+                    newTag.textContent = currentService;
+                    servicesSect.appendChild(newTag);
+                }
+                serviceTag.style.display = "none";
+                //click selected
+                
+                clone.addEventListener("click",function(){
+                    Array.from(hospitalList.children).forEach(function(child) {
+                        child.setAttribute("selected",0);
+                        child.style.borderColor = "grey";
+    
+                    });
+                    clone.setAttribute("selected",1);
+                    clone.style.borderColor = "blue";
+    
+                })
+    
+            hospitalList.appendChild(clone);
+        });
+    }
+
+    loadHospitals(hospitalData);
+    
+    search.addEventListener("input",function(){
+        const query = search.value.toLowerCase();
+        const filtered = hospitalData.filter(item =>
+            Object.values(item).some(val =>
+              String(val).toLowerCase().includes(query)
+            )
+          );
+        loadHospitals(filtered);
+    })
+
+    
+    
 })

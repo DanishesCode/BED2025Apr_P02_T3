@@ -108,7 +108,7 @@
     border: 1px solid #bbb;
     border-radius: 8px;
     padding: 15px 20px;
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 8px;
   }
