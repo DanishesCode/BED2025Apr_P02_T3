@@ -12,6 +12,26 @@ async function getHopsitals(req,res){
         res.status(500).json({error: "Internal server error"});
     }
 }
+
+async function getRouteData(req,res){
+    try {
+        const data = req.body;
+        console.log("Received data:", data);
+    
+        const route = await hospitalModel.getRouteData(data.profile,data.start,data.end);
+        console.log("Received route:", route);
+    
+        if (!route) {
+          return res.status(404).json({ error: "route not found." });
+        }
+    
+        res.status(200).json({ route });
+      } catch (error) {
+        console.error("Controller error in getRouteData:", error.message);
+        res.status(500).json({ error: "Failed to fetch route from coordinates given" });
+      }
+}
 module.exports = {
-    getHopsitals
+    getHopsitals,
+    getRouteData
 }

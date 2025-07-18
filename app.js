@@ -222,6 +222,7 @@ app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
 app.delete("/photos/:id", photoController.deletePhoto);
 
 //Routes for nearest hospital(danish)
+app.post("/hospital/getroute",hospitalController.getRouteData);
 app.get("/hospital/getall",AuthMiddleware.authenticateToken,hospitalController.getHopsitals);
 
 //start telebot
