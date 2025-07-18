@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Nearest Hospitals In Singapore</title>
   <link rel="stylesheet" href="hospital.css" />
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.13.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.13.0/mapbox-gl.js"></script>
 </head>
 <body>
   <div class="container">
@@ -20,8 +22,13 @@
       <input type="search" placeholder="Search hospitals by name or specialty.." />
       <button>
         <img class = "findImg" src = "img/pointer.png" style = "width: 24px; height: 24px;" >
-        Find Near Me
+        Filter Near Me
       </button>
+    </div>
+    <div class= "travel-type">
+        <button via ="walking">Walking</button>
+        <button via ="driving">Driving</button>
+        <button via ="cycling">Cycle</button>
     </div>
 
     <div class="main-content">
@@ -34,7 +41,7 @@
               <div class="emergency-badge">24/7 Emergency</div>
               <div class = "type">Public</div>
             </div>
-            <div class="distance">?? km</div>
+            <div class="distance">ETA: 20min Dist: 30km</div>
           </div>
           <div class="rating">⭐ 4</div>
           <div class="hospital-info">
@@ -55,8 +62,8 @@
           </div>
         </div>
         </div>
-        <div class = mapContainer>
-            <div class = "map">
+        <div class = "mapContainer">
+            <div id = "map">
                 <span>## Hospitals found</span>
             </div>
           </div>
@@ -64,6 +71,9 @@
       
 
     </div>
+  </div>
+  <div id="notification" class="notification hidden">
+    <span id="notification-text">This is a notification message</span>
   </div>
   <script src = "hospital.js"></script>
 </body>

@@ -208,7 +208,7 @@
     color: #333;
   }
   
-  .map {
+  #map {
     width: 700px;
     min-height: 500px;
     background-color: #ddd;
@@ -220,7 +220,7 @@
     user-select: none;
     flex-shrink: 0;
   }
-  .map span{
+  #map span{
     background-color: white;
     padding:5px;
     padding-bottom: 10px;
@@ -228,7 +228,9 @@
     margin-left:34vw;
     border-radius: 20px;
   }
-  
+  .mapboxgl-popup-close-button {
+    display:none;
+  }
   .sidebar span {
     background: #eee;
     border-radius: 14px;
@@ -238,6 +240,59 @@
     font-size: 0.8rem;
     color: #666;
     border: 1px solid #ccc;
+  }
+  .travel-type{
+    margin-bottom:20px;
+  }
+  .travel-type button{
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #444;
+    cursor: default;
+    user-select: none;
+    border: 1px solid #ccc;
+  }
+  .travel-type button:hover{
+    cursor:pointer;
+  }
+
+  .notification {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    z-index: 9999;
+    max-width: 90%;
+    width: fit-content;
+    pointer-events: none;
+    font-size: 14px;
+  }
+  
+  .notification.success {
+    background-color: #28a745;
+  }
+  
+  .notification.error {
+    background-color: #dc3545;
+  }
+  
+  .notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  
+  .hidden {
+    display: none;
   }
   
   /* Responsive */
@@ -251,4 +306,5 @@
       margin-bottom: 15px;
     }
   }
+
   
