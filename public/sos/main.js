@@ -7,6 +7,14 @@ function getAuthHeaders() {
     'Authorization': `Bearer ${token}`
   };
 }
+function showLoading() {
+  document.getElementById("loading-screen").style.display = "flex";
+}
+
+function hideLoading() {
+  document.getElementById("loading-screen").style.display = "none";
+}
+
 
 function showNotification(message, type) {
     const notification = document.getElementById("notification");
@@ -188,6 +196,7 @@ document.addEventListener("DOMContentLoaded",async function(){
     careTakerElement.textContent = telegramName;
 
         sosButton.addEventListener("click",async function(){
+          showLoading();
       try {
         let coord = await receiveCoord();
         console.log(coord);
@@ -206,8 +215,10 @@ document.addEventListener("DOMContentLoaded",async function(){
          }
         }
       } catch (error) {
-        
+        console.log(error);
       }
+  hideLoading();
+
     })
 
   }else{
@@ -215,5 +226,6 @@ document.addEventListener("DOMContentLoaded",async function(){
     sosButton.addEventListener("click",function(){
       showNotification("Error sending SOS: Please set up your caretaker settings","error");
     })
+
   }
 })
