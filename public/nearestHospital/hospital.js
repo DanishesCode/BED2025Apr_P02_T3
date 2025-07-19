@@ -213,6 +213,7 @@ function getUserCoordinates() {
 function sortHospitalByDistance() {
   const list = document.querySelector(".hospitals-list");
   const items = Array.from(list.children);
+  console.log(items);
 
   items.sort((a, b) => {
     return parseFloat(a.getAttribute("distance")) - parseFloat(b.getAttribute("distance"));
@@ -406,16 +407,25 @@ document.addEventListener("DOMContentLoaded", async function() {
 
   loadHospitals(hospitalData);
   
-  search.addEventListener("input",function(){
-      const query = search.value.toLowerCase();
-      const filtered = hospitalData.filter(item =>
-          Object.values(item).some(val =>
-            String(val).toLowerCase().includes(query)
-          )
-        );
-      loadHospitals(filtered);
-      
-  })
+  search.addEventListener("input", function () {
+    const query = search.value.toLowerCase();
+    const hospitalCards = document.querySelector(".hospitals-list").children;
+  
+    // List of attribute names you want to search in
+    const searchableAttributes = ["name", "type", "services","ownership"];
+  
+    Array.from(hospitalCards).forEach(card => {
+      // Check if any of the desired attributes include the query
+      const matchFound = searchableAttributes.some(attr => {
+        const attrValue = card.getAttribute(attr);
+        return attrValue && attrValue.toLowerCase().includes(query);
+      });
+  
+      // Show or hide the card
+      card.style.display = matchFound ? "flex" : "none";
+    });
+  });
+  
 
   
 
