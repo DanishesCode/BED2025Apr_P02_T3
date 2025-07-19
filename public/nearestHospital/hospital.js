@@ -9,6 +9,19 @@ function getAuthHeaders() {
       'Authorization': `Bearer ${token}`
     };
   }
+  function convertMinutes(totalMinutes) {
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = Math.round(totalMinutes % 60);
+  
+    if (hours > 0 && minutes > 0) {
+      return `${hours}h ${minutes}min`;
+    } else if (hours > 0) {
+      return `${hours}h`;
+    } else {
+      return `${minutes}min`;
+    }
+  }
+  
   function showNotification(message, type) {
     const notification = document.getElementById("notification");
     const text = document.getElementById("notification-text");
@@ -106,8 +119,6 @@ function getAuthHeaders() {
   }
 
   function centerMap(map, lng, lat, zoom = 15) {
-    console.log(lng);
-    console.log(lat);
     map.flyTo({
       center: [lng, lat],
       zoom: zoom,
@@ -148,6 +159,41 @@ async function getHospitals(){
         console.error("error fetching data",error)
     }
 }
+async function getRouteData(data){
+  try {
+    // Make a POST request to your API endpoint
+    const response = await fetch(`${apiBaseUrl}/hospital/getroute`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(data),
+    });
+  
+    const responseBody = response.headers
+      .get("content-type")
+      ?.includes("application/json")
+      ? await response.json()
+      : { message: response.statusText };
+  
+    if (response.status === 200) {
+      console.log("Route data received:", responseBody);
+      return responseBody; // Return route data (geometry, distance, duration)
+    } else if (response.status === 400) {
+      showNotification(`Validation error: ${responseBody.error}`, "error");
+      return null;
+    } else {
+      throw new Error(
+        `API error! status: ${response.status}, message: ${responseBody.message}`
+      );
+    }
+  } catch (error) {
+    console.error("getRouteData error:", error);
+    showNotification("Failed to retrieve route data", "error");
+    return null;
+  }
+}
 
 function getUserCoordinates() {
   return new Promise((resolve, reject) => {
@@ -164,6 +210,56 @@ function getUserCoordinates() {
     );
   });
 }
+function sortHospitalByDistance() {
+  const list = document.querySelector(".hospitals-list");
+  const items = Array.from(list.children);
+
+  items.sort((a, b) => {
+    return parseFloat(a.getAttribute("distance")) - parseFloat(b.getAttribute("distance"));
+  });
+
+  // Reattach in new order
+  items.forEach(item => list.appendChild(item));
+}
+
+
+function drawRouteOnMap(map, geojson) {
+  if (map.getSource('route')) {
+    map.removeLayer('route');
+    map.removeSource('route');
+  }
+
+  map.addSource('route', {
+    type: 'geojson',
+    data: {
+      type: 'Feature',
+      geometry: geojson
+    }
+  });
+
+  map.addLayer({
+    id: 'route',
+    type: 'line',
+    source: 'route',
+    layout: {
+      'line-join': 'round',
+      'line-cap': 'round'
+    },
+    paint: {
+      'line-color': '#0074D9',
+      'line-width': 5
+    }
+  }); 
+
+
+  const coords = geojson.coordinates;
+  const bounds = coords.reduce(
+    (b, coord) => b.extend(coord),
+    new mapboxgl.LngLatBounds(coords[0], coords[0])
+  );
+  map.fitBounds(bounds, { padding: 50 });
+} 
+
 
 document.addEventListener("DOMContentLoaded", async function() {
   let userCoord;
@@ -178,19 +274,47 @@ document.addEventListener("DOMContentLoaded", async function() {
   // Now you can safely load the map
 
   let type = "walking";
+  let filteredVal = "false";
   const hospitalData = await getHospitals();
   console.log(hospitalData);   
   const travelType = document.querySelector(".travel-type"); 
   const search = document.querySelector(".search-area input");
+  const sortDistance = document.querySelector(".search-area button");
+
   
   const map = await loadMap(userCoord.longitude, userCoord.latitude,hospitalData);
+
+  sortDistance.addEventListener("click",function(){
+    sortHospitalByDistance();
+    filteredVal = "true";
+  })
 
   Array.from(travelType.children).forEach(function(button){
       if (button.getAttribute('via') == type) {
           button.style.borderColor = "blue";
       }
-      button.addEventListener("click",function(c){
+      button.addEventListener("click",function(){
           type = button.getAttribute("via");
+
+          Array.from(document.querySelector(".hospitals-list").children).forEach(async function(card){
+            if(card.getAttribute("cloned") == "true"){
+              let label = card.querySelector(".distance");
+              let dataToBeSent = {"profile":type,
+                "start":[userCoord.longitude,userCoord.latitude],
+                "end":[card.getAttribute("longtitude"),card.getAttribute("latitude")]
+              }
+    
+              let route = await getRouteData(dataToBeSent);//get route data
+              card.setAttribute("distance",route.route.distanceKm);
+              label.textContent = `ETA: ${convertMinutes(route.route.durationMin)} Dist: ${route.route.distanceKm}km`;
+            }
+            if(filteredVal == "true"){
+              sortHospitalByDistance(); 
+            }
+
+          })
+            
+
           Array.from(travelType.children).forEach(function(x){
               x.style.borderColor = "white";
           })
@@ -206,7 +330,7 @@ document.addEventListener("DOMContentLoaded", async function() {
               c.remove();
           }
       });
-      data.forEach(function(hospital) {
+      data.forEach(async function(hospital) {
           let address = hospital.address;
           let emergency = hospital.emergency_services;
           let lat = hospital.latitude;
@@ -216,6 +340,8 @@ document.addEventListener("DOMContentLoaded", async function() {
           let rating = hospital.rating;
           let telephone = hospital.telephone;
           let services = hospital.services.split(",").map(item => item.trim());
+          
+
           
           let clone = hospitalCard.cloneNode(true);
           clone.querySelector(".hospital-name").textContent = name;
@@ -231,6 +357,16 @@ document.addEventListener("DOMContentLoaded", async function() {
           clone.setAttribute("ownership",ownership);
           clone.style.display = "flex";
           clone.setAttribute("cloned","true");
+
+          let dataToBeSent = {"profile":type,
+            "start":[userCoord.longitude,userCoord.latitude],
+            "end":[clone.getAttribute("longtitude"),clone.getAttribute("latitude")]
+          }
+
+          let route = await getRouteData(dataToBeSent);//get route data
+          clone.querySelector(".distance").textContent = `ETA: ${convertMinutes(route.route.durationMin)} Dist: ${route.route.distanceKm}km`;
+          clone.setAttribute("distance",route.route.distanceKm);
+          
 
           const serviceTag = clone.querySelector(".service-tag");
           const servicesSect = clone.querySelector(".services");
@@ -248,7 +384,7 @@ document.addEventListener("DOMContentLoaded", async function() {
               serviceTag.style.display = "none";
               //click selected
               
-              clone.addEventListener("click",function(){
+              clone.addEventListener("click",async function(){
                   Array.from(hospitalList.children).forEach(function(child) {
                       child.setAttribute("selected",0);
                       child.style.borderColor = "grey";
@@ -256,11 +392,15 @@ document.addEventListener("DOMContentLoaded", async function() {
                   });
                   clone.setAttribute("selected",1);
                   clone.style.borderColor = "blue";
+                  drawRouteOnMap(map,route.route.geometry);
                   centerMap(map,clone.getAttribute("longtitude"),clone.getAttribute("latitude"));
+                  
+
       
               })
       
           hospitalList.appendChild(clone);
+          
       });
   }
 
@@ -274,6 +414,7 @@ document.addEventListener("DOMContentLoaded", async function() {
           )
         );
       loadHospitals(filtered);
+      
   })
 
   
