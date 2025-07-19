@@ -1,7 +1,13 @@
 
 
 const apiBaseUrl = "http://localhost:3000";
+function showLoading() {
+  document.getElementById("loading-screen").style.display = "flex";
+}
 
+function hideLoading() {
+  document.getElementById("loading-screen").style.display = "none";
+}
 function getAuthHeaders() {
     const token = localStorage.getItem('authToken');
     return {
@@ -263,6 +269,7 @@ function drawRouteOnMap(map, geojson) {
 
 
 document.addEventListener("DOMContentLoaded", async function() {
+  showLoading();
   let userCoord;
   try {
     userCoord = await getUserCoordinates();
@@ -321,6 +328,8 @@ document.addEventListener("DOMContentLoaded", async function() {
           })
           button.style.borderColor = "blue";
       })
+      hideLoading();
+
   });
   //load all hospitals
   function loadHospitals(data){
