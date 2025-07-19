@@ -3,30 +3,49 @@ const dbConfig = require('../dbConfig');
 
 const topicModel = {
     // Get all topics with filtering and pagination
-    getAllTopics: async (filters = {}, limit = 20, offset = 0) => {
+    getAllTopics: async (filters = {}, limit = 20, offset = 0, currentUserId = null) => {
         try {
             let pool = await sql.connect(dbConfig);
             
             let query = `
                 SELECT 
-                    t.id,
-                    t.title,
-                    t.content,
-                    t.content_type,
-                    t.category,
-                    t.description,
-                    t.tags,
-                    t.created_at,
-                    u.name as author,
-                    u.userId as user_id
-                FROM Topics t
-                INNER JOIN Users u ON t.userId = u.userId
-                WHERE 1=1
+                    main.id,
+                    main.title,
+                    main.content,
+                    main.content_type,
+                    main.category,
+                    main.description,
+                    main.tags,
+                    main.created_at,
+                    ISNULL(likes.like_count, 0) as like_count,
+                    ISNULL(comments.comment_count, 0) as comment_count,
+                    main.author,
+                    main.user_id,
+                    ${currentUserId ? 'CASE WHEN user_likes.topicId IS NOT NULL THEN 1 ELSE 0 END as isLiked' : '0 as isLiked'}
+                FROM (
+                    SELECT 
+                        t.id,
+                        t.title,
+                        t.content,
+                        t.content_type,
+                        t.category,
+                        t.description,
+                        t.tags,
+                        t.created_at,
+                        u.name as author,
+                        u.userId as user_id
+                    FROM Topics t
+                    INNER JOIN Users u ON t.userId = u.userId
+                    WHERE 1=1
             `;
             
             const request = pool.request();
             
-            // Add filters
+            if (currentUserId) {
+                request.input('currentUserId', sql.Int, currentUserId);
+            }
+            
+            // Add filters to the subquery
             if (filters.category) {
                 query += ` AND t.category = @category`;
                 request.input('category', sql.VarChar, filters.category);
@@ -42,7 +61,22 @@ const topicModel = {
                 request.input('search', sql.VarChar, `%${filters.search}%`);
             }
             
-            query += ` ORDER BY t.created_at DESC OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY`;
+            // Close the subquery and add joins
+            query += `
+                ) main
+                LEFT JOIN (
+                    SELECT topicId, COUNT(*) as like_count
+                    FROM TopicLikes
+                    GROUP BY topicId
+                ) likes ON main.id = likes.topicId
+                LEFT JOIN (
+                    SELECT topicId, COUNT(*) as comment_count
+                    FROM TopicComments
+                    GROUP BY topicId
+                ) comments ON main.id = comments.topicId
+                ${currentUserId ? 'LEFT JOIN TopicLikes user_likes ON main.id = user_likes.topicId AND user_likes.userId = @currentUserId' : ''}
+                ORDER BY main.created_at DESC 
+                OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY`;
             
             request.input('offset', sql.Int, offset);
             request.input('limit', sql.Int, limit);
@@ -61,7 +95,10 @@ const topicModel = {
                 createdAt: topic.created_at, // Map created_at to createdAt
                 updatedAt: topic.updated_at, // Map updated_at to updatedAt
                 author: topic.author,
-                userId: topic.user_id || topic.userId // Handle both field names
+                userId: topic.user_id || topic.userId, // Handle both field names
+                likeCount: topic.like_count || 0,
+                commentCount: topic.comment_count || 0,
+                isLiked: topic.isLiked === 1
             }));
         } catch (error) {
             console.error('Error in getAllTopics:', error);
@@ -332,6 +369,191 @@ const topicModel = {
             }));
         } catch (error) {
             console.error('Error in searchTopics:', error);
+            throw error;
+        }
+    },
+
+    // Get like count for a topic
+    getLikeCount: async (topicId) => {
+        try {
+            let pool = await sql.connect(dbConfig);
+            
+            const request = pool.request();
+            request.input('topicId', sql.Int, topicId);
+            
+            const query = `SELECT COUNT(*) as like_count FROM TopicLikes WHERE topicId = @topicId`;
+            const result = await request.query(query);
+            
+            return result.recordset[0]?.like_count || 0;
+        } catch (error) {
+            console.error('Error in getLikeCount:', error);
+            throw error;
+        }
+    },
+
+    // Check if user has liked a topic
+    hasUserLiked: async (topicId, userId) => {
+        try {
+            let pool = await sql.connect(dbConfig);
+            
+            const request = pool.request();
+            request.input('topicId', sql.Int, topicId);
+            request.input('userId', sql.Int, userId);
+            
+            const query = `SELECT id FROM TopicLikes WHERE topicId = @topicId AND userId = @userId`;
+            const result = await request.query(query);
+            
+            return result.recordset.length > 0;
+        } catch (error) {
+            console.error('Error in hasUserLiked:', error);
+            throw error;
+        }
+    },
+
+    // Add a like to a topic
+    addLike: async (topicId, userId) => {
+        try {
+            let pool = await sql.connect(dbConfig);
+            
+            const request = pool.request();
+            request.input('topicId', sql.Int, topicId);
+            request.input('userId', sql.Int, userId);
+            
+            // Check if user already liked
+            const hasLiked = await topicModel.hasUserLiked(topicId, userId);
+            if (hasLiked) {
+                throw new Error('User has already liked this topic');
+            }
+            
+            // Add like
+            const insertQuery = `INSERT INTO TopicLikes (topicId, userId) VALUES (@topicId, @userId)`;
+            await request.query(insertQuery);
+            
+            return true;
+        } catch (error) {
+            console.error('Error in addLike:', error);
+            throw error;
+        }
+    },
+
+    // Remove a like from a topic
+    removeLike: async (topicId, userId) => {
+        try {
+            let pool = await sql.connect(dbConfig);
+            
+            const request = pool.request();
+            request.input('topicId', sql.Int, topicId);
+            request.input('userId', sql.Int, userId);
+            
+            // Check if user has liked
+            const hasLiked = await topicModel.hasUserLiked(topicId, userId);
+            if (!hasLiked) {
+                throw new Error('User has not liked this topic');
+            }
+            
+            // Remove like
+            const deleteQuery = `DELETE FROM TopicLikes WHERE topicId = @topicId AND userId = @userId`;
+            await request.query(deleteQuery);
+            
+            return true;
+        } catch (error) {
+            console.error('Error in removeLike:', error);
+            throw error;
+        }
+    },
+
+    // Toggle like (add if not liked, remove if liked)
+    toggleLike: async (topicId, userId) => {
+        try {
+            let pool = await sql.connect(dbConfig);
+            
+            console.log(`=== TOGGLE LIKE DEBUG ===`);
+            console.log(`Topic ID: ${topicId}, User ID: ${userId}`);
+            
+            const hasLiked = await topicModel.hasUserLiked(topicId, userId);
+            console.log(`User has already liked: ${hasLiked}`);
+            
+            if (hasLiked) {
+                console.log('Removing like...');
+                await topicModel.removeLike(topicId, userId);
+            } else {
+                console.log('Adding like...');
+                await topicModel.addLike(topicId, userId);
+            }
+            
+            // Get the updated like count directly
+            const request = pool.request();
+            request.input('topicId', sql.Int, topicId);
+            
+            const countQuery = `SELECT COUNT(*) as likeCount FROM TopicLikes WHERE topicId = @topicId`;
+            const result = await request.query(countQuery);
+            const likeCount = result.recordset[0].likeCount;
+            
+            console.log(`Final like count: ${likeCount}`);
+            console.log(`Final liked state: ${!hasLiked}`);
+            console.log(`=== END TOGGLE LIKE DEBUG ===`);
+            
+            return { 
+                liked: !hasLiked,
+                likeCount: likeCount
+            };
+        } catch (error) {
+            console.error('Error in toggleLike:', error);
+            throw error;
+        }
+    },
+
+    // Comment functions
+    addComment: async (topicId, userId, comment) => {
+        try {
+            let pool = await sql.connect(dbConfig);
+            
+            const request = pool.request();
+            request.input('topicId', sql.Int, topicId);
+            request.input('userId', sql.Int, userId);
+            request.input('comment', sql.NVarChar, comment);
+            
+            const query = `INSERT INTO TopicComments (topicId, userId, comment) VALUES (@topicId, @userId, @comment)`;
+            await request.query(query);
+            
+            return true;
+        } catch (error) {
+            console.error('Error in addComment:', error);
+            throw error;
+        }
+    },
+
+    getComments: async (topicId) => {
+        try {
+            let pool = await sql.connect(dbConfig);
+            
+            const request = pool.request();
+            request.input('topicId', sql.Int, topicId);
+            
+            const query = `
+                SELECT 
+                    tc.id,
+                    tc.comment,
+                    tc.created_at,
+                    u.name as author,
+                    u.userId
+                FROM TopicComments tc
+                INNER JOIN Users u ON tc.userId = u.userId
+                WHERE tc.topicId = @topicId
+                ORDER BY tc.created_at DESC
+            `;
+            
+            const result = await request.query(query);
+            
+            return result.recordset.map(comment => ({
+                id: comment.id,
+                comment: comment.comment,
+                createdAt: comment.created_at,
+                author: comment.author,
+                userId: comment.userId
+            }));
+        } catch (error) {
+            console.error('Error in getComments:', error);
             throw error;
         }
     }

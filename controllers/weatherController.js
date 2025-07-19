@@ -284,38 +284,130 @@ class WeatherController {
      * @param {Object} currentWeather - Current weather data
      */
     updateElderlyActivities(currentWeather) {
-        const activitiesGrid = document.querySelector('.activities-grid');
-        
-        if (!activitiesGrid) return;
-        
-        // Prevent duplicate updates by checking if already updating
-        if (activitiesGrid.classList.contains('loading')) {
-            return;
-        }
-        
-        // Add loading state
-        activitiesGrid.classList.add('loading');
+        const compactActivitiesGrid = document.getElementById('compactActivitiesGrid');
         
         // Get activities recommendations from the model
         const activities = this.model.getElderlyActivities(currentWeather);
         
+        // Debug log to see what activities we're getting
+        console.log('Activities from model:', activities);
+        
         // Validate activities array
         if (!Array.isArray(activities) || activities.length === 0) {
             console.warn('No activities generated for current weather conditions');
-            activitiesGrid.classList.remove('loading');
+            if (compactActivitiesGrid) {
+                compactActivitiesGrid.style.display = 'none';
+            }
             return;
         }
         
-        // Simulate a brief loading delay for smooth transition
-        setTimeout(() => {
-            // Clear existing activities
-            activitiesGrid.innerHTML = '';
+        // Show the compact activities section in the weather sidebar
+        if (compactActivitiesGrid) {
+            compactActivitiesGrid.style.display = 'grid';
             
-            // Add activity cards with staggered animation
+            // Add slide-out animation for existing cards before clearing
+            const existingCards = compactActivitiesGrid.querySelectorAll('.activity-card');
+            if (existingCards.length > 0) {
+                existingCards.forEach((card, index) => {
+                    card.classList.add('sliding');
+                    card.style.transform = 'translateX(30px)';
+                    card.style.opacity = '0';
+                });
+                
+                // Clear after slide-out animation
+                setTimeout(() => {
+                    compactActivitiesGrid.innerHTML = '';
+                }, 300);
+            } else {
+                compactActivitiesGrid.innerHTML = '';
+            }
+            
+                        // Add compact activity cards - Show 3 activities
+            const addCardsWithDelay = () => {
+                activities.slice(0, 3).forEach((activity, index) => { // Show first 3 activities
+                    const activityElement = this.createCompactActivityElement(activity, index);
+                    
+                    // Set initial state for slide animation
+                    activityElement.style.opacity = '0';
+                    activityElement.style.transform = 'translateX(-30px)';
+                    activityElement.classList.add('sliding');
+                    
+                    compactActivitiesGrid.appendChild(activityElement);
+                    
+                    // Small delay to ensure DOM is ready
+                    requestAnimationFrame(() => {
+                        // Trigger slide-in animation with staggered delay
+                        setTimeout(() => {
+                            activityElement.style.opacity = '1';
+                            activityElement.style.transform = 'translateX(0)';
+                            
+                            // Remove sliding class after animation completes
+                            setTimeout(() => {
+                                activityElement.classList.remove('sliding');
+                            }, 600);
+                        }, 100 + (index * 150)); // Small initial delay + staggered delay for each card
+                    });
+                });
+            };
+            
+            // Delay adding new cards if there were existing cards
+            if (existingCards.length > 0) {
+                setTimeout(addCardsWithDelay, 400); // Increased wait time for slide-out to complete
+            } else {
+                setTimeout(addCardsWithDelay, 50); // Small delay even when no existing cards
+            }
+        }
+    }
+
+    /**
+     * Create a compact activity card element for the sidebar
+     * @param {Object} activity - Activity data
+     * @param {number} index - Activity index
+     * @returns {HTMLElement} Compact activity card element
+     */
+    createCompactActivityElement(activity, index) {
+        const activityElement = document.createElement('div');
+        activityElement.className = `activity-card ${activity.type === 'warning' ? 'activity-warning' : ''}`;
+        
+        // Use the activity's icon if available, otherwise determine from title
+        let icon = activity.icon || '🌟';
+        
+        activityElement.innerHTML = `
+            <div class="activity-title">
+                <span class="activity-icon">${icon}</span>
+                ${activity.title || 'Weather Activity'}
+            </div>
+            <div class="activity-description">
+                ${activity.description || 'Activity based on current weather conditions.'}
+            </div>
+            ${activity.tips ? `<div class="activity-tips">${activity.tips}</div>` : ''}
+        `;
+        
+        return activityElement;
+    }
+
+    /**
+     * Update full-size activities grid (for backward compatibility)
+     * @param {HTMLElement} grid - Activities grid element
+     * @param {Array} activities - Activities array
+     */
+    updateFullActivities(grid, activities) {
+        if (!grid) return;
+        
+        // Prevent duplicate updates
+        if (grid.classList.contains('loading')) {
+            return;
+        }
+        
+        grid.classList.add('loading');
+        
+        setTimeout(() => {
+            grid.innerHTML = '';
+            
             activities.forEach((activity, index) => {
                 setTimeout(() => {
                     const activityElement = this.createActivityElement(activity, index);
-                    activitiesGrid.appendChild(activityElement);
+                    grid.appendChild(activityElement);
                     
                     // Trigger entrance animation
                     requestAnimationFrame(() => {
@@ -328,15 +420,42 @@ class WeatherController {
                             activityElement.style.transform = 'translateY(0) scale(1)';
                         });
                     });
-                }, index * 150); // Stagger the appearance of each card
+                }, index * 150);
             });
             
-            // Remove loading state after all cards are added
             setTimeout(() => {
-                activitiesGrid.classList.remove('loading');
+                grid.classList.remove('loading');
             }, activities.length * 150 + 200);
-            
         }, 300);
+    }
+
+    /**
+     * Get activity icon based on category
+     * @param {string} category - Activity category
+     * @returns {string} Icon emoji
+     */
+    getActivityIcon(category) {
+        const icons = {
+            'outdoor': '🚶‍♂️',
+            'indoor': '🏠',
+            'exercise': '💪',
+            'health': '❤️',
+            'clothing': '👕',
+            'safety': '⚠️',
+            'temperature': '🌡️',
+            'sun-protection': '☂️',
+            'hydration': '💧',
+            'rest': '😴',
+            'walk': '🚶‍♂️',
+            'gardening': '🌱',
+            'reading': '📚',
+            'social': '👥',
+            'creative': '🎨',
+            'warm': '☕',
+            'cold': '🧥',
+            'general': '🌟'
+        };
+        return icons[category] || icons['general'];
     }
 
     /**
@@ -409,6 +528,18 @@ class WeatherController {
             return 'health';
         } else if (titleLower.includes('temperature') || titleLower.includes('heat') || titleLower.includes('cold')) {
             return 'temperature';
+        } else if (titleLower.includes('garden') || titleLower.includes('plant')) {
+            return 'gardening';
+        } else if (titleLower.includes('read') || titleLower.includes('book')) {
+            return 'reading';
+        } else if (titleLower.includes('social') || titleLower.includes('friend') || titleLower.includes('family')) {
+            return 'social';
+        } else if (titleLower.includes('creative') || titleLower.includes('art') || titleLower.includes('craft')) {
+            return 'creative';
+        } else if (titleLower.includes('warm') || titleLower.includes('beverage') || titleLower.includes('tea') || titleLower.includes('coffee')) {
+            return 'warm';
+        } else if (titleLower.includes('cold') || titleLower.includes('warm clothing')) {
+            return 'cold';
         } else {
             return 'health'; // Default icon
         }

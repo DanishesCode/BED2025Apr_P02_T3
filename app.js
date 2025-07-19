@@ -194,13 +194,22 @@ app.get("/topics/upload", (req, res) => {
 });
 
 // Topics API routes
-app.get("/api/topics", topicController.getAllTopics);
+app.get("/api/topics", AuthMiddleware.optionalAuth, topicController.getAllTopics);
 app.get("/api/topics/user", AuthMiddleware.authenticateToken, topicController.getUserTopics);
 app.get("/api/topics/category/:category", topicController.getTopicsByCategory);
 app.get("/api/topics/:id", topicController.getTopicById);
 app.post("/api/topics", AuthMiddleware.authenticateToken, topicController.uploadFile, topicController.createTopic);
 app.put("/api/topics/:id", AuthMiddleware.authenticateToken, topicController.updateTopic);
 app.delete("/api/topics/:id", AuthMiddleware.authenticateToken, topicController.deleteTopic);
+
+// Topic like/unlike routes
+app.post("/api/topics/:id/like", AuthMiddleware.authenticateToken, topicController.likeTopic);
+app.delete("/api/topics/:id/like", AuthMiddleware.authenticateToken, topicController.unlikeTopic);
+app.post("/api/topics/:id/toggle-like", AuthMiddleware.authenticateToken, topicController.toggleLike);
+
+// Topic comment routes
+app.post("/api/topics/:id/comments", AuthMiddleware.authenticateToken, topicController.addComment);
+app.get("/api/topics/:id/comments", topicController.getComments);
 
 //start telebot
 try{

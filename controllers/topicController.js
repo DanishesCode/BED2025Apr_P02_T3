@@ -63,6 +63,7 @@ const topicController = {
             console.log('Query parameters:', req.query);
             
             const { category, contentType, search, limit = 20, offset = 0 } = req.query;
+            const currentUserId = req.user ? req.user.userId : null;
             
             const filters = {};
             if (category && category !== 'all') filters.category = category;
@@ -70,8 +71,9 @@ const topicController = {
             if (search) filters.search = search;
             
             console.log('Filters:', filters);
+            console.log('Current user ID:', currentUserId);
             
-            const topics = await topicModel.getAllTopics(filters, limit, offset);
+            const topics = await topicModel.getAllTopics(filters, limit, offset, currentUserId);
             
             console.log('Topics retrieved:', topics.length);
             console.log('First topic:', topics[0]);
@@ -323,6 +325,155 @@ const topicController = {
             res.status(500).json({
                 success: false,
                 message: 'Failed to fetch topics',
+                error: error.message
+            });
+        }
+    },
+
+    // Like a topic
+    likeTopic: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const userId = req.user.userId;
+            
+            console.log(`=== LIKE TOPIC REQUEST ===`);
+            console.log(`Topic ID: ${id}, User ID: ${userId}`);
+            
+            const result = await topicModel.toggleLike(id, userId);
+            const newLikeCount = await topicModel.getLikeCount(id);
+            
+            res.status(200).json({
+                success: true,
+                data: {
+                    liked: result.liked,
+                    likeCount: newLikeCount
+                },
+                message: result.liked ? 'Topic liked successfully' : 'Topic unliked successfully'
+            });
+        } catch (error) {
+            console.error('Error liking topic:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Failed to like topic',
+                error: error.message
+            });
+        }
+    },
+
+    // Unlike a topic
+    unlikeTopic: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const userId = req.user.userId;
+            
+            console.log(`=== UNLIKE TOPIC REQUEST ===`);
+            console.log(`Topic ID: ${id}, User ID: ${userId}`);
+            
+            await topicModel.removeLike(id, userId);
+            const newLikeCount = await topicModel.getLikeCount(id);
+            
+            res.status(200).json({
+                success: true,
+                data: {
+                    liked: false,
+                    likeCount: newLikeCount
+                },
+                message: 'Topic unliked successfully'
+            });
+        } catch (error) {
+            console.error('Error unliking topic:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Failed to unlike topic',
+                error: error.message
+            });
+        }
+    },
+
+    // Toggle like (unified endpoint)
+    toggleLike: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const userId = req.user.userId;
+            
+            console.log(`=== TOGGLE LIKE TOPIC REQUEST ===`);
+            console.log(`Topic ID: ${id}, User ID: ${userId}`);
+            
+            const result = await topicModel.toggleLike(id, userId);
+            
+            console.log('Toggle like result:', result);
+            
+            res.status(200).json({
+                success: true,
+                data: {
+                    liked: result.liked,
+                    likeCount: result.likeCount
+                },
+                message: result.liked ? 'Topic liked successfully' : 'Topic unliked successfully'
+            });
+        } catch (error) {
+            console.error('Error toggling like:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Failed to toggle like',
+                error: error.message
+            });
+        }
+    },
+
+    // Add comment to topic
+    addComment: async (req, res) => {
+        try {
+            const { id } = req.params;
+            const userId = req.user.userId;
+            const { comment } = req.body;
+            
+            if (!comment || comment.trim() === '') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Comment cannot be empty'
+                });
+            }
+            
+            console.log(`=== ADD COMMENT REQUEST ===`);
+            console.log(`Topic ID: ${id}, User ID: ${userId}, Comment: ${comment}`);
+            
+            await topicModel.addComment(id, userId, comment.trim());
+            
+            res.status(200).json({
+                success: true,
+                message: 'Comment added successfully'
+            });
+        } catch (error) {
+            console.error('Error adding comment:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Failed to add comment',
+                error: error.message
+            });
+        }
+    },
+
+    // Get comments for topic
+    getComments: async (req, res) => {
+        try {
+            const { id } = req.params;
+            
+            console.log(`=== GET COMMENTS REQUEST ===`);
+            console.log(`Topic ID: ${id}`);
+            
+            const comments = await topicModel.getComments(id);
+            
+            res.status(200).json({
+                success: true,
+                data: comments,
+                message: 'Comments retrieved successfully'
+            });
+        } catch (error) {
+            console.error('Error getting comments:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Failed to get comments',
                 error: error.message
             });
         }
