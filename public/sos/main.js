@@ -135,6 +135,10 @@ async function sendMessage(data){
       return false;
       
     } 
+    else if (response.status === 500) {
+      showNotification(`Server error: ${responseBody.error || 'Unknown error'}`, "error");
+      return false;
+    }
   } catch (error) {
     showNotification("There was an error sending your message!","error");
   }
@@ -211,7 +215,11 @@ document.addEventListener("DOMContentLoaded",async function(){
            }
            let resp = await sendMessage(data);
            console.log(resp)
-           showNotification("Successfully sent SOS to your caretaker","success");
+           if(resp == true){
+            showNotification("Successfully sent SOS to your caretaker","success");
+           }else{
+            showNotification("Error sending SOS,make sure your chatId is correct","error");
+           }
          }
         }
       } catch (error) {
