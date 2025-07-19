@@ -267,7 +267,7 @@ function drawRouteOnMap(map, geojson) {
   map.fitBounds(bounds, { padding: 50 });
 } 
 
-
+//start of DOM
 document.addEventListener("DOMContentLoaded", async function() {
   showLoading();
   let userCoord;
@@ -284,156 +284,161 @@ document.addEventListener("DOMContentLoaded", async function() {
   let type = "walking";
   let filteredVal = "false";
   const hospitalData = await getHospitals();
-  console.log(hospitalData);   
-  const travelType = document.querySelector(".travel-type"); 
-  const search = document.querySelector(".search-area input");
-  const sortDistance = document.querySelector(".search-area button");
-
+  if(hospitalData){
+    console.log(hospitalData);   
+    const travelType = document.querySelector(".travel-type"); 
+    const search = document.querySelector(".search-area input");
+    const sortDistance = document.querySelector(".search-area button");
   
-  const map = await loadMap(userCoord.longitude, userCoord.latitude,hospitalData);
-
-  sortDistance.addEventListener("click",function(){
-    sortHospitalByDistance();
-    filteredVal = "true";
-  })
-
-  Array.from(travelType.children).forEach(function(button){
-      if (button.getAttribute('via') == type) {
-          button.style.borderColor = "blue";
-      }
-      button.addEventListener("click",function(){
-          type = button.getAttribute("via");
-
-          Array.from(document.querySelector(".hospitals-list").children).forEach(async function(card){
-            if(card.getAttribute("cloned") == "true"){
-              let label = card.querySelector(".distance");
-              let dataToBeSent = {"profile":type,
-                "start":[userCoord.longitude,userCoord.latitude],
-                "end":[card.getAttribute("longtitude"),card.getAttribute("latitude")]
-              }
     
-              let route = await getRouteData(dataToBeSent);//get route data
-              card.setAttribute("distance",route.route.distanceKm);
-              label.textContent = `ETA: ${convertMinutes(route.route.durationMin)} Dist: ${route.route.distanceKm}km`;
-            }
-            if(filteredVal == "true"){
-              sortHospitalByDistance(); 
-            }
-
-          })
-            
-
-          Array.from(travelType.children).forEach(function(x){
-              x.style.borderColor = "white";
-          })
-          button.style.borderColor = "blue";
-      })
-      hideLoading();
-
-  });
-  //load all hospitals
-  function loadHospitals(data){
-      const hospitalList = document.querySelector(".hospitals-list");
-      const hospitalCard = document.querySelector(".hospital-card");
-      Array.from(hospitalList.children).forEach(function(c) {
-          if (c.getAttribute("cloned") == "true") {
-              c.remove();
-          }
-      });
-      data.forEach(async function(hospital) {
-          let address = hospital.address;
-          let emergency = hospital.emergency_services;
-          let lat = hospital.latitude;
-          let long = hospital.longitude;        ;
-          let name = hospital.name;
-          let ownership = hospital.ownership;
-          let rating = hospital.rating;
-          let telephone = hospital.telephone;
-          let services = hospital.services.split(",").map(item => item.trim());
-          
-
-          
-          let clone = hospitalCard.cloneNode(true);
-          clone.querySelector(".hospital-name").textContent = name;
-          clone.querySelector(".rating").textContent = "⭐ "+rating;
-          clone.querySelector(".hospital-address").textContent = address;
-          clone.querySelector(".hospital-info .telephone").textContent = "+65 "+telephone;
-          clone.querySelector(".type").textContent = ownership;
-          clone.setAttribute("name",name);
-          clone.setAttribute("services",services);
-          clone.setAttribute("emergency",emergency);
-          clone.setAttribute("longtitude", long);
-          clone.setAttribute("latitude", lat);
-          clone.setAttribute("ownership",ownership);
-          clone.style.display = "flex";
-          clone.setAttribute("cloned","true");
-
-          let dataToBeSent = {"profile":type,
-            "start":[userCoord.longitude,userCoord.latitude],
-            "end":[clone.getAttribute("longtitude"),clone.getAttribute("latitude")]
-          }
-
-          let route = await getRouteData(dataToBeSent);//get route data
-          clone.querySelector(".distance").textContent = `ETA: ${convertMinutes(route.route.durationMin)} Dist: ${route.route.distanceKm}km`;
-          clone.setAttribute("distance",route.route.distanceKm);
-          
-
-          const serviceTag = clone.querySelector(".service-tag");
-          const servicesSect = clone.querySelector(".services");
-          if(!emergency){
-              clone.querySelector(".emergency-badge").style.display = "none";
-              
-          }
-              let serviceLength = services.length;//load services
-              for(i=0; i <serviceLength;i++){
-                  let currentService = services[i];
-                  let newTag = serviceTag.cloneNode(true);
-                  newTag.textContent = currentService;
-                  servicesSect.appendChild(newTag);
+    const map = await loadMap(userCoord.longitude, userCoord.latitude,hospitalData);
+  
+    sortDistance.addEventListener("click",function(){
+      sortHospitalByDistance();
+      filteredVal = "true";
+    })
+  
+    Array.from(travelType.children).forEach(function(button){
+        if (button.getAttribute('via') == type) {
+            button.style.borderColor = "blue";
+        }
+        button.addEventListener("click",function(){
+            type = button.getAttribute("via");
+  
+            Array.from(document.querySelector(".hospitals-list").children).forEach(async function(card){
+              if(card.getAttribute("cloned") == "true"){
+                let label = card.querySelector(".distance");
+                let dataToBeSent = {"profile":type,
+                  "start":[userCoord.longitude,userCoord.latitude],
+                  "end":[card.getAttribute("longtitude"),card.getAttribute("latitude")]
+                }
+      
+                let route = await getRouteData(dataToBeSent);//get route data
+                card.setAttribute("distance",route.route.distanceKm);
+                label.textContent = `ETA: ${convertMinutes(route.route.durationMin)} Dist: ${route.route.distanceKm}km`;
               }
-              serviceTag.style.display = "none";
-              //click selected
+              if(filteredVal == "true"){
+                sortHospitalByDistance(); 
+              }
+  
+            })
               
-              clone.addEventListener("click",async function(){
-                  Array.from(hospitalList.children).forEach(function(child) {
-                      child.setAttribute("selected",0);
-                      child.style.borderColor = "grey";
-      
-                  });
-                  clone.setAttribute("selected",1);
-                  clone.style.borderColor = "blue";
-                  drawRouteOnMap(map,route.route.geometry);
-                  centerMap(map,clone.getAttribute("longtitude"),clone.getAttribute("latitude"));
-                  
-
-      
-              })
-      
-          hospitalList.appendChild(clone);
-          
-      });
-  }
-
-  loadHospitals(hospitalData);
   
-  search.addEventListener("input", function () {
-    const query = search.value.toLowerCase();
-    const hospitalCards = document.querySelector(".hospitals-list").children;
+            Array.from(travelType.children).forEach(function(x){
+                x.style.borderColor = "white";
+            })
+            button.style.borderColor = "blue";
+        })
+        hideLoading();
   
-    // List of attribute names you want to search in
-    const searchableAttributes = ["name", "type", "services","ownership"];
-  
-    Array.from(hospitalCards).forEach(card => {
-      // Check if any of the desired attributes include the query
-      const matchFound = searchableAttributes.some(attr => {
-        const attrValue = card.getAttribute(attr);
-        return attrValue && attrValue.toLowerCase().includes(query);
-      });
-  
-      // Show or hide the card
-      card.style.display = matchFound ? "flex" : "none";
     });
-  });
+    //load all hospitals
+    function loadHospitals(data){
+        const hospitalList = document.querySelector(".hospitals-list");
+        const hospitalCard = document.querySelector(".hospital-card");
+        Array.from(hospitalList.children).forEach(function(c) {
+            if (c.getAttribute("cloned") == "true") {
+                c.remove();
+            }
+        });
+        data.forEach(async function(hospital) {
+            let address = hospital.address;
+            let emergency = hospital.emergency_services;
+            let lat = hospital.latitude;
+            let long = hospital.longitude;        ;
+            let name = hospital.name;
+            let ownership = hospital.ownership;
+            let rating = hospital.rating;
+            let telephone = hospital.telephone;
+            let services = hospital.services.split(",").map(item => item.trim());
+            
+  
+            
+            let clone = hospitalCard.cloneNode(true);
+            clone.querySelector(".hospital-name").textContent = name;
+            clone.querySelector(".rating").textContent = "⭐ "+rating;
+            clone.querySelector(".hospital-address").textContent = address;
+            clone.querySelector(".hospital-info .telephone").textContent = "+65 "+telephone;
+            clone.querySelector(".type").textContent = ownership;
+            clone.setAttribute("name",name);
+            clone.setAttribute("services",services);
+            clone.setAttribute("emergency",emergency);
+            clone.setAttribute("longtitude", long);
+            clone.setAttribute("latitude", lat);
+            clone.setAttribute("ownership",ownership);
+            clone.style.display = "flex";
+            clone.setAttribute("cloned","true");
+  
+            let dataToBeSent = {"profile":type,
+              "start":[userCoord.longitude,userCoord.latitude],
+              "end":[clone.getAttribute("longtitude"),clone.getAttribute("latitude")]
+            }
+  
+            let route = await getRouteData(dataToBeSent);//get route data
+            clone.querySelector(".distance").textContent = `ETA: ${convertMinutes(route.route.durationMin)} Dist: ${route.route.distanceKm}km`;
+            clone.setAttribute("distance",route.route.distanceKm);
+            
+  
+            const serviceTag = clone.querySelector(".service-tag");
+            const servicesSect = clone.querySelector(".services");
+            if(!emergency){
+                clone.querySelector(".emergency-badge").style.display = "none";
+                
+            }
+                let serviceLength = services.length;//load services
+                for(i=0; i <serviceLength;i++){
+                    let currentService = services[i];
+                    let newTag = serviceTag.cloneNode(true);
+                    newTag.textContent = currentService;
+                    servicesSect.appendChild(newTag);
+                }
+                serviceTag.style.display = "none";
+                //click selected
+                
+                clone.addEventListener("click",async function(){
+                    Array.from(hospitalList.children).forEach(function(child) {
+                        child.setAttribute("selected",0);
+                        child.style.borderColor = "grey";
+        
+                    });
+                    clone.setAttribute("selected",1);
+                    clone.style.borderColor = "blue";
+                    drawRouteOnMap(map,route.route.geometry);
+                    centerMap(map,clone.getAttribute("longtitude"),clone.getAttribute("latitude"));
+                    
+  
+        
+                })
+        
+            hospitalList.appendChild(clone);
+            
+        });
+    }
+  
+    loadHospitals(hospitalData);
+    
+    search.addEventListener("input", function () {
+      const query = search.value.toLowerCase();
+      const hospitalCards = document.querySelector(".hospitals-list").children;
+    
+      // List of attribute names you want to search in
+      const searchableAttributes = ["name", "type", "services","ownership"];
+    
+      Array.from(hospitalCards).forEach(card => {
+        // Check if any of the desired attributes include the query
+        const matchFound = searchableAttributes.some(attr => {
+          const attrValue = card.getAttribute(attr);
+          return attrValue && attrValue.toLowerCase().includes(query);
+        });
+    
+        // Show or hide the card
+        card.style.display = matchFound ? "flex" : "none";
+      });
+    });
+    
+  }else{
+    console.error("Server not started.Please start it!");
+  }
   
 
   
