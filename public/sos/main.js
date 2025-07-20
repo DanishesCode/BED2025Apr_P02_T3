@@ -1,4 +1,4 @@
-const apiBaseUrl = "";
+const apiBaseUrl = "http://localhost:3000";
 
 function showNotification(message, type) {
     const notification = document.getElementById("notification");
@@ -144,9 +144,11 @@ function receiveCoord(){
 document.addEventListener("DOMContentLoaded",async function(){
   const settingButton = document.querySelector(".settings-button");
   const careTakerElement = document.querySelector(".telegram-none");
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  console.log(currentUser);
   const sosButton = document.querySelector(".sos-button");
-  const userId = 1;
-  const name = "Sarah"
+  const userId = currentUser.id;
+  const name = currentUser.name;
   let data; 
   try{
     data = (await retrieveData(userId))[0];

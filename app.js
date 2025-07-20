@@ -224,6 +224,13 @@ app.put("/photos/:id/favorite", photoController.toggleFavorite);
 app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
 app.delete("/photos/:id", photoController.deletePhoto);
 
+//start telebot
+try{
+    teleBot.startBot();
+}catch(error){
+    console.log(error);
+}
+
 //Meal Recipe routes
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/meals/:userId", 

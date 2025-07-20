@@ -9,7 +9,7 @@ const questionAsker = document.querySelector(".question-box h2");
 const topicShower = document.querySelector(".question-box p span");
 const ansButton = document.querySelectorAll(".option");
 const nextButton = document.querySelectorAll(".next-button")
-const apiBaseUrl = "";
+const apiBaseUrl = "http://localhost:3000";
 
 async function fetchQuestions(category){
   function shuffle(array) {
@@ -56,6 +56,7 @@ async function refreshAnswers(list){
   ansButton.forEach(async function(button){
     currenAns = list[currentNum];
     button.textContent = currenAns.answer_text;
+    console.log(currenAns)
     button.setAttribute("is_correct",currenAns.is_correct);
     currentNum += 1;
   })
