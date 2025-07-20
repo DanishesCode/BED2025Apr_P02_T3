@@ -328,3 +328,25 @@ CREATE TABLE Caretaker (
 INSERT INTO Users (name, email, password, date_of_birth)
 VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
 
+-- [Tze Wei] - [Meal and Meal Plan Tables] - [Last Modified Date: 2025-07-20]
+CREATE TABLE Meals (
+    MealID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT FOREIGN KEY REFERENCES Users(userId),
+    MealName NVARCHAR(100) NOT NULL,
+    Category NVARCHAR(50),
+    Instructions NVARCHAR(MAX),
+);
+Meal Plan Table:
+CREATE TABLE MealPlan (
+  PlanID INT IDENTITY(1,1) PRIMARY KEY,
+  UserID INT NOT NULL,
+  MealID INT NOT NULL,
+  DayOfWeek NVARCHAR(10) NOT NULL,
+  MealTime NVARCHAR(20) NOT NULL
+);
+-- For foreign keys of Meal Plan Table:
+ALTER TABLE MealPlan
+  ADD CONSTRAINT FK_MealPlan_UserID FOREIGN KEY (UserID) REFERENCES Users(UserID);
+
+ALTER TABLE MealPlan
+  ADD CONSTRAINT FK_MealPlan_MealID FOREIGN KEY (MealID) REFERENCES Meals(MealID);

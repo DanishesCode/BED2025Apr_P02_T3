@@ -81,6 +81,9 @@ const appointmentController = require("./controllers/appointmentController");
 const birthdayController = require('./controllers/birthdayController');
 const weatherApiController = require('./controllers/weatherApiController');
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
+const mealController = require("./controllers/mealController");
+const mealPlanController = require('./controllers/mealplanController');
+const suggestionController = require('./controllers/mealsuggestionController');
 // Routes for pages
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -220,6 +223,25 @@ app.put("/photos/:id/favorite", photoController.toggleFavorite);
 app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
 app.delete("/photos/:id", photoController.deletePhoto);
 
+//Meal Recipe routes
+app.use(express.static(path.join(__dirname, "public")));
+app.get("/meals/:userId", mealController.getAllMeals);
+app.get("/meals/:userId/:mealId", mealController.getMealById);
+app.post("/meals", mealController.addMeal);
+app.put("/meals/:mealId", mealController.updateMeal);
+app.delete("/meals/:mealId", mealController.deleteMeal);
+// Meal Plan routes
+app.get("/mealplans/:userId", mealPlanController.getAllMealPlans);
+app.get("/mealplans/:userId/:planId", mealPlanController.getMealPlanById);
+app.post("/mealplans", mealPlanController.addMealPlan);
+app.put("/mealplans/:planId", mealPlanController.updateMealPlan);
+app.delete("/mealplans/:planId", mealPlanController.deleteMealPlan);
+
+// Recipe Suggestion Routes (Spoonacular API)
+app.get("/suggestions", suggestionController.getSuggestions);
+app.get("/suggestions/random", suggestionController.getRandomRecipes);
+app.get("/suggestions/:recipeId", suggestionController.getRecipeDetails);
+app.post("/suggestions/add", suggestionController.addSuggestedRecipe);
 // Error handling middleware
 app.use((error, req, res, next) => {
     console.error("=== SERVER ERROR ===");

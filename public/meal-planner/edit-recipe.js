@@ -97,7 +97,7 @@ document.getElementById('editRecipeForm').addEventListener('submit', async (e) =
 
 // Navigate back to recipes page
 function goBack() {
-    window.location.href = 'index.html#recipes';
+    window.location.href = 'meal.html#recipes';
 }
 
 // Add input validation feedback
@@ -144,3 +144,4 @@ document.addEventListener('keydown', (e) => {
         goBack();
     }
 });
+
