@@ -58,15 +58,16 @@ async function addGroceryItem(item) {
     connection = await sql.connect(dbConfig);
     const request = connection.request();
     request.input('item_name', sql.VarChar, item.item_name)
-    request.input('quantity', sql.Int, item.quantity)
+    request.input('quantity', sql.Decimal(10, 2), item.quantity)
+    request.input('unit', sql.VarChar, item.unit || 'pcs')
     request.input('bought', sql.Bit, item.bought !== undefined ? item.bought : 0)
     request.input('user_id', sql.Int, item.user_id)
     request.input('date_added', sql.Date, item.date_added || new Date())
     request.input('price', sql.Decimal(10, 2), item.price !== undefined ? item.price : 0.00); 
     request.input('notes', sql.VarChar, item.notes || ''); 
     const result = await request.query(`
-      INSERT INTO GroceryItems (item_name, quantity, bought, user_id, date_added, price, notes)
-      VALUES (@item_name, @quantity, @bought, @user_id, @date_added, @price, @notes) 
+      INSERT INTO GroceryItems (item_name, quantity, unit, bought, user_id, date_added, price, notes)
+      VALUES (@item_name, @quantity, @unit, @bought, @user_id, @date_added, @price, @notes) 
     `);
     return result;
   } catch (error) {
@@ -91,7 +92,8 @@ async function updateGroceryItem(item_id, updatedItem) {
     const request = connection.request();
     request.input('item_id', sql.Int, item_id);
     request.input('item_name', sql.VarChar, updatedItem.item_name);
-    request.input('quantity', sql.Int, updatedItem.quantity);
+    request.input('quantity', sql.Decimal(10, 2), updatedItem.quantity);
+    request.input('unit', sql.VarChar, updatedItem.unit || 'pcs');
     request.input('bought', sql.Bit, updatedItem.bought);
     request.input('price', sql.Decimal(10, 2), updatedItem.price !== undefined ? updatedItem.price : 0.00);
     request.input('notes', sql.VarChar, updatedItem.notes || '');
@@ -99,6 +101,7 @@ async function updateGroceryItem(item_id, updatedItem) {
       UPDATE GroceryItems
       SET item_name = @item_name,
           quantity = @quantity,
+          unit = @unit,
           bought = @bought,
           price = @price,
           notes = @notes

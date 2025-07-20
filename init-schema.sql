@@ -346,7 +346,23 @@ CREATE TABLE MealPlan (
 );
 -- For foreign keys of Meal Plan Table:
 ALTER TABLE MealPlan
-  ADD CONSTRAINT FK_MealPlan_UserID FOREIGN KEY (UserID) REFERENCES Users(UserID);
+  ADD CONSTRAINT FK_MealPlan_UserID FOREIGN KEY (UserID) REFERENCES Users(userId);
 
 ALTER TABLE MealPlan
   ADD CONSTRAINT FK_MealPlan_MealID FOREIGN KEY (MealID) REFERENCES Meals(MealID);
+
+-- [Tze Wei] - [Grocery List Tables] - [Last Modified Date: 2025-07-20]
+CREATE TABLE GroceryItems (
+    item_id INT IDENTITY(1,1) PRIMARY KEY,
+    item_name VARCHAR(255) NOT NULL,
+    quantity DECIMAL(10,2) NOT NULL,
+    unit VARCHAR(20) DEFAULT 'pcs',
+    bought BIT DEFAULT 0,
+    user_id INT NOT NULL,
+    date_added DATE DEFAULT GETDATE(),
+    notes VARCHAR(500),
+    price DECIMAL(10,2) DEFAULT 0.00
+);
+ALTER TABLE GroceryItems 
+ADD CONSTRAINT FK_GroceryItems_Users 
+FOREIGN KEY (user_Id) REFERENCES Users(userId);

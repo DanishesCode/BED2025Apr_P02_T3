@@ -1,0 +1,233 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    font-size: 20px;
+    line-height: 1.6;
+    background-color: #f8f9fa;
+    color: #212529;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 30px;
+}
+
+h1 {
+    font-size: 36px;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: bold;
+}
+
+h2 {
+    font-size: 28px;
+    color: #34495e;
+    margin: 30px 0 20px 0;
+    font-weight: bold;
+}
+
+.section {
+    margin-bottom: 40px;
+    padding: 25px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 2px solid #dee2e6;
+}
+
+/* Meal Selection */
+.meal-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.meal-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.meal-toggle input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.meal-toggle label {
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #2c3e50;
+}
+
+.generate-btn {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 22px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.generate-btn:hover {
+    background-color: #219a52;
+}
+
+/* Grocery List */
+.add-item-section {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    align-items: center;
+}
+
+.add-item-input {
+    flex: 1;
+    padding: 12px;
+    font-size: 20px;
+    border: 2px solid #ced4da;
+    border-radius: 6px;
+}
+
+.add-btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-btn:hover {
+    background-color: #2980b9;
+}
+
+.clear-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 20px;
+}
+
+.clear-btn:hover {
+    background-color: #c0392b;
+}
+
+.grocery-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.grocery-table th,
+.grocery-table td {
+    border: 2px solid #dee2e6;
+    padding: 15px;
+    text-align: left;
+    font-size: 20px;
+}
+
+.grocery-table th {
+    background-color: #34495e;
+    color: white;
+    font-weight: bold;
+}
+
+.grocery-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.grocery-table tr.bought {
+    background-color: #d4edda;
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.status-checkbox {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-bought {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+    font-size: 22px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+    
+    .add-item-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .grocery-table {
+        font-size: 18px;
+    }
+    
+    .grocery-table th,
+    .grocery-table td {
+        padding: 12px;
+    }
+}
