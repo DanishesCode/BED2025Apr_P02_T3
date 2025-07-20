@@ -1,102 +1,96 @@
-const sql = require("mssql");
-const dbConfig = require("../dbConfig");
 const photoModel = require("../models/photoModel");
-const fetch = require("node-fetch");
-const imgbbKey = process.env.IMGBB_API_KEY;
+
+// Helper function to convert image buffer to base64
+const convertToBase64 = (imageBuffer) => {
+  if (!imageBuffer) return null;
+  return `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
+};
+
+// Helper function for error responses
+const sendError = (res, status, message, error = null) => {
+  const response = { success: false, message };
+  if (error) response.error = error.message;
+  return res.status(status).json(response);
+};
+
+// Helper function for success responses
+const sendSuccess = (res, status, message, data = null) => {
+  const response = { success: true, message };
+  if (data) response.data = data;
+  return res.status(status).json(response);
+};
 
 const photoController = {
   // Upload a new photo
   async uploadPhoto(req, res) {
     try {
-      const { title, description, location, date, category, isFavorite, userId } = req.body;
+      const { title, description, location, date, category, isFavorite } = req.body;
       const file = req.file;
+      const userId = req.user?.userId; // Get user ID from JWT token
 
-      // Upload to imgbb
-      const formData = new URLSearchParams();
-      formData.append("image", file.buffer.toString("base64"));
-
-      const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const imgbbResult = await imgbbResponse.json();
-
-      if (!imgbbResult.success) {
-        return res.status(500).json({ 
-          success: false, 
-          message: "Image upload failed", 
-          error: imgbbResult.error?.message || "Unknown error" 
-        });
+      if (!userId) {
+        return sendError(res, 401, "Authentication required");
       }
 
-      const imageUrl = imgbbResult.data.url;
+      if (!file?.buffer) {
+        return sendError(res, 400, "No image file uploaded");
+      }
 
-      // Prepare photo data
       const photoData = {
         title,
         description,
         location,
         date: date || new Date(),
-        isFavorite: isFavorite === 'true' || isFavorite === true || false,
+        isFavorite: isFavorite === 'true' || isFavorite === true,
         category: category || 'General',
-        imageUrl,
-        userId: parseInt(userId) || 1 // Parse userId from form data or default to 1
+        imageBuffer: file.buffer,
+        userId: userId
       };
 
-      // Save to database using model
       const result = await photoModel.savePhoto(photoData);
 
       if (!result.success) {
-        return res.status(500).json({ 
-          success: false, 
-          message: "Failed to save photo to database",
-          error: result.error 
-        });
+        return sendError(res, 500, "Failed to save photo to database", result.error);
       }
 
-      return res.status(201).json({
-        success: true,
-        message: "Photo uploaded and stored successfully",
-        data: {
-          title,
-          description,
-          location,
-          date: photoData.date,
-          category: photoData.category,
-          isFavorite: photoData.isFavorite,
-          url: imageUrl,
-        },
+      return sendSuccess(res, 201, "Photo uploaded and stored successfully", {
+        title,
+        description,
+        location,
+        date: photoData.date,
+        category: photoData.category,
+        isFavorite: photoData.isFavorite,
       });
     } catch (error) {
       console.error("Upload error:", error);
-      res.status(500).json({ success: false, message: "Server error", error: error.message });
+      return sendError(res, 500, "Server error", error);
     }
   },
 
   // Get all photos for a specific user
   async getAllPhotos(req, res) {
     try {
-      const { userId } = req.query; // Get userId from query parameters
+      const currentUserId = req.user?.userId;
       
-      let result;
-      if (userId) {
-        result = await photoModel.getPhotosByUserId(userId);
-      } else {
-        result = await photoModel.getAllPhotos();
+      if (!currentUserId) {
+        return sendError(res, 401, "Authentication required to view photos");
       }
       
+      const result = await photoModel.getPhotosByUserId(currentUserId);
+
       if (!result.success) {
-        return res.status(500).json({ success: false, message: result.message });
+        return sendError(res, 500, result.message);
       }
 
-      return res.status(200).json({
-        success: true,
-        data: result.data
-      });
+      const photosWithBase64 = result.data.map(photo => ({
+        ...photo,
+        imageBase64: convertToBase64(photo.imageBuffer)
+      }));
+
+      return sendSuccess(res, 200, null, photosWithBase64);
     } catch (error) {
       console.error("Get photos error:", error);
-      res.status(500).json({ success: false, message: "Server error", error: error.message });
+      return sendError(res, 500, "Server error", error);
     }
   },
 
@@ -104,19 +98,27 @@ const photoController = {
   async getPhotoById(req, res) {
     try {
       const { id } = req.params;
-      const result = await photoModel.getPhotoById(id);
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        return sendError(res, 401, "Authentication required");
+      }
+      
+      const result = await photoModel.getPhotoById(id, userId);
       
       if (!result.success) {
-        return res.status(404).json({ success: false, message: result.message });
+        return sendError(res, 404, result.message);
       }
 
-      return res.status(200).json({
-        success: true,
-        data: result.data
-      });
+      const photo = {
+        ...result.data,
+        imageBase64: convertToBase64(result.data.imageBuffer)
+      };
+
+      return sendSuccess(res, 200, null, photo);
     } catch (error) {
       console.error("Get photo by ID error:", error);
-      res.status(500).json({ success: false, message: "Server error", error: error.message });
+      return sendError(res, 500, "Server error", error);
     }
   },
 
@@ -125,20 +127,22 @@ const photoController = {
     try {
       const { id } = req.params;
       const { isFavorite } = req.body;
+      const userId = req.user?.userId;
       
-      const result = await photoModel.updateFavoriteStatus(id, isFavorite);
+      if (!userId) {
+        return sendError(res, 401, "Authentication required");
+      }
+      
+      const result = await photoModel.updateFavoriteStatus(id, isFavorite, userId);
       
       if (!result.success) {
-        return res.status(500).json({ success: false, message: result.message });
+        return sendError(res, 500, result.message);
       }
 
-      return res.status(200).json({
-        success: true,
-        message: "Favorite status updated successfully"
-      });
+      return sendSuccess(res, 200, "Favorite status updated successfully");
     } catch (error) {
       console.error("Toggle favorite error:", error);
-      res.status(500).json({ success: false, message: "Server error", error: error.message });
+      return sendError(res, 500, "Server error", error);
     }
   },
 
@@ -147,75 +151,40 @@ const photoController = {
     try {
       const { id } = req.params;
       const { title, description, location, date, category, isFavorite } = req.body;
-      const file = req.file; // New image file if provided
+      const file = req.file;
+      const userId = req.user?.userId;
       
-      // Validate required fields
-      if (!title || title.trim() === '') {
-        return res.status(400).json({ 
-          success: false, 
-          message: "Title is required" 
-        });
+      if (!userId) {
+        return sendError(res, 401, "Authentication required");
       }
-
-      let imageUrl = null;
-
-      // Upload new image to imgbb if provided
-      if (file) {
-        const formData = new URLSearchParams();
-        formData.append("image", file.buffer.toString("base64"));
-
-        const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${imgbbKey}`, {
-          method: "POST",
-          body: formData,
-        });
-
-        const imgbbResult = await imgbbResponse.json();
-
-        if (!imgbbResult.success) {
-          return res.status(500).json({ 
-            success: false, 
-            message: "Image upload failed", 
-            error: imgbbResult.error?.message || "Unknown error" 
-          });
-        }
-
-        imageUrl = imgbbResult.data.url;
+      
+      if (!title?.trim()) {
+        return sendError(res, 400, "Title is required");
       }
 
       const photoData = {
         title: title.trim(),
-        description: description ? description.trim() : null,
-        location: location ? location.trim() : null,
+        description: description?.trim() || null,
+        location: location?.trim() || null,
         date: date || new Date(),
         category: category || 'General',
         isFavorite: isFavorite === true || isFavorite === 'true'
       };
 
-      // Add imageUrl to update data if a new image was uploaded
-      if (imageUrl) {
-        photoData.imageUrl = imageUrl;
+      if (file?.buffer) {
+        photoData.imageBuffer = file.buffer;
       }
 
-      const result = await photoModel.updatePhoto(id, photoData);
+      const result = await photoModel.updatePhoto(id, photoData, userId);
       
       if (!result.success) {
-        return res.status(500).json({ success: false, message: result.message });
+        return sendError(res, 500, result.message);
       }
 
-      // Include the new imageUrl in response if updated
-      const responseData = { ...photoData };
-      if (imageUrl) {
-        responseData.imageUrl = imageUrl;
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: "Photo updated successfully",
-        data: responseData
-      });
+      return sendSuccess(res, 200, "Photo updated successfully", photoData);
     } catch (error) {
       console.error("Update photo error:", error);
-      res.status(500).json({ success: false, message: "Server error", error: error.message });
+      return sendError(res, 500, "Server error", error);
     }
   },
 
@@ -223,19 +192,22 @@ const photoController = {
   async deletePhoto(req, res) {
     try {
       const { id } = req.params;
-      const result = await photoModel.deletePhoto(id);
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        return sendError(res, 401, "Authentication required");
+      }
+      
+      const result = await photoModel.deletePhoto(id, userId);
       
       if (!result.success) {
-        return res.status(500).json({ success: false, message: result.message });
+        return sendError(res, 500, result.message);
       }
 
-      return res.status(200).json({
-        success: true,
-        message: "Photo deleted successfully"
-      });
+      return sendSuccess(res, 200, "Photo deleted successfully");
     } catch (error) {
       console.error("Delete photo error:", error);
-      res.status(500).json({ success: false, message: "Server error", error: error.message });
+      return sendError(res, 500, "Server error", error);
     }
   }
 };

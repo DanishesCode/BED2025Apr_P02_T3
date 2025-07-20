@@ -1,114 +1,88 @@
-// Global variables
-let allPhotos = [];
-let filteredPhotos = [];
-let currentModalIndex = 0;
+// Global state
+let allPhotos = [], filteredPhotos = [], currentModalIndex = 0, currentEditingPhotoId = null;
 
 // DOM elements
-const galleryGrid = document.getElementById('gallery-grid');
-const loadingSpinner = document.getElementById('loading-spinner');
-const noPhotosMessage = document.getElementById('no-photos');
-const searchInput = document.querySelector('.search-input');
-const filterTabs = document.querySelectorAll('.filter-tab');
-const modal = document.getElementById('photo-modal');
-const modalImage = document.querySelector('.modal-image');
-const modalTitle = document.querySelector('.modal-title');
-const modalDescription = document.querySelector('.modal-description');
-const modalDate = document.querySelector('.modal-date');
-const modalTag = document.querySelector('.modal-tag');
-const modalClose = document.querySelector('.modal-close');
-const modalBackdrop = document.querySelector('.modal-backdrop');
-const modalArrowLeft = document.getElementById('modal-arrow-left');
-const modalArrowRight = document.getElementById('modal-arrow-right');
+const elements = {
+    gallery: document.getElementById('gallery-grid'),
+    loading: document.getElementById('loading-spinner'),
+    noPhotos: document.getElementById('no-photos'),
+    search: document.querySelector('.search-input'),
+    filters: document.querySelectorAll('.filter-tab'),
+    modal: document.getElementById('photo-modal'),
+    modalImg: document.querySelector('.modal-image'),
+    modalTitle: document.querySelector('.modal-title'),
+    modalDesc: document.querySelector('.modal-description'),
+    modalDate: document.querySelector('.modal-date'),
+    modalTag: document.querySelector('.modal-tag'),
+    modalClose: document.querySelector('.modal-close'),
+    modalBackdrop: document.querySelector('.modal-backdrop'),
+    modalLeft: document.getElementById('modal-arrow-left'),
+    modalRight: document.getElementById('modal-arrow-right')
+};
 
-// Initialize the page
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if we're on the upload page
+// Helper functions
+const getBackendUrl = () => window.location.hostname === '127.0.0.1' && window.location.port === '5500' ? 'http://127.0.0.1:3000' : '';
+const formatDate = (date) => new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+const showLoading = () => { elements.loading.style.display = 'flex'; elements.gallery.style.display = 'none'; elements.noPhotos.style.display = 'none'; };
+const hideLoading = () => { elements.loading.style.display = 'none'; elements.gallery.style.display = 'grid'; };
+const showNoPhotos = () => { elements.gallery.style.display = 'none'; elements.noPhotos.style.display = 'block'; };
+const hideNoPhotos = () => { elements.noPhotos.style.display = 'none'; elements.gallery.style.display = 'grid'; };
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
     const uploadForm = document.getElementById('memory-form');
     if (uploadForm) {
-        setupUploadForm();
-        return; // Don't load gallery functionality on upload page
+        setupUpload();
+        return;
     }
     
-    // Gallery page functionality
     loadPhotos();
-    setupEventListeners();
-    // Move arrows outside modal-content
-    const modal = document.getElementById('photo-modal');
-    const modalContent = modal.querySelector('.modal-content');
-    const leftArrow = document.getElementById('modal-arrow-left');
-    const rightArrow = document.getElementById('modal-arrow-right');
-    if (leftArrow && rightArrow && modal && modalContent) {
-        modal.insertBefore(leftArrow, modalContent);
-        modal.appendChild(rightArrow);
+    setupEvents();
+    
+    // Move modal arrows
+    const modalContent = elements.modal.querySelector('.modal-content');
+    if (elements.modalLeft && elements.modalRight && elements.modal && modalContent) {
+        elements.modal.insertBefore(elements.modalLeft, modalContent);
+        elements.modal.appendChild(elements.modalRight);
     }
 });
 
 // Setup event listeners
-function setupEventListeners() {
-    // Search functionality
-    searchInput.addEventListener('input', handleSearch);
-    
-    // Filter tabs
-    filterTabs.forEach(tab => {
-        tab.addEventListener('click', handleFilterClick);
-    });
-    
-    // Modal close functionality
-    modalClose.addEventListener('click', closeModal);
-    modalBackdrop.addEventListener('click', closeModal);
-    
-    // Modal arrow navigation
-    modalArrowLeft.addEventListener('click', function(e) {
-        e.stopPropagation();
-        showModalPhoto(currentModalIndex - 1);
-    });
-    
-    modalArrowRight.addEventListener('click', function(e) {
-        e.stopPropagation();
-        showModalPhoto(currentModalIndex + 1);
-    });
-    
-    // Close modal with Escape key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            closeModal();
-        }
-    });
+function setupEvents() {
+    elements.search.addEventListener('input', handleSearch);
+    elements.filters.forEach(tab => tab.addEventListener('click', handleFilter));
+    elements.modalClose.addEventListener('click', closeModal);
+    elements.modalBackdrop.addEventListener('click', closeModal);
+    elements.modalLeft.addEventListener('click', e => { e.stopPropagation(); showModalPhoto(currentModalIndex - 1); });
+    elements.modalRight.addEventListener('click', e => { e.stopPropagation(); showModalPhoto(currentModalIndex + 1); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 }
 
-// Load photos from the server
+// Load photos
 async function loadPhotos() {
     try {
-        console.log('Loading photos...');
         showLoading();
-        
-        // Get userId from localStorage
-        let userId = 1; // Default fallback
-        const currentUser = localStorage.getItem('currentUser');
-        if (currentUser) {
-            try {
-                const user = JSON.parse(currentUser);
-                userId = user.id || user.userId || 1;
-                console.log('Loading photos for userId:', userId);
-            } catch (e) {
-                console.error('Error parsing user data:', e);
-            }
+        let userId = 1;
+        const user = localStorage.getItem('currentUser');
+        if (user) {
+            try { userId = JSON.parse(user).id || JSON.parse(user).userId || 1; } catch (e) { console.error('Error parsing user data:', e); }
         }
         
-        console.log('Making API call to /photos with userId:', userId);
-        const response = await fetch(`http://localhost:3000/photos?userId=${userId}`);
-        console.log('Response status:', response.status);
+        const authToken = localStorage.getItem('authToken');
+        const headers = {};
+        if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
         
+        const response = await fetch(`${getBackendUrl()}/photos`, { 
+            method: 'GET',
+            headers: headers
+        });
         const result = await response.json();
-        console.log('API Result:', result);
         
         if (result.success && result.data) {
-            console.log('Photos loaded successfully:', result.data.length, 'photos');
             allPhotos = result.data;
             filteredPhotos = [...allPhotos];
             displayPhotos(filteredPhotos);
         } else {
-            console.error('Failed to load photos:', result.message);
             showNoPhotos();
         }
     } catch (error) {
@@ -119,30 +93,18 @@ async function loadPhotos() {
     }
 }
 
-// Display photos in the gallery
+// Display photos
 function displayPhotos(photos) {
-    console.log('displayPhotos called with:', photos ? photos.length : 0, 'photos');
-    
     if (!photos || photos.length === 0) {
-        console.log('No photos to display, showing no photos message');
         showNoPhotos();
         return;
     }
-
-    console.log('Displaying photos...');
     hideNoPhotos();
-    galleryGrid.innerHTML = '';
-
-    photos.forEach((photo, index) => {
-        console.log(`Creating card for photo ${index}:`, photo.title);
-        const photoCard = createPhotoCard(photo);
-        galleryGrid.appendChild(photoCard);
-    });
-    
-    console.log('All photo cards added to gallery');
+    elements.gallery.innerHTML = '';
+    photos.forEach(photo => elements.gallery.appendChild(createPhotoCard(photo)));
 }
 
-// Create a photo card element
+// Create photo card
 function createPhotoCard(photo) {
     const card = document.createElement('div');
     card.className = 'photo-card';
@@ -154,7 +116,7 @@ function createPhotoCard(photo) {
 
     card.innerHTML = `
         <div class="photo-wrapper">
-            <img src="${photo.imageUrl}" alt="${photo.title}" class="photo-image" loading="lazy">
+            <img src="${photo.imageBase64 || photo.imageUrl || 'default-image.png'}" alt="${photo.title}" class="photo-image" loading="lazy">
             <div class="photo-overlay">
                 <button class="photo-action edit-btn" onclick="editPhoto(${photo.id})" data-id="${photo.id}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -184,173 +146,103 @@ function createPhotoCard(photo) {
         </div>
     `;
 
-    // Add click event to open modal
-    card.addEventListener('click', function(e) {
-        // Don't open modal if clicking on action buttons
-        if (!e.target.closest('.photo-action')) {
-            openModal(photo);
-        }
-    });
-
+    card.addEventListener('click', e => { if (!e.target.closest('.photo-action')) openModal(photo); });
     return card;
 }
 
-// Format date for display
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-}
-
-// Open photo modal
+// Modal functions
 function openModal(photo) {
     currentModalIndex = filteredPhotos.findIndex(p => p.id === photo.id);
     showModalPhoto(currentModalIndex);
-    modal.classList.add('active');
+    elements.modal.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
-// Show photo in modal by index
 function showModalPhoto(index) {
     if (filteredPhotos.length === 0) return;
-    
-    // Wrap around - if index is negative, go to last photo
     if (index < 0) index = filteredPhotos.length - 1;
-    // If index is beyond the last photo, go to first photo
     if (index >= filteredPhotos.length) index = 0;
     
     currentModalIndex = index;
     const photo = filteredPhotos[index];
     
-    modalImage.src = photo.imageUrl;
-    modalImage.alt = photo.title;
-    modalTitle.textContent = photo.title;
-    modalDescription.textContent = photo.description || 'No description';
-    modalDate.textContent = formatDate(photo.date);
-    modalTag.textContent = photo.category || 'General';
+    elements.modalImg.src = photo.imageBase64 || photo.imageUrl || 'default-image.png';
+    elements.modalImg.alt = photo.title;
+    elements.modalTitle.textContent = photo.title;
+    elements.modalDesc.textContent = photo.description || 'No description';
+    elements.modalDate.textContent = formatDate(photo.date);
+    elements.modalTag.textContent = photo.category || 'General';
 }
 
-// Close photo modal
 function closeModal() {
-    modal.classList.remove('active');
+    elements.modal.classList.remove('active');
     document.body.style.overflow = '';
 }
 
-// Handle search functionality
+// Search and filter
 function handleSearch(e) {
     const searchTerm = e.target.value.toLowerCase();
-    
-    if (searchTerm === '') {
-        filteredPhotos = [...allPhotos];
-    } else {
-        filteredPhotos = allPhotos.filter(photo => 
-            photo.title.toLowerCase().includes(searchTerm) ||
-            (photo.description && photo.description.toLowerCase().includes(searchTerm)) ||
-            (photo.location && photo.location.toLowerCase().includes(searchTerm)) ||
-            (photo.category && photo.category.toLowerCase().includes(searchTerm))
-        );
-    }
-    
-    // Apply current filter
-    const activeFilter = document.querySelector('.filter-tab.active').dataset.filter;
-    applyFilter(activeFilter);
+    filteredPhotos = searchTerm === '' ? [...allPhotos] : allPhotos.filter(photo => 
+        photo.title.toLowerCase().includes(searchTerm) ||
+        (photo.description && photo.description.toLowerCase().includes(searchTerm)) ||
+        (photo.location && photo.location.toLowerCase().includes(searchTerm)) ||
+        (photo.category && photo.category.toLowerCase().includes(searchTerm))
+    );
+    applyFilter(document.querySelector('.filter-tab.active').dataset.filter);
 }
 
-// Handle filter tab clicks
-function handleFilterClick(e) {
-    // Remove active class from all tabs
-    filterTabs.forEach(tab => tab.classList.remove('active'));
-    
-    // Add active class to clicked tab
+function handleFilter(e) {
+    elements.filters.forEach(tab => tab.classList.remove('active'));
     e.target.classList.add('active');
-    
-    // Apply filter
-    const filter = e.target.dataset.filter;
-    applyFilter(filter);
+    applyFilter(e.target.dataset.filter);
 }
 
-// Apply filter to photos
 function applyFilter(filter) {
-    console.log('Applying filter:', filter);
-    console.log('All photos count:', allPhotos.length);
+    const searchTerm = elements.search.value.toLowerCase();
+    let photosToDisplay = searchTerm === '' ? [...allPhotos] : allPhotos.filter(photo => 
+        photo.title.toLowerCase().includes(searchTerm) ||
+        (photo.description && photo.description.toLowerCase().includes(searchTerm)) ||
+        (photo.location && photo.location.toLowerCase().includes(searchTerm)) ||
+        (photo.category && photo.category.toLowerCase().includes(searchTerm))
+    );
     
-    // Start with either all photos or search-filtered photos
-    const searchTerm = searchInput.value.toLowerCase();
-    let photosToDisplay;
-    
-    if (searchTerm === '') {
-        photosToDisplay = [...allPhotos];
-        console.log('No search term, using all photos:', photosToDisplay.length);
-    } else {
-        photosToDisplay = allPhotos.filter(photo => 
-            photo.title.toLowerCase().includes(searchTerm) ||
-            (photo.description && photo.description.toLowerCase().includes(searchTerm)) ||
-            (photo.location && photo.location.toLowerCase().includes(searchTerm)) ||
-            (photo.category && photo.category.toLowerCase().includes(searchTerm))
-        );
-        console.log('With search term, filtered to:', photosToDisplay.length);
-    }
-    
-    // Apply category filter
     switch (filter) {
-        case 'recent':
-            photosToDisplay = photosToDisplay.sort((a, b) => new Date(b.uploadedAt || b.date) - new Date(a.uploadedAt || a.date));
-            break;
-        case 'favorites':
-            photosToDisplay = photosToDisplay.filter(photo => photo.isFavorite);
-            break;
-        case 'family':
-        case 'travel':
-        case 'friends':
-        case 'nature':
-        case 'celebrations':
-        case 'hobbies':
-            photosToDisplay = photosToDisplay.filter(photo => 
-                photo.category && photo.category.toLowerCase() === filter
-            );
-            break;
-        case 'all':
-        default:
-            // Show all filtered photos (no additional filtering needed)
-            console.log('All filter selected, showing:', photosToDisplay.length, 'photos');
-            break;
+        case 'recent': photosToDisplay = photosToDisplay.sort((a, b) => new Date(b.uploadedAt || b.date) - new Date(a.uploadedAt || a.date)); break;
+        case 'favorites': photosToDisplay = photosToDisplay.filter(photo => photo.isFavorite); break;
+        case 'family': case 'travel': case 'friends': case 'nature': case 'celebrations': case 'hobbies':
+            photosToDisplay = photosToDisplay.filter(photo => photo.category && photo.category.toLowerCase() === filter); break;
     }
     
-    console.log('Final photos to display:', photosToDisplay.length);
-    
-    // Update the filteredPhotos array for other functions
     filteredPhotos = [...photosToDisplay];
-    
-    // Display the photos
     displayPhotos(photosToDisplay);
 }
 
-// Toggle favorite status
+// API functions
 async function toggleFavorite(photoId, buttonElement) {
     try {
-        const photo = allPhotos.find(p => p.id === photoId);
-        const newFavoriteStatus = !photo.isFavorite;
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            alert('Please log in to update favorites');
+            return;
+        }
         
-        const response = await fetch(`http://localhost:3000/photos/${photoId}/favorite`, {
+        const photo = allPhotos.find(p => p.id === photoId);
+        const newStatus = !photo.isFavorite;
+        
+        const response = await fetch(`${getBackendUrl()}/photos/${photoId}/favorite`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
             },
-            body: JSON.stringify({ isFavorite: newFavoriteStatus })
+            body: JSON.stringify({ isFavorite: newStatus })
         });
         
         const result = await response.json();
-        
         if (result.success) {
-            // Update the photo in our local data
-            photo.isFavorite = newFavoriteStatus;
-            
-            // Update the UI
+            photo.isFavorite = newStatus;
             const icon = buttonElement.querySelector('svg');
-            if (newFavoriteStatus) {
+            if (newStatus) {
                 icon.classList.add('active');
                 icon.setAttribute('fill', 'currentColor');
                 icon.removeAttribute('stroke');
@@ -360,7 +252,6 @@ async function toggleFavorite(photoId, buttonElement) {
                 icon.setAttribute('stroke', 'currentColor');
             }
         } else {
-            console.error('Failed to toggle favorite:', result.message);
             alert('Failed to update favorite status');
         }
     } catch (error) {
@@ -369,31 +260,28 @@ async function toggleFavorite(photoId, buttonElement) {
     }
 }
 
-// Delete photo
 async function deletePhoto(photoId) {
-    if (!confirm('Are you sure you want to delete this memory? This action cannot be undone.')) {
-        return;
-    }
+    if (!confirm('Are you sure you want to delete this memory? This action cannot be undone.')) return;
     
     try {
-        const response = await fetch(`http://localhost:3000/photos/${photoId}`, {
-            method: 'DELETE'
-        });
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            alert('Please log in to delete photos');
+            return;
+        }
         
+        const response = await fetch(`${getBackendUrl()}/photos/${photoId}`, { 
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
         const result = await response.json();
         
         if (result.success) {
-            // Remove from local data
             allPhotos = allPhotos.filter(photo => photo.id !== photoId);
             filteredPhotos = filteredPhotos.filter(photo => photo.id !== photoId);
-            
-            // Refresh display
-            const activeFilter = document.querySelector('.filter-tab.active').dataset.filter;
-            applyFilter(activeFilter);
-            
+            applyFilter(document.querySelector('.filter-tab.active').dataset.filter);
             alert('Memory deleted successfully');
         } else {
-            console.error('Failed to delete photo:', result.message);
             alert('Failed to delete memory');
         }
     } catch (error) {
@@ -402,19 +290,13 @@ async function deletePhoto(photoId) {
     }
 }
 
-// Edit photo functionality
-let currentEditingPhotoId = null;
-
+// Edit functions
 function editPhoto(photoId) {
     const photo = allPhotos.find(p => p.id === photoId);
-    if (!photo) {
-        alert('Photo not found');
-        return;
-    }
+    if (!photo) { alert('Photo not found'); return; }
 
     currentEditingPhotoId = photoId;
     
-    // Populate the edit form
     document.getElementById('edit-title').value = photo.title || '';
     document.getElementById('edit-description').value = photo.description || '';
     document.getElementById('edit-date').value = photo.date ? photo.date.split('T')[0] : '';
@@ -422,7 +304,6 @@ function editPhoto(photoId) {
     document.getElementById('edit-location').value = photo.location || '';
     document.getElementById('edit-favorite').checked = photo.isFavorite || false;
     
-    // Show current image
     const currentImage = document.getElementById('current-image');
     const currentImageContainer = document.getElementById('current-image-container');
     if (photo.imageUrl) {
@@ -432,48 +313,22 @@ function editPhoto(photoId) {
         currentImageContainer.style.display = 'none';
     }
     
-    // Clear any existing image preview
     clearImagePreview();
-    
-    // Show the edit modal
-    const editModal = document.getElementById('edit-modal');
-    editModal.classList.add('active');
+    document.getElementById('edit-modal').classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 function closeEditModal() {
-    const editModal = document.getElementById('edit-modal');
-    editModal.classList.remove('active');
+    document.getElementById('edit-modal').classList.remove('active');
     document.body.style.overflow = '';
     currentEditingPhotoId = null;
     clearImagePreview();
 }
 
-// Image preview functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const editImageInput = document.getElementById('edit-image');
-    if (editImageInput) {
-        editImageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('edit-image-preview');
-                    const img = document.getElementById('edit-preview-img');
-                    img.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-});
-
 function clearImagePreview() {
     const preview = document.getElementById('edit-image-preview');
     const img = document.getElementById('edit-preview-img');
     const fileInput = document.getElementById('edit-image');
-    
     if (preview && img && fileInput) {
         preview.style.display = 'none';
         img.src = '';
@@ -481,152 +336,35 @@ function clearImagePreview() {
     }
 }
 
-// Handle edit form submission
-document.addEventListener('DOMContentLoaded', function() {
-    const editForm = document.getElementById('edit-form');
-    if (editForm) {
-        editForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            if (!currentEditingPhotoId) {
-                alert('No photo selected for editing');
-                return;
-            }
-
-            const title = document.getElementById('edit-title').value.trim();
-            const description = document.getElementById('edit-description').value.trim();
-            const date = document.getElementById('edit-date').value;
-            const category = document.getElementById('edit-category').value;
-            const location = document.getElementById('edit-location').value.trim();
-            const isFavorite = document.getElementById('edit-favorite').checked;
-            const imageFile = document.getElementById('edit-image').files[0];
-
-            if (!title) {
-                alert('Title is required');
-                return;
-            }
-
-            try {
-                // Create FormData for both metadata and optional image
-                const formData = new FormData();
-                formData.append('title', title);
-                formData.append('description', description);
-                formData.append('date', date);
-                formData.append('category', category || 'General');
-                formData.append('location', location);
-                formData.append('isFavorite', isFavorite);
-                
-                // Add image if a new one was selected
-                if (imageFile) {
-                    formData.append('photo', imageFile);
-                }
-
-                const response = await fetch(`http://localhost:3000/photos/${currentEditingPhotoId}`, {
-                    method: 'PUT',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Update the photo in local data
-                    const photoIndex = allPhotos.findIndex(p => p.id === currentEditingPhotoId);
-                    if (photoIndex !== -1) {
-                        const updatedPhoto = {
-                            ...allPhotos[photoIndex],
-                            title,
-                            description,
-                            date,
-                            category: category || 'General',
-                            location,
-                            isFavorite
-                        };
-                        
-                        // Update image URL if a new image was uploaded
-                        if (result.data && result.data.imageUrl) {
-                            updatedPhoto.imageUrl = result.data.imageUrl;
-                        }
-                        
-                        allPhotos[photoIndex] = updatedPhoto;
-                    }
-
-                    // Refresh the display
-                    const activeFilter = document.querySelector('.filter-tab.active').dataset.filter;
-                    applyFilter(activeFilter);
-
-                    // Close the modal
-                    closeEditModal();
-                    
-                    alert('Memory updated successfully!');
-                } else {
-                    alert('Error updating memory: ' + (result.message || 'Unknown error'));
-                }
-            } catch (error) {
-                console.error('Update error:', error);
-                alert('Error updating memory. Please try again.');
-            }
-        });
-    }
-});
-
-// Handle upload form submission
-function setupUploadForm() {
+// Upload functions
+function setupUpload() {
     const uploadForm = document.getElementById('memory-form');
     const fileInput = document.getElementById('photo-upload');
     const uploadArea = document.getElementById('upload-area');
     const previewContainer = document.getElementById('preview-container');
     const browseButton = document.getElementById('browse-btn');
     
-    if (!uploadForm || !fileInput || !uploadArea || !previewContainer) {
-        console.log('Upload form elements not found');
-        return;
-    }
+    if (!uploadForm || !fileInput || !uploadArea || !previewContainer) return;
     
-    // Handle file selection
-    fileInput.addEventListener('change', function(e) {
-        console.log('File input changed', e.target.files);
-        handleFileSelection(e);
-    });
+    fileInput.addEventListener('change', handleFileSelection);
     
-    // Handle browse button click
     if (browseButton) {
-        browseButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Browse button clicked');
-            fileInput.click();
-        });
+        browseButton.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); fileInput.click(); });
     }
     
-    // Handle upload area click (but not when clicking the button)
-    uploadArea.addEventListener('click', function(e) {
-        // Don't trigger if the click was on the browse button
-        if (e.target.id === 'browse-btn' || e.target.closest('#browse-btn')) {
-            return;
-        }
-        console.log('Upload area clicked');
+    uploadArea.addEventListener('click', e => {
+        if (e.target.id === 'browse-btn' || e.target.closest('#browse-btn')) return;
         fileInput.click();
     });
     
-    // Handle drag and drop
-    uploadArea.addEventListener('dragover', handleDragOver);
+    uploadArea.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
     uploadArea.addEventListener('drop', handleFileDrop);
-    
-    // Handle form submission
     uploadForm.addEventListener('submit', handleUploadSubmission);
 }
 
 function handleFileSelection(e) {
     const files = Array.from(e.target.files);
-    if (files.length > 0) {
-        console.log('Displaying preview for:', files[0].name);
-        displayFilePreview(files[0]); // For now, handle single file
-    }
-}
-
-function handleDragOver(e) {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
+    if (files.length > 0) displayFilePreview(files[0]);
 }
 
 function handleFileDrop(e) {
@@ -663,7 +401,6 @@ function displayFilePreview(file) {
 function removeFilePreview() {
     const previewContainer = document.getElementById('preview-container');
     const fileInput = document.getElementById('photo-upload');
-    
     previewContainer.innerHTML = '';
     previewContainer.style.display = 'none';
     fileInput.value = '';
@@ -671,49 +408,33 @@ function removeFilePreview() {
 
 async function handleUploadSubmission(e) {
     e.preventDefault();
-    
+
     const fileInput = document.getElementById('photo-upload');
     const file = fileInput.files[0];
-    
-    if (!file) {
-        alert('Please select a photo to upload');
-        return;
-    }
-    
-    // Get form data
+    if (!file) { alert('Please select a photo to upload'); return; }
+
     const title = document.getElementById('memory-title').value.trim();
     const description = document.getElementById('memory-description').value.trim();
     const date = document.getElementById('memory-date').value;
     const category = document.getElementById('memory-category').value || 'General';
     const location = document.getElementById('memory-location').value.trim();
     const isFavorite = document.getElementById('memory-favorite').checked;
-    
-    if (!title) {
-        alert('Please enter a title for your memory');
-        return;
-    }
-    
+
+    if (!title) { alert('Please enter a title for your memory'); return; }
+
+    const submitButton = e.target.querySelector('button[type="submit"]');
+    const originalText = submitButton.innerHTML;
+
     try {
-        // Show loading state
-        const submitButton = e.target.querySelector('button[type="submit"]');
-        const originalText = submitButton.innerHTML;
         submitButton.innerHTML = '<span class="button-icon">⏳</span> Saving...';
         submitButton.disabled = true;
-        
-        // Get userId from localStorage
-        let userId = 1; // Default fallback
+
+        let userId = 1;
         const currentUser = localStorage.getItem('currentUser');
         if (currentUser) {
-            try {
-                const user = JSON.parse(currentUser);
-                userId = user.id || user.userId || 1;
-                console.log('Using userId:', userId, 'from user:', user);
-            } catch (e) {
-                console.error('Error parsing user data:', e);
-            }
+            try { userId = JSON.parse(currentUser).id || JSON.parse(currentUser).userId || 1; } catch (e) { console.error('Error parsing user data:', e); }
         }
-        
-        // Create FormData
+
         const formData = new FormData();
         formData.append('photo', file);
         formData.append('title', title);
@@ -723,64 +444,132 @@ async function handleUploadSubmission(e) {
         formData.append('location', location);
         formData.append('isFavorite', isFavorite);
         formData.append('userId', userId);
+
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            throw new Error('Please log in to upload photos');
+        }
         
-        console.log('Uploading photo with userId:', userId);
-        
-        // Upload to server
-        const response = await fetch('http://localhost:3000/photos/upload', {
-            method: 'POST',
-            body: formData
+        const response = await fetch(`${getBackendUrl()}/photos/upload`, { 
+            method: 'POST', 
+            headers: { 'Authorization': `Bearer ${authToken}` },
+            body: formData 
         });
-        
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorMessage = 'Upload failed';
+            try {
+                const errorData = JSON.parse(errorText);
+                errorMessage = errorData.message || errorData.error || 'Upload failed';
+            } catch (e) {
+                errorMessage = errorText || `HTTP ${response.status}: Upload failed`;
+            }
+            throw new Error(errorMessage);
+        }
+
         const result = await response.json();
-        
         if (result.success) {
             alert('Memory saved successfully!');
-            // Redirect to gallery
             window.location.href = 'photo.html';
         } else {
-            console.error('Upload failed:', result.message);
             alert('Failed to save memory: ' + (result.message || 'Unknown error'));
         }
     } catch (error) {
         console.error('Upload error:', error);
-        alert('Error uploading photo. Please try again.');
+        alert(error.message || 'Error uploading photo. Please try again.');
     } finally {
-        // Reset button state
-        const submitButton = e.target.querySelector('button[type="submit"]');
         submitButton.innerHTML = originalText;
         submitButton.disabled = false;
     }
 }
 
-// Utility functions for loading states
-function showLoading() {
-    console.log('showLoading called');
-    loadingSpinner.style.display = 'flex';
-    galleryGrid.style.display = 'none';
-    noPhotosMessage.style.display = 'none';
-}
+// Edit form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const editForm = document.getElementById('edit-form');
+    if (editForm) {
+        editForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!currentEditingPhotoId) { alert('No photo selected for editing'); return; }
 
-function hideLoading() {
-    console.log('hideLoading called');
-    loadingSpinner.style.display = 'none';
-    galleryGrid.style.display = 'grid';
-}
+            const title = document.getElementById('edit-title').value.trim();
+            const description = document.getElementById('edit-description').value.trim();
+            const date = document.getElementById('edit-date').value;
+            const category = document.getElementById('edit-category').value;
+            const location = document.getElementById('edit-location').value.trim();
+            const isFavorite = document.getElementById('edit-favorite').checked;
+            const imageFile = document.getElementById('edit-image').files[0];
 
-function showNoPhotos() {
-    console.log('showNoPhotos called');
-    galleryGrid.style.display = 'none';
-    noPhotosMessage.style.display = 'block';
-}
+            if (!title) { alert('Title is required'); return; }
 
-function hideNoPhotos() {
-    console.log('hideNoPhotos called');
-    noPhotosMessage.style.display = 'none';
-    galleryGrid.style.display = 'grid';
-    console.log('Gallery grid display set to:', galleryGrid.style.display);
-}
+            try {
+                const formData = new FormData();
+                formData.append('title', title);
+                formData.append('description', description);
+                formData.append('date', date);
+                formData.append('category', category || 'General');
+                formData.append('location', location);
+                formData.append('isFavorite', isFavorite);
+                
+                if (imageFile) formData.append('photo', imageFile);
 
-// Scroll to gallery function
+                const authToken = localStorage.getItem('authToken');
+                if (!authToken) {
+                    alert('Please log in to edit photos');
+                    return;
+                }
+                
+                const response = await fetch(`${getBackendUrl()}/photos/${currentEditingPhotoId}`, { 
+                    method: 'PUT', 
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                    body: formData 
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    const photoIndex = allPhotos.findIndex(p => p.id === currentEditingPhotoId);
+                    if (photoIndex !== -1) {
+                        const updatedPhoto = { ...allPhotos[photoIndex], title, description, date, category: category || 'General', location, isFavorite };
+                        if (result.data && result.data.imageUrl) updatedPhoto.imageUrl = result.data.imageUrl;
+                        allPhotos[photoIndex] = updatedPhoto;
+                    }
+
+                    applyFilter(document.querySelector('.filter-tab.active').dataset.filter);
+                    closeEditModal();
+                    alert('Memory updated successfully!');
+                } else {
+                    alert('Error updating memory: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Update error:', error);
+                alert('Error updating memory. Please try again.');
+            }
+        });
+    }
+});
+
+// Image preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const editImageInput = document.getElementById('edit-image');
+    if (editImageInput) {
+        editImageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('edit-image-preview');
+                    const img = document.getElementById('edit-preview-img');
+                    img.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+
+// Utility function
 function scrollToGallery() {
     document.getElementById('gallery-start').scrollIntoView({ behavior: 'smooth' });
-}
+} 

@@ -5,21 +5,20 @@ const fs = require('fs');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination: (req, file, cb) => {
         const uploadDir = 'public/uploads/topics';
         if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
         cb(null, uploadDir);
     },
-    filename: function (req, file, cb) {
+    filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
 
 const fileFilter = (req, file, cb) => {
-    // Accept images and videos
     if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
         cb(null, true);
     } else {
@@ -30,27 +29,26 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ 
     storage: storage,
     fileFilter: fileFilter,
-    limits: {
-        fileSize: 50 * 1024 * 1024 // 50MB limit
-    }
+    limits: { fileSize: 50 * 1024 * 1024 }
 }).single('file');
 
-// Custom upload middleware with error handling
+// Helper functions
+const sendResponse = (res, status, success, message, data = null) => {
+    const response = { success, message };
+    if (data) response.data = data;
+    return res.status(status).json(response);
+};
+
+const handleError = (res, error, message = 'Operation failed') => {
+    console.error(message, error);
+    return sendResponse(res, 500, false, message, error.message);
+};
+
 const uploadFile = (req, res, next) => {
-    console.log('=== UPLOAD FILE MIDDLEWARE ===');
-    console.log('Request content-type:', req.headers['content-type']);
-    console.log('Request method:', req.method);
-    
     upload(req, res, (err) => {
         if (err) {
-            console.error('Multer error:', err);
-            return res.status(400).json({
-                success: false,
-                message: 'File upload error',
-                error: err.message
-            });
+            return sendResponse(res, 400, false, 'File upload error', err.message);
         }
-        console.log('File upload successful, proceeding to next middleware');
         next();
     });
 };
@@ -59,9 +57,6 @@ const topicController = {
     // Get all topics
     getAllTopics: async (req, res) => {
         try {
-            console.log('=== GET ALL TOPICS REQUEST ===');
-            console.log('Query parameters:', req.query);
-            
             const { category, contentType, search, limit = 20, offset = 0 } = req.query;
             const currentUserId = req.user ? req.user.userId : null;
             
@@ -70,26 +65,10 @@ const topicController = {
             if (contentType && contentType !== 'all') filters.content_type = contentType;
             if (search) filters.search = search;
             
-            console.log('Filters:', filters);
-            console.log('Current user ID:', currentUserId);
-            
             const topics = await topicModel.getAllTopics(filters, limit, offset, currentUserId);
-            
-            console.log('Topics retrieved:', topics.length);
-            console.log('First topic:', topics[0]);
-            
-            res.status(200).json({
-                success: true,
-                data: topics,
-                message: 'Topics retrieved successfully'
-            });
+            return sendResponse(res, 200, true, 'Topics retrieved successfully', topics);
         } catch (error) {
-            console.error('Error fetching topics:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to fetch topics',
-                error: error.message
-            });
+            return handleError(res, error, 'Failed to fetch topics');
         }
     },
 
@@ -97,52 +76,26 @@ const topicController = {
     getTopicById: async (req, res) => {
         try {
             const { id } = req.params;
-            
             const topic = await topicModel.getTopicById(id);
             
             if (!topic) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Topic not found'
-                });
+                return sendResponse(res, 404, false, 'Topic not found');
             }
             
-            res.status(200).json({
-                success: true,
-                data: topic,
-                message: 'Topic retrieved successfully'
-            });
+            return sendResponse(res, 200, true, 'Topic retrieved successfully', topic);
         } catch (error) {
-            console.error('Error fetching topic:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to fetch topic',
-                error: error.message
-            });
+            return handleError(res, error, 'Failed to fetch topic');
         }
     },
 
     // Create new topic
     createTopic: async (req, res) => {
         try {
-            console.log('=== CREATE TOPIC REQUEST ===');
-            console.log('Request method:', req.method);
-            console.log('Request URL:', req.originalUrl);
-            console.log('Request headers:', req.headers);
-            console.log('Request body:', req.body);
-            console.log('Request file:', req.file);
-            console.log('Request user:', req.user);
-            
-            const userId = req.user.userId;  // Changed from req.user.id to req.user.userId
+            const userId = req.user.userId;
             const { title, category, contentType, description, tags } = req.body;
             
-            console.log('Extracted data:', { userId, title, category, contentType, description, tags });
-            
             if (!title || !contentType) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Title and content type are required'
-                });
+                return sendResponse(res, 400, false, 'Title and content type are required');
             }
             
             let content = '';
@@ -150,24 +103,17 @@ const topicController = {
             if (contentType === 'text') {
                 content = req.body.textContent;
                 if (!content) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Text content is required for text type'
-                    });
+                    return sendResponse(res, 400, false, 'Text content is required for text type');
                 }
             } else {
-                // For image/video, content will be the file path
                 if (!req.file) {
-                    return res.status(400).json({
-                        success: false,
-                        message: 'File is required for image/video type'
-                    });
+                    return sendResponse(res, 400, false, 'File is required for image/video type');
                 }
                 content = `/uploads/topics/${req.file.filename}`;
             }
             
             const topicData = {
-                userId: userId,  // Changed from user_id to userId
+                userId,
                 title,
                 content,
                 content_type: contentType,
@@ -177,19 +123,9 @@ const topicController = {
             };
             
             const topicId = await topicModel.createTopic(topicData);
-            
-            res.status(201).json({
-                success: true,
-                data: { id: topicId },
-                message: 'Topic created successfully'
-            });
+            return sendResponse(res, 201, true, 'Topic created successfully', { id: topicId });
         } catch (error) {
-            console.error('Error creating topic:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to create topic',
-                error: error.message
-            });
+            return handleError(res, error, 'Failed to create topic');
         }
     },
 
@@ -200,20 +136,13 @@ const topicController = {
             const userId = req.user.userId;
             const { title, category, description, tags } = req.body;
             
-            // Check if topic exists and belongs to user
             const existingTopic = await topicModel.getTopicById(id);
             if (!existingTopic) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Topic not found'
-                });
+                return sendResponse(res, 404, false, 'Topic not found');
             }
             
             if (existingTopic.userId !== userId) {
-                return res.status(403).json({
-                    success: false,
-                    message: 'You can only update your own topics'
-                });
+                return sendResponse(res, 403, false, 'You can only update your own topics');
             }
             
             const updateData = {};
@@ -223,18 +152,9 @@ const topicController = {
             if (tags !== undefined) updateData.tags = tags.split(',').map(tag => tag.trim());
             
             await topicModel.updateTopic(id, updateData);
-            
-            res.status(200).json({
-                success: true,
-                message: 'Topic updated successfully'
-            });
+            return sendResponse(res, 200, true, 'Topic updated successfully');
         } catch (error) {
-            console.error('Error updating topic:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to update topic',
-                error: error.message
-            });
+            return handleError(res, error, 'Failed to update topic');
         }
     },
 
@@ -244,24 +164,16 @@ const topicController = {
             const { id } = req.params;
             const userId = req.user.userId;
             
-            // Check if topic exists and belongs to user
             const existingTopic = await topicModel.getTopicById(id);
             if (!existingTopic) {
-                return res.status(404).json({
-                    success: false,
-                    message: 'Topic not found'
-                });
+                return sendResponse(res, 404, false, 'Topic not found');
             }
             
             if (existingTopic.userId !== userId) {
-                return res.status(403).json({
-                    success: false,
-                    message: 'You can only delete your own topics'
-                });
+                return sendResponse(res, 403, false, 'You can only delete your own topics');
             }
             
-            // Delete associated file if it exists
-            if (existingTopic.content_type !== 'text' && existingTopic.content) {
+            if (existingTopic.contentType !== 'text' && existingTopic.content) {
                 const filePath = path.join(__dirname, '..', 'public', existingTopic.content);
                 if (fs.existsSync(filePath)) {
                     fs.unlinkSync(filePath);
@@ -269,18 +181,9 @@ const topicController = {
             }
             
             await topicModel.deleteTopic(id);
-            
-            res.status(200).json({
-                success: true,
-                message: 'Topic deleted successfully'
-            });
+            return sendResponse(res, 200, true, 'Topic deleted successfully');
         } catch (error) {
-            console.error('Error deleting topic:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to delete topic',
-                error: error.message
-            });
+            return handleError(res, error, 'Failed to delete topic');
         }
     },
 
@@ -291,19 +194,9 @@ const topicController = {
             const { limit = 20, offset = 0 } = req.query;
             
             const topics = await topicModel.getTopicsByUserId(userId, limit, offset);
-            
-            res.status(200).json({
-                success: true,
-                data: topics,
-                message: 'User topics retrieved successfully'
-            });
+            return sendResponse(res, 200, true, 'User topics retrieved successfully', topics);
         } catch (error) {
-            console.error('Error fetching user topics:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to fetch user topics',
-                error: error.message
-            });
+            return handleError(res, error, 'Failed to fetch user topics');
         }
     },
 
@@ -314,79 +207,9 @@ const topicController = {
             const { limit = 20, offset = 0 } = req.query;
             
             const topics = await topicModel.getTopicsByCategory(category, limit, offset);
-            
-            res.status(200).json({
-                success: true,
-                data: topics,
-                message: 'Topics retrieved successfully'
-            });
+            return sendResponse(res, 200, true, 'Topics retrieved successfully', topics);
         } catch (error) {
-            console.error('Error fetching topics by category:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to fetch topics',
-                error: error.message
-            });
-        }
-    },
-
-    // Like a topic
-    likeTopic: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const userId = req.user.userId;
-            
-            console.log(`=== LIKE TOPIC REQUEST ===`);
-            console.log(`Topic ID: ${id}, User ID: ${userId}`);
-            
-            const result = await topicModel.toggleLike(id, userId);
-            const newLikeCount = await topicModel.getLikeCount(id);
-            
-            res.status(200).json({
-                success: true,
-                data: {
-                    liked: result.liked,
-                    likeCount: newLikeCount
-                },
-                message: result.liked ? 'Topic liked successfully' : 'Topic unliked successfully'
-            });
-        } catch (error) {
-            console.error('Error liking topic:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to like topic',
-                error: error.message
-            });
-        }
-    },
-
-    // Unlike a topic
-    unlikeTopic: async (req, res) => {
-        try {
-            const { id } = req.params;
-            const userId = req.user.userId;
-            
-            console.log(`=== UNLIKE TOPIC REQUEST ===`);
-            console.log(`Topic ID: ${id}, User ID: ${userId}`);
-            
-            await topicModel.removeLike(id, userId);
-            const newLikeCount = await topicModel.getLikeCount(id);
-            
-            res.status(200).json({
-                success: true,
-                data: {
-                    liked: false,
-                    likeCount: newLikeCount
-                },
-                message: 'Topic unliked successfully'
-            });
-        } catch (error) {
-            console.error('Error unliking topic:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to unlike topic',
-                error: error.message
-            });
+            return handleError(res, error, 'Failed to fetch topics');
         }
     },
 
@@ -396,28 +219,13 @@ const topicController = {
             const { id } = req.params;
             const userId = req.user.userId;
             
-            console.log(`=== TOGGLE LIKE TOPIC REQUEST ===`);
-            console.log(`Topic ID: ${id}, User ID: ${userId}`);
-            
             const result = await topicModel.toggleLike(id, userId);
-            
-            console.log('Toggle like result:', result);
-            
-            res.status(200).json({
-                success: true,
-                data: {
-                    liked: result.liked,
-                    likeCount: result.likeCount
-                },
-                message: result.liked ? 'Topic liked successfully' : 'Topic unliked successfully'
-            });
+            return sendResponse(res, 200, true, 
+                result.liked ? 'Topic liked successfully' : 'Topic unliked successfully',
+                { liked: result.liked, likeCount: result.likeCount }
+            );
         } catch (error) {
-            console.error('Error toggling like:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to toggle like',
-                error: error.message
-            });
+            return handleError(res, error, 'Failed to toggle like');
         }
     },
 
@@ -429,28 +237,13 @@ const topicController = {
             const { comment } = req.body;
             
             if (!comment || comment.trim() === '') {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Comment cannot be empty'
-                });
+                return sendResponse(res, 400, false, 'Comment cannot be empty');
             }
             
-            console.log(`=== ADD COMMENT REQUEST ===`);
-            console.log(`Topic ID: ${id}, User ID: ${userId}, Comment: ${comment}`);
-            
             await topicModel.addComment(id, userId, comment.trim());
-            
-            res.status(200).json({
-                success: true,
-                message: 'Comment added successfully'
-            });
+            return sendResponse(res, 200, true, 'Comment added successfully');
         } catch (error) {
-            console.error('Error adding comment:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to add comment',
-                error: error.message
-            });
+            return handleError(res, error, 'Failed to add comment');
         }
     },
 
@@ -458,24 +251,10 @@ const topicController = {
     getComments: async (req, res) => {
         try {
             const { id } = req.params;
-            
-            console.log(`=== GET COMMENTS REQUEST ===`);
-            console.log(`Topic ID: ${id}`);
-            
             const comments = await topicModel.getComments(id);
-            
-            res.status(200).json({
-                success: true,
-                data: comments,
-                message: 'Comments retrieved successfully'
-            });
+            return sendResponse(res, 200, true, 'Comments retrieved successfully', comments);
         } catch (error) {
-            console.error('Error getting comments:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Failed to get comments',
-                error: error.message
-            });
+            return handleError(res, error, 'Failed to get comments');
         }
     },
 

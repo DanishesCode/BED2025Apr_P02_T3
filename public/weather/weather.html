@@ -23,7 +23,11 @@
       <h1 class="hero-title">The only weather forecast you need</h1>
       <div class="search-container">
         <input type="text" class="search-box" placeholder="Enter Location" id="locationInput" />
-        <button class="search-btn" onclick="searchWeather()">Search</button>
+        <button class="search-btn" onclick="(function(){
+          var loc = document.getElementById('locationInput').value.trim();
+          if(loc) { searchWeather(loc); }
+          else { searchWeather(); }
+        })()">Search</button>
       </div>
     </section>
 
@@ -38,7 +42,6 @@
       <div id="weatherTab" class="tab-content active">
         <div class="weather-section">
           <h2 class="section-title">Today</h2>
-
           <div class="current-weather">
             <div>
               <div class="temp-display">
@@ -54,7 +57,10 @@
               <div id="realFeel">RealFeel: --</div>
               <div id="uvIndex">UV Index: --</div>
               <div id="visibility">Visibility: --</div>
+              <div id="windInfo" style="display: none;">Wind: --</div>
+              <div id="pressureInfo" style="display: none;">Pressure: --</div>
             </div>
+            <div id="weatherError" style="color:#dc3545;margin-top:1em;display:none;"></div>
           </div>
         </div>
 

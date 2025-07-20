@@ -27,10 +27,13 @@ app.use(cors({
         if (!origin) return callback(null, true);
         
         const allowedOrigins = [
-            'http://localhost:3000',              
+            'http://localhost:3000',
             'http://127.0.0.1:5500',
             'http://localhost:5500',
-            'http://127.0.0.1:3000'
+            'http://127.0.0.1:3000',
+            'file://',
+            undefined,
+            null
         ];
         
         if (allowedOrigins.indexOf(origin) !== -1) {
@@ -53,7 +56,20 @@ app.use('/models', express.static(path.join(__dirname, 'models')));
 app.use('/controllers', express.static(path.join(__dirname, 'controllers')));
 
 // Multer setup for file uploads
-const upload = multer();
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB limit
+    },
+    fileFilter: (req, file, cb) => {
+        // Check file type
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed'), false);
+        }
+    }
+});
 
 app.options('*', cors());
 
@@ -100,8 +116,9 @@ app.get("/weather", (req, res) => {
 });
 
 // Weather API routes - secure backend endpoints
-app.get("/api/weather", weatherApiController.getWeather);
-app.get("/api/weather/search", weatherApiController.searchLocations);
+const weatherValidation = require('./middlewares/weatherValidation');
+app.get("/api/weather", weatherValidation.validateLocationMiddleware, weatherApiController.getWeather);
+app.get("/api/weather/search", weatherValidation.validateLocationMiddleware, weatherApiController.searchLocations);
 
 // SOS routes
 app.get("/sos", (req, res) => {
@@ -174,15 +191,37 @@ app.post("/birthdays", validateAdd, birthdayController.addBirthday);
 app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
 app.delete("/birthdays/:id", birthdayController.deleteBirthday);
 
-// Photo Gallery API Routes
+// Photo Gallery API Routes (grouped together)
+app.get("/photos", AuthMiddleware.authenticateToken, photoController.getAllPhotos);
+app.get("/photos/:id", AuthMiddleware.authenticateToken, photoController.getPhotoById);
+app.post("/photos/upload", AuthMiddleware.authenticateToken, upload.single("photo"), validatePhoto, photoController.uploadPhoto);
+app.put("/photos/:id/favorite", AuthMiddleware.authenticateToken, photoController.toggleFavorite);
+app.put("/photos/:id", AuthMiddleware.authenticateToken, upload.single("photo"), photoController.updatePhoto);
+app.delete("/photos/:id", AuthMiddleware.authenticateToken, photoController.deletePhoto);
 
-app.get("/photos", photoController.getAllPhotos);
-app.get("/photos/:id", photoController.getPhotoById);
-app.post("/photos/upload", upload.single("photo"), validatePhoto, photoController.uploadPhoto);
 
-app.put("/photos/:id/favorite", photoController.toggleFavorite);
-app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
-app.delete("/photos/:id", photoController.deletePhoto);
+// Error handling for multer
+app.use((error, req, res, next) => {
+    if (error instanceof multer.MulterError) {
+        if (error.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({ 
+                success: false, 
+                message: "File too large. Maximum size is 5MB." 
+            });
+        }
+        return res.status(400).json({ 
+            success: false, 
+            message: "File upload error: " + error.message 
+        });
+    }
+    if (error.message === 'Only image files are allowed') {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Only image files are allowed" 
+        });
+    }
+    next(error);
+});
 
 // Topics Learner routes
 app.get("/topics", (req, res) => {
@@ -198,25 +237,19 @@ app.get("/api/topics", AuthMiddleware.optionalAuth, topicController.getAllTopics
 app.get("/api/topics/user", AuthMiddleware.authenticateToken, topicController.getUserTopics);
 app.get("/api/topics/category/:category", topicController.getTopicsByCategory);
 app.get("/api/topics/:id", topicController.getTopicById);
-app.post("/api/topics", AuthMiddleware.authenticateToken, topicController.uploadFile, topicController.createTopic);
+app.post("/api/topics", AuthMiddleware.authenticateToken, topicController.createTopic);
+app.post("/api/topics/upload", AuthMiddleware.authenticateToken, topicController.uploadFile, topicController.createTopic);
 app.put("/api/topics/:id", AuthMiddleware.authenticateToken, topicController.updateTopic);
 app.delete("/api/topics/:id", AuthMiddleware.authenticateToken, topicController.deleteTopic);
 
 // Topic like/unlike routes
-app.post("/api/topics/:id/like", AuthMiddleware.authenticateToken, topicController.likeTopic);
-app.delete("/api/topics/:id/like", AuthMiddleware.authenticateToken, topicController.unlikeTopic);
 app.post("/api/topics/:id/toggle-like", AuthMiddleware.authenticateToken, topicController.toggleLike);
 
 // Topic comment routes
 app.post("/api/topics/:id/comments", AuthMiddleware.authenticateToken, topicController.addComment);
 app.get("/api/topics/:id/comments", topicController.getComments);
 
-//start telebot
-try{
-    teleBot.startBot();
-}catch(error){
-    console.log(error);
-}
+
 
 // Error handling middleware
 app.use((error, req, res, next) => {
