@@ -84,6 +84,7 @@ const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday'
 const mealController = require("./controllers/mealController");
 const mealPlanController = require('./controllers/mealplanController');
 const suggestionController = require('./controllers/mealsuggestionController');
+const {  validateMeal, validateMealUpdate, validateMealId, validateUserId } = require('./middlewares/mealValidation');
 // Routes for pages
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -225,11 +226,33 @@ app.delete("/photos/:id", photoController.deletePhoto);
 
 //Meal Recipe routes
 app.use(express.static(path.join(__dirname, "public")));
-app.get("/meals/:userId", mealController.getAllMeals);
-app.get("/meals/:userId/:mealId", mealController.getMealById);
-app.post("/meals", mealController.addMeal);
-app.put("/meals/:mealId", mealController.updateMeal);
-app.delete("/meals/:mealId", mealController.deleteMeal);
+app.get("/meals/:userId", 
+    AuthMiddleware.authenticateToken,
+    validateUserId,
+    mealController.getAllMeals
+);
+app.get("/meals/:userId/:mealId", 
+    AuthMiddleware.authenticateToken,
+    validateUserId,
+    validateMealId,
+    mealController.getMealById
+);
+app.post("/meals", 
+    AuthMiddleware.authenticateToken,
+    validateMeal,
+    mealController.addMeal
+);
+app.put("/meals/:mealId", 
+    AuthMiddleware.authenticateToken,
+    validateMealId,
+    validateMealUpdate,
+    mealController.updateMeal
+);
+app.delete("/meals/:mealId", 
+    AuthMiddleware.authenticateToken,
+    validateMealId,
+    mealController.deleteMeal
+);
 // Meal Plan routes
 app.get("/mealplans/:userId", mealPlanController.getAllMealPlans);
 app.get("/mealplans/:userId/:planId", mealPlanController.getMealPlanById);
