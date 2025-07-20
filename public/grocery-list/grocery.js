@@ -1,5 +1,39 @@
 const BASE_URL = "http://localhost:3000";
-const UserID = 1; // This should match your current user system
+
+// Get user ID from localStorage (set during login)
+function getUserID() {
+  const currentUser = localStorage.getItem('currentUser');
+  console.log('Raw currentUser from localStorage:', currentUser);
+  
+  if (currentUser) {
+    try {
+      const user = JSON.parse(currentUser);
+      console.log('Parsed user object:', user);
+      // Try different possible property names for userID
+      const userId = user.userId || user.id || user.user_id || user.UserID ;
+      console.log('Using UserID:', userId);
+      console.log('UserID type:', typeof userId);
+      return userId;
+    } catch (e) {
+      console.error('Error parsing user data:', e);
+      console.log('Fallback to UserID: 1');
+      return 1;
+    }
+  }
+  console.log('No currentUser, fallback to UserID: 1');
+  return 1; // Default fallback
+}
+
+// Helper function to get auth headers
+function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+
+const UserID = getUserID();
 
 let groceryItems = [];
 let nextId = 1;
@@ -8,6 +42,14 @@ let mealPlan = [];
 
 // Load initial data
 document.addEventListener('DOMContentLoaded', async function() {
+    // Check authentication first
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        alert('Please log in to access this page');
+        window.location.href = '../login/login.html';
+        return;
+    }
+    
     await loadGroceryItems();
     await loadMeals();
     await loadMealPlan();
@@ -17,17 +59,32 @@ document.addEventListener('DOMContentLoaded', async function() {
 // Load grocery items from database
 async function loadGroceryItems() {
     try {
-        const response = await fetch(`${BASE_URL}/grocery`);
+        const response = await fetch(`${BASE_URL}/grocery/user/${UserID}`, {
+            headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const items = await response.json();
-        groceryItems = items.map(item => ({
-            id: item.item_id,
-            name: item.item_name,
-            quantity: item.quantity,
-            unit: item.unit || 'pcs',
-            status: item.bought ? 'bought' : 'pending',
-            price: item.price || 0,
-            notes: item.notes || ''
-        }));
+        console.log('Loaded grocery items:', items);
+        
+        // Check if items is an array before mapping
+        if (Array.isArray(items)) {
+            groceryItems = items.map(item => ({
+                id: item.item_id,
+                name: item.item_name,
+                quantity: item.quantity,
+                unit: item.unit || 'pcs',
+                status: item.bought ? 'bought' : 'pending',
+                price: item.price || 0,
+                notes: item.notes || ''
+            }));
+        } else {
+            console.error('Expected array but got:', typeof items);
+            groceryItems = [];
+        }
     } catch (error) {
         console.error('Error loading grocery items:', error);
         groceryItems = [];
@@ -37,8 +94,16 @@ async function loadGroceryItems() {
 // Load meals from database
 async function loadMeals() {
     try {
-        const response = await fetch(`${BASE_URL}/meals/${UserID}`);
+        const response = await fetch(`${BASE_URL}/meals/${UserID}`, {
+            headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         allMeals = await response.json();
+        console.log('Loaded meals:', allMeals);
     } catch (error) {
         console.error('Error loading meals:', error);
         allMeals = [];
@@ -48,8 +113,16 @@ async function loadMeals() {
 // Load meal plan from database
 async function loadMealPlan() {
     try {
-        const response = await fetch(`${BASE_URL}/mealplans/${UserID}`);
+        const response = await fetch(`${BASE_URL}/mealplans/${UserID}`, {
+            headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         mealPlan = await response.json();
+        console.log('Loaded meal plan:', mealPlan);
     } catch (error) {
         console.error('Error loading meal plan:', error);
         mealPlan = [];
@@ -115,9 +188,7 @@ async function generateGroceryList() {
         // Call backend API to generate grocery list
         const response = await fetch(`${BASE_URL}/grocery/generate/${UserID}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({
                 selectedMeals: selectedMeals
             })
@@ -146,23 +217,18 @@ async function generateGroceryList() {
 async function addItem() {
     const nameInput = document.getElementById('newItemInput');
     const quantityInput = document.getElementById('newItemQuantity');
-    const unitInput = document.getElementById('newItemUnit');
     
     const name = nameInput.value.trim();
-    const quantity = parseFloat(quantityInput.value) || 1;
-    const unit = unitInput.value;
+    const quantity = parseInt(quantityInput.value) || 1;
 
     if (name) {
         try {
             const response = await fetch(`${BASE_URL}/grocery`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: getAuthHeaders(),
                 body: JSON.stringify({
                     item_name: name,
                     quantity: quantity,
-                    unit: unit,
                     bought: false,
                     user_id: UserID,
                     price: 0.00,
@@ -173,7 +239,6 @@ async function addItem() {
             if (response.ok) {
                 nameInput.value = '';
                 quantityInput.value = '1';
-                unitInput.value = 'pcs';
                 await loadGroceryItems();
                 updateGroceryTable();
             } else {
@@ -199,15 +264,15 @@ async function toggleItemStatus(id) {
         
         try {
             // Find the database item ID (you might need to store this differently)
-            const dbItem = await fetch(`${BASE_URL}/grocery`).then(res => res.json());
+            const dbItem = await fetch(`${BASE_URL}/grocery/user/${UserID}`, {
+                headers: getAuthHeaders()
+            }).then(res => res.json());
             const dbItemData = dbItem.find(dbI => dbI.item_name === item.name);
             
             if (dbItemData) {
-                const response = await fetch(`${BASE_URL}/grocery/${dbItemData.item_id}`, {
+                const response = await fetch(`${BASE_URL}/grocery/item/${dbItemData.item_id}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: getAuthHeaders(),
                     body: JSON.stringify({
                         item_name: item.name,
                         quantity: item.quantity,
@@ -233,12 +298,15 @@ async function deleteItem(id) {
     if (item && confirm('Are you sure you want to delete this item?')) {
         try {
             // Find the database item ID
-            const dbItem = await fetch(`${BASE_URL}/grocery`).then(res => res.json());
+            const dbItem = await fetch(`${BASE_URL}/grocery/user/${UserID}`, {
+                headers: getAuthHeaders()
+            }).then(res => res.json());
             const dbItemData = dbItem.find(dbI => dbI.item_name === item.name);
             
             if (dbItemData) {
-                const response = await fetch(`${BASE_URL}/grocery/${dbItemData.item_id}`, {
-                    method: 'DELETE'
+                const response = await fetch(`${BASE_URL}/grocery/item/${dbItemData.item_id}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
                 });
 
                 if (response.ok) {
@@ -258,12 +326,15 @@ async function clearBoughtItems() {
         
         for (const item of boughtItems) {
             try {
-                const dbItem = await fetch(`${BASE_URL}/grocery`).then(res => res.json());
+                const dbItem = await fetch(`${BASE_URL}/grocery/user/${UserID}`, {
+                    headers: getAuthHeaders()
+                }).then(res => res.json());
                 const dbItemData = dbItem.find(dbI => dbI.item_name === item.name);
                 
                 if (dbItemData) {
-                    await fetch(`${BASE_URL}/grocery/${dbItemData.item_id}`, {
-                        method: 'DELETE'
+                    await fetch(`${BASE_URL}/grocery/item/${dbItemData.item_id}`, {
+                        method: 'DELETE',
+                        headers: getAuthHeaders()
                     });
                 }
             } catch (error) {

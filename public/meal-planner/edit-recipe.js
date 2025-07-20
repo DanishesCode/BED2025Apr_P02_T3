@@ -1,11 +1,53 @@
 // edit-recipe.js
 const BASE_URL = "http://localhost:3000";
-const UserID = 1;
+
+// Get user ID from localStorage (set during login)
+function getUserID() {
+  const currentUser = localStorage.getItem('currentUser');
+  console.log('Raw currentUser from localStorage:', currentUser);
+  
+  if (currentUser) {
+    try {
+      const user = JSON.parse(currentUser);
+      console.log('Parsed user object:', user);
+      // Try different possible property names for userID
+      const userId = user.userId || user.id || user.user_id || user.UserID || 1;
+      console.log('Using UserID:', userId);
+      console.log('UserID type:', typeof userId);
+      return userId;
+    } catch (e) {
+      console.error('Error parsing user data:', e);
+      console.log('Fallback to UserID: 1');
+      return 1;
+    }
+  }
+  console.log('No currentUser, fallback to UserID: 1');
+  return 1; // Default fallback
+}
+
+const UserID = getUserID();
+
+// Helper function to get auth headers
+function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
 
 let currentMealId = null;
 
 // Get meal ID from URL parameters
 window.onload = () => {
+    // Check authentication first
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        alert('Please log in to access this page');
+        window.location.href = '../login/login.html';
+        return;
+    }
+    
     const urlParams = new URLSearchParams(window.location.search);
     currentMealId = urlParams.get('id');
     
@@ -20,9 +62,20 @@ window.onload = () => {
 // Load existing meal data
 async function loadMealData(mealId) {
     try {
-        const response = await fetch(`${BASE_URL}/meals/${UserID}`);
+        const response = await fetch(`${BASE_URL}/meals/${UserID}`, {
+            headers: getAuthHeaders()
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const meals = await response.json();
+        console.log('Loaded meals:', meals);
+        console.log('Looking for mealId:', mealId);
+        
         const meal = meals.find(m => m.MealID == mealId);
+        console.log('Found meal:', meal);
         
         if (meal) {
             document.getElementById('mealId').value = meal.MealID;
@@ -35,7 +88,7 @@ async function loadMealData(mealId) {
         }
     } catch (error) {
         console.error('Error loading meal data:', error);
-        alert('Error loading recipe data');
+        alert('Error loading recipe data: ' + error.message);
         goBack();
     }
 }
@@ -62,9 +115,7 @@ document.getElementById('editRecipeForm').addEventListener('submit', async (e) =
     try {
         const response = await fetch(`${BASE_URL}/meals/${mealId}`, {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({
                 MealName: mealName,
                 Category: category,
@@ -73,7 +124,7 @@ document.getElementById('editRecipeForm').addEventListener('submit', async (e) =
         });
         
         if (!response.ok) {
-            throw new Error('Failed to update recipe');
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         // Add success animation

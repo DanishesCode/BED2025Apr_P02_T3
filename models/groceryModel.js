@@ -9,7 +9,7 @@ async function getAllGroceryItems(userId) {
     const request = connection.request();
     request.input('UserID', sql.Int, userId);
     const result = await request.query(
-      'SELECT * FROM GroceryItems ORDER BY date_added DESC'
+      'SELECT * FROM GroceryItems WHERE user_id = @UserID ORDER BY date_added DESC'
     );
     return result.recordset;
   } catch (error) {

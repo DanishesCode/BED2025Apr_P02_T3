@@ -1,6 +1,31 @@
 // script.js
 const BASE_URL = "http://localhost:3000"; // Change if different
-const UserID = 1; // Change based on logged-in user
+
+// Get user ID from localStorage (set during login)
+function getUserID() {
+  const currentUser = localStorage.getItem('currentUser');
+  console.log('Raw currentUser from localStorage:', currentUser);
+  
+  if (currentUser) {
+    try {
+      const user = JSON.parse(currentUser);
+      console.log('Parsed user object:', user);
+      // Try different possible property names for userID
+      const userId = user.userId || user.id || user.user_id || user.UserID || 1;
+      console.log('Using UserID:', userId);
+      console.log('UserID type:', typeof userId);
+      return userId;
+    } catch (e) {
+      console.error('Error parsing user data:', e);
+      console.log('Fallback to UserID: 1');
+      return 1;
+    }
+  }
+  console.log('No currentUser, fallback to UserID: 1');
+  return 1; // Default fallback
+}
+
+const UserID = getUserID();
 
 let allMeals = [];
 let mealPlan = [];
@@ -17,13 +42,43 @@ window.onload = () => {
   }
 };
 
+// Helper function to get auth headers
+function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+
+// Helper function to handle API responses and check for auth errors
+async function handleResponse(response) {
+  if (response.status === 401 || response.status === 403) {
+    console.log('Authentication failed - token may be expired');
+    alert('Your session has expired. Please log in again.');
+    localStorage.clear();
+    window.location.href = '/login/login.html';
+    return null;
+  }
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  
+  return response.json();
+}
+
 async function fetchMeals() {
-  const res = await fetch(`${BASE_URL}/meals/${UserID}`);
+  const res = await fetch(`${BASE_URL}/meals/${UserID}`, {
+    headers: getAuthHeaders()
+  });
   return res.json();
 }
 
 async function fetchMealPlan() {
-  const res = await fetch(`${BASE_URL}/mealplans/${UserID}`);
+  const res = await fetch(`${BASE_URL}/mealplans/${UserID}`, {
+    headers: getAuthHeaders()
+  });
   return res.json();
 }
 
@@ -107,13 +162,13 @@ async function selectMeal(mealId, mealName) {
   if (existing) {
     await fetch(`${BASE_URL}/mealplans/${existing.PlanID}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ MealID: mealId, DayOfWeek: day, MealTime: time })
     });
   } else {
     await fetch(`${BASE_URL}/mealplans`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ UserID, MealID: mealId, DayOfWeek: day, MealTime: time })
     });
   }
@@ -128,7 +183,10 @@ async function deleteMealFromPlan() {
 
   if (existing) {
     try {
-      await fetch(`${BASE_URL}/mealplans/${existing.PlanID}`, { method: "DELETE" });
+      await fetch(`${BASE_URL}/mealplans/${existing.PlanID}`, { 
+        method: "DELETE",
+        headers: getAuthHeaders()
+      });
       
       // Remove from local mealPlan array
       const index = mealPlan.findIndex(p => p.PlanID === existing.PlanID);
@@ -155,11 +213,26 @@ async function deleteMealFromPlan() {
   closeMealModal();
 }
 
-function showSection(sectionId) {
+function showSection(sectionId, event) {
   document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
   document.getElementById(sectionId).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
+  
+  // Only try to add active class to event target if event exists (when called from button click)
+  if (event && event.target) {
+    event.target.classList.add('active');
+  } else {
+    // When called programmatically, find and activate the corresponding nav button
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(btn => {
+      if (btn.textContent.toLowerCase().includes(sectionId.toLowerCase()) || 
+          (sectionId === 'planner' && btn.textContent.includes('Meal Planner')) ||
+          (sectionId === 'recipes' && btn.textContent.includes('My Recipes')) ||
+          (sectionId === 'calendar' && btn.textContent.includes('Calendar View'))) {
+        btn.classList.add('active');
+      }
+    });
+  }
 }
 document.getElementById('recipeForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -176,9 +249,7 @@ document.getElementById('recipeForm').addEventListener('submit', async (e) => {
   try {
     await fetch(`${BASE_URL}/meals`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         UserID,
         MealName,
@@ -209,7 +280,8 @@ async function deleteRecipe(mealId) {
 
   try {
     const res = await fetch(`${BASE_URL}/meals/${mealId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: getAuthHeaders()
     });
 
     if (!res.ok) {
@@ -251,7 +323,9 @@ async function getSuggestedMeals() {
     
     searchParams.append('number', '6'); // Get 6 suggestions
 
-    const response = await fetch(`${BASE_URL}/suggestions?${searchParams}`);
+    const response = await fetch(`${BASE_URL}/suggestions?${searchParams}`, {
+      headers: getAuthHeaders()
+    });
     
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`);
@@ -334,9 +408,7 @@ async function addSuggestedRecipe(spoonacularId, title, category) {
     // Call backend API to get recipe details and add to collection
     const response = await fetch(`${BASE_URL}/suggestions/add`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         recipeId: spoonacularId,
         category: category || 'main course',
@@ -357,9 +429,7 @@ async function addSuggestedRecipe(spoonacularId, title, category) {
     // Now add to local database using the prepared meal data
     const response2 = await fetch(`${BASE_URL}/meals`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data.mealData)
     });
 

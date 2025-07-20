@@ -84,6 +84,7 @@ const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday'
 const mealController = require("./controllers/mealController");
 const mealPlanController = require('./controllers/mealplanController');
 const suggestionController = require('./controllers/mealsuggestionController');
+const groceryController = require('./controllers/groceryController');
 const {  validateMeal, validateMealUpdate, validateMealId, validateUserId } = require('./middlewares/mealValidation');
 // Routes for pages
 app.get("/", (req, res) => {
@@ -225,63 +226,54 @@ app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
 app.delete("/photos/:id", photoController.deletePhoto);
 
 //start telebot
-try{
+/*try{
     teleBot.startBot();
 }catch(error){
     console.log(error);
 }
-
+*/
 //Meal Recipe routes
 app.use(express.static(path.join(__dirname, "public")));
 app.get("/meals/:userId", 
     AuthMiddleware.authenticateToken,
-    validateUserId,
     mealController.getAllMeals
 );
 app.get("/meals/:userId/:mealId", 
     AuthMiddleware.authenticateToken,
-    validateUserId,
-    validateMealId,
     mealController.getMealById
 );
 app.post("/meals", 
     AuthMiddleware.authenticateToken,
-    validateMeal,
     mealController.addMeal
 );
 app.put("/meals/:mealId", 
     AuthMiddleware.authenticateToken,
-    validateMealId,
-    validateMealUpdate,
     mealController.updateMeal
 );
 app.delete("/meals/:mealId", 
     AuthMiddleware.authenticateToken,
-    validateMealId,
     mealController.deleteMeal
 );
 // Meal Plan routes
-app.get("/mealplans/:userId", mealPlanController.getAllMealPlans);
-app.get("/mealplans/:userId/:planId", mealPlanController.getMealPlanById);
-app.post("/mealplans", mealPlanController.addMealPlan);
-app.put("/mealplans/:planId", mealPlanController.updateMealPlan);
-app.delete("/mealplans/:planId", mealPlanController.deleteMealPlan);
+app.get("/mealplans/:userId", AuthMiddleware.authenticateToken, mealPlanController.getAllMealPlans);
+app.get("/mealplans/:userId/:planId", AuthMiddleware.authenticateToken, mealPlanController.getMealPlanById);
+app.post("/mealplans", AuthMiddleware.authenticateToken, mealPlanController.addMealPlan);
+app.put("/mealplans/:planId", AuthMiddleware.authenticateToken, mealPlanController.updateMealPlan);
+app.delete("/mealplans/:planId", AuthMiddleware.authenticateToken, mealPlanController.deleteMealPlan);
 
 // Recipe Suggestion Routes (Spoonacular API)
 app.get("/suggestions", suggestionController.getSuggestions);
 app.get("/suggestions/random", suggestionController.getRandomRecipes);
 app.get("/suggestions/:recipeId", suggestionController.getRecipeDetails);
 app.post("/suggestions/add", suggestionController.addSuggestedRecipe);
-// Error handling middleware
-app.use((error, req, res, next) => {
-    console.error("=== SERVER ERROR ===");
-    console.error(error);
-    res.status(500).json({ 
-        success: false, 
-        message: "Server error", 
-        error: error.message 
-    });
-});
+
+// Grocery List routes
+app.get("/grocery/user/:userId", AuthMiddleware.authenticateToken, groceryController.getAllGroceryItems);
+app.get("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.getGroceryItemById);
+app.post("/grocery", AuthMiddleware.authenticateToken, groceryController.addGroceryItem);
+app.put("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.updateGroceryItem);
+app.delete("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.deleteGroceryItem);
+app.post("/grocery/generate/:userId", AuthMiddleware.authenticateToken, groceryController.generateFromMealPlan);
 
 // Start server
 app.listen(port, async () => {

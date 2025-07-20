@@ -73,6 +73,30 @@
                 </div>
 
                 <!-- Health & Wellness Tools -->
+                <div class="tool-card health-tool" style="display: none;" onclick="openTool('meal-planner/meal.html')">
+                    <div class="tool-icon chat">
+                        <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
+                    </div>
+                    <h3 class="tool-title">Meal Planner</h3>
+                    <p class="tool-description">Plan your weekly meals and generate grocery lists automatically.</p>
+                    <button class="tool-button" onclick="event.stopPropagation(); openTool('meal-planner/meal.html')">
+                        Open Tool
+                        <div class="button-icon"></div>
+                    </button>
+                </div>
+
+                <div class="tool-card health-tool" style="display: none;" onclick="openTool('grocery-list/grocery.html')">
+                    <div class="tool-icon summarizer">
+                        <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
+                    </div>
+                    <h3 class="tool-title">Grocery List</h3>
+                    <p class="tool-description">Smart grocery lists with units, auto-generated from your meal plans.</p>
+                    <button class="tool-button" onclick="event.stopPropagation(); openTool('grocery-list/grocery.html')">
+                        Open Tool
+                        <div class="button-icon"></div>
+                    </button>
+                </div>
+
                 <div class="tool-card health-tool" style="display: none;" onclick="openTool('#')">
                     <div class="tool-icon chat">
                         <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
