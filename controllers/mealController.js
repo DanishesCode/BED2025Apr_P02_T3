@@ -1,4 +1,5 @@
 const mealsModel = require('../models/mealsModel');
+const { getRecipeDetails } = require('../spoonacularService');
 
 // GET /meals/:userId
 async function getAllMeals(req, res) {
@@ -39,19 +40,54 @@ async function getMealById(req, res) {
 // POST /meals
 async function addMeal(req, res) {
   try {
-    const { UserID, MealName, Category, Instructions } = req.body;
+    const { UserID, MealName, Category, Instructions, SpoonacularID } = req.body;
 
     // Basic validation
     if (!UserID || !MealName || !Category || !Instructions) {
       return res.status(400).json({ message: 'Missing required meal fields' });
     }
 
-    const newMeal = {
+    let newMeal = {
       UserID,
       MealName,
       Category,
-      Instructions
+      Instructions,
+      SpoonacularID: SpoonacularID || null,
+      Servings: 4,
+      ReadyInMinutes: null,
+      ImageUrl: null,
+      Ingredients: null
     };
+
+    // If SpoonacularID is provided, fetch additional details
+    if (SpoonacularID) {
+      try {
+        console.log(`Fetching Spoonacular details for recipe ${SpoonacularID}`);
+        const spoonacularResponse = await getRecipeDetails(SpoonacularID);
+        
+        if (spoonacularResponse.success && spoonacularResponse.recipe) {
+          const recipe = spoonacularResponse.recipe;
+          
+          // Update meal with Spoonacular data
+          newMeal.Servings = recipe.servings || 4;
+          newMeal.ReadyInMinutes = recipe.readyInMinutes;
+          newMeal.ImageUrl = recipe.image;
+          
+          // Store ingredients as JSON string
+          if (recipe.ingredients && recipe.ingredients.length > 0) {
+            newMeal.Ingredients = JSON.stringify(recipe.ingredients);
+          }
+          
+          // If instructions weren't provided or are generic, use Spoonacular instructions
+          if (!Instructions || Instructions.trim() === '') {
+            newMeal.Instructions = recipe.instructions || 'No instructions available';
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching Spoonacular details:', error);
+        // Continue with basic meal creation even if Spoonacular fetch fails
+      }
+    }
 
     const createdMeal = await mealsModel.addMeal(newMeal);
     res.status(201).json({
@@ -119,11 +155,65 @@ async function deleteMeal(req, res) {
   }
 }
 
+// POST /meals/import-spoonacular
+async function importSpoonacularRecipe(req, res) {
+  try {
+    const { UserID, SpoonacularID, Category } = req.body;
+
+    // Basic validation
+    if (!UserID || !SpoonacularID) {
+      return res.status(400).json({ message: 'Missing required fields: UserID and SpoonacularID' });
+    }
+
+    console.log(`Importing Spoonacular recipe ${SpoonacularID} for user ${UserID}`);
+    
+    // Fetch recipe details from Spoonacular
+    const spoonacularResponse = await getRecipeDetails(SpoonacularID);
+    
+    if (!spoonacularResponse.success) {
+      return res.status(400).json({ 
+        message: 'Failed to fetch recipe from Spoonacular',
+        error: spoonacularResponse.error
+      });
+    }
+
+    const recipe = spoonacularResponse.recipe;
+    
+    // Create meal object with Spoonacular data
+    const newMeal = {
+      UserID,
+      MealName: recipe.title,
+      Category: Category || 'main', // Use provided category or default
+      Instructions: recipe.instructions || 'Instructions available at source URL',
+      SpoonacularID: SpoonacularID,
+      Servings: recipe.servings || 4,
+      ReadyInMinutes: recipe.readyInMinutes,
+      ImageUrl: recipe.image,
+      Ingredients: recipe.ingredients && recipe.ingredients.length > 0 
+        ? JSON.stringify(recipe.ingredients) 
+        : null
+    };
+
+    const createdMeal = await mealsModel.addMeal(newMeal);
+    
+    res.status(201).json({
+      message: 'Spoonacular recipe imported successfully',
+      meal: createdMeal,
+      sourceUrl: recipe.sourceUrl,
+      ingredientsCount: recipe.ingredients ? recipe.ingredients.length : 0
+    });
+  } catch (error) {
+    console.error('Error importing Spoonacular recipe:', error);
+    res.status(500).json({ message: 'Server error while importing recipe' });
+  }
+}
+
 module.exports = {
   getAllMeals,
   getMealById,
   addMeal,
   updateMeal,
-  deleteMeal
+  deleteMeal,
+  importSpoonacularRecipe
 };
 

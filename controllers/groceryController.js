@@ -76,8 +76,12 @@ async function generateFromMealPlan(req, res) {
     // Process each selected meal
     for (const meal of selectedMeals) {
       try {
+        console.log(`[BACKEND] Processing meal:`, meal);
+        
         // Get meal details from database
         const mealDetails = await mealsModel.getMealById(meal.mealId);
+        
+        console.log(`[BACKEND] Meal details from database:`, mealDetails);
         
         if (!mealDetails) {
           console.log(`Meal with ID ${meal.mealId} not found, skipping...`);
@@ -86,10 +90,15 @@ async function generateFromMealPlan(req, res) {
 
         let ingredients = [];
 
+        console.log(`[BACKEND] Checking SpoonacularID: ${mealDetails.SpoonacularID}`);
+        console.log(`[BACKEND] Checking stored Ingredients: ${mealDetails.Ingredients}`);
+
         // If meal has Spoonacular ID, fetch ingredients from Spoonacular API
         if (mealDetails.SpoonacularID) {
-          console.log(`Fetching ingredients for Spoonacular recipe ${mealDetails.SpoonacularID}`);
+          console.log(`[BACKEND] Fetching ingredients for Spoonacular recipe ${mealDetails.SpoonacularID}`);
           const spoonacularResponse = await getRecipeDetails(mealDetails.SpoonacularID);
+          
+          console.log(`[BACKEND] Spoonacular response:`, spoonacularResponse);
           
           if (spoonacularResponse.success && spoonacularResponse.recipe.ingredients) {
             ingredients = spoonacularResponse.recipe.ingredients.map(ingredient => ({
@@ -97,24 +106,29 @@ async function generateFromMealPlan(req, res) {
               amount: ingredient.amount,
               unit: ingredient.unit || 'unit'
             }));
+            console.log(`[BACKEND] Mapped Spoonacular ingredients:`, ingredients);
           }
         } 
         // If meal has stored ingredients, parse them
         else if (mealDetails.Ingredients) {
           try {
             const storedIngredients = JSON.parse(mealDetails.Ingredients);
+            console.log(`[BACKEND] Parsed stored ingredients:`, storedIngredients);
             ingredients = storedIngredients.map(ingredient => ({
               name: ingredient.name,
               amount: ingredient.amount || 1,
               unit: ingredient.unit || 'unit'
             }));
+            console.log(`[BACKEND] Mapped stored ingredients:`, ingredients);
           } catch (error) {
-            console.error('Error parsing stored ingredients:', error);
+            console.error('[BACKEND] Error parsing stored ingredients:', error);
           }
         }
         // Fallback to category-based ingredients
         else {
+          console.log(`[BACKEND] Using fallback category ingredients for category: ${mealDetails.Category || meal.category}`);
           ingredients = getCategoryIngredients(mealDetails.Category || meal.category);
+          console.log(`[BACKEND] Category fallback ingredients:`, ingredients);
         }
 
         // Calculate servings multiplier
@@ -122,20 +136,27 @@ async function generateFromMealPlan(req, res) {
         const requestedServings = meal.servings || 4;
         const servingsMultiplier = requestedServings / baseServings;
         
+        console.log(`[BACKEND] Servings calculation - Base: ${baseServings}, Requested: ${requestedServings}, Multiplier: ${servingsMultiplier}`);
+        console.log(`[BACKEND] Final ingredients before consolidation:`, ingredients);
+        
         // Add ingredients to consolidated list
         ingredients.forEach(ingredient => {
           const key = ingredient.name.toLowerCase().trim();
           const adjustedAmount = (ingredient.amount || 1) * servingsMultiplier;
           
+          console.log(`[BACKEND] Processing ingredient: ${ingredient.name}, Amount: ${ingredient.amount}, Adjusted: ${adjustedAmount}`);
+          
           if (consolidatedIngredients.has(key)) {
             const existing = consolidatedIngredients.get(key);
             existing.amount += adjustedAmount;
+            console.log(`[BACKEND] Updated existing ingredient: ${key}, New amount: ${existing.amount}`);
           } else {
             consolidatedIngredients.set(key, {
               name: ingredient.name,
               amount: adjustedAmount,
               unit: ingredient.unit || 'unit'
             });
+            console.log(`[BACKEND] Added new ingredient: ${key}, Amount: ${adjustedAmount}`);
           }
         });
 
@@ -144,6 +165,8 @@ async function generateFromMealPlan(req, res) {
         // Continue with other meals even if one fails
       }
     }
+
+    console.log(`[BACKEND] Consolidated ingredients map:`, Array.from(consolidatedIngredients.entries()));
 
     // Convert to grocery items format
     const groceryItems = Array.from(consolidatedIngredients.values()).map(ingredient => ({
@@ -213,6 +236,25 @@ function getCategoryIngredients(category) {
       { name: 'Garlic', amount: 1, unit: 'bulb' },
       { name: 'Onions', amount: 2, unit: 'pieces' },
       { name: 'Parmesan cheese', amount: 100, unit: 'grams' },
+      { name: 'Olive oil', amount: 1, unit: 'bottle' }
+    ],
+    'main course': [
+      { name: 'Beef stew meat', amount: 800, unit: 'grams' },
+      { name: 'Potatoes', amount: 6, unit: 'pieces' },
+      { name: 'Carrots', amount: 4, unit: 'pieces' },
+      { name: 'Onions', amount: 2, unit: 'pieces' },
+      { name: 'Celery', amount: 3, unit: 'stalks' },
+      { name: 'Beef broth', amount: 2, unit: 'cans' },
+      { name: 'Mushroom soup', amount: 1, unit: 'can' },
+      { name: 'Green onions', amount: 1, unit: 'bunch' }
+    ],
+    'main dish': [
+      { name: 'Chicken breast', amount: 800, unit: 'grams' },
+      { name: 'Rice', amount: 2, unit: 'cups' },
+      { name: 'Mixed vegetables', amount: 500, unit: 'grams' },
+      { name: 'Soy sauce', amount: 1, unit: 'bottle' },
+      { name: 'Garlic', amount: 1, unit: 'bulb' },
+      { name: 'Ginger', amount: 1, unit: 'piece' },
       { name: 'Olive oil', amount: 1, unit: 'bottle' }
     ],
     snack: [

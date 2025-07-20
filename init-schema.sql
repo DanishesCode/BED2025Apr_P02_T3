@@ -335,6 +335,11 @@ CREATE TABLE Meals (
     MealName NVARCHAR(100) NOT NULL,
     Category NVARCHAR(50),
     Instructions NVARCHAR(MAX),
+    SpoonacularID INT NULL,
+    Ingredients NVARCHAR(MAX) NULL,
+    Servings INT DEFAULT 4,
+    ReadyInMinutes INT NULL,
+    ImageUrl NVARCHAR(500) NULL
 );
 Meal Plan Table:
 CREATE TABLE MealPlan (

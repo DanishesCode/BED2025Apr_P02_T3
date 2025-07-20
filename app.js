@@ -246,6 +246,10 @@ app.post("/meals",
     AuthMiddleware.authenticateToken,
     mealController.addMeal
 );
+app.post("/meals/import-spoonacular", 
+    AuthMiddleware.authenticateToken,
+    mealController.importSpoonacularRecipe
+);
 app.put("/meals/:mealId", 
     AuthMiddleware.authenticateToken,
     mealController.updateMeal

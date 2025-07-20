@@ -55,8 +55,8 @@ async function addMeal(meal) {
   try {
     connection = await sql.connect(dbConfig);
     const query = `
-      INSERT INTO Meals (UserID, MealName, Category, Instructions)
-      VALUES (@UserID, @MealName, @Category, @Instructions);
+      INSERT INTO Meals (UserID, MealName, Category, Instructions, SpoonacularID, Ingredients, Servings, ReadyInMinutes, ImageUrl)
+      VALUES (@UserID, @MealName, @Category, @Instructions, @SpoonacularID, @Ingredients, @Servings, @ReadyInMinutes, @ImageUrl);
       SELECT SCOPE_IDENTITY() AS MealID;
     `;
     const request = connection.request();
@@ -64,6 +64,11 @@ async function addMeal(meal) {
     request.input("MealName", sql.NVarChar(100), meal.MealName);
     request.input("Category", sql.NVarChar(50), meal.Category);
     request.input("Instructions", sql.NVarChar(sql.MAX), meal.Instructions);
+    request.input("SpoonacularID", sql.Int, meal.SpoonacularID || null);
+    request.input("Ingredients", sql.NVarChar(sql.MAX), meal.Ingredients || null);
+    request.input("Servings", sql.Int, meal.Servings || 4);
+    request.input("ReadyInMinutes", sql.Int, meal.ReadyInMinutes || null);
+    request.input("ImageUrl", sql.NVarChar(500), meal.ImageUrl || null);
 
     const result = await request.query(query);
     const newMealId = result.recordset[0].MealID;

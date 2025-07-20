@@ -162,7 +162,12 @@ const addSuggestedRecipe = async (req, res) => {
       Category: category || 'main course',
       Instructions: recipe.instructions,
       SpoonacularID: recipe.id,
-      SourceURL: recipe.sourceUrl
+      Ingredients: recipe.ingredients && recipe.ingredients.length > 0 
+        ? JSON.stringify(recipe.ingredients) 
+        : null,
+      Servings: recipe.servings || 4,
+      ReadyInMinutes: recipe.readyInMinutes,
+      ImageUrl: recipe.image
     };
 
     // You would typically save this to your database here
@@ -172,7 +177,8 @@ const addSuggestedRecipe = async (req, res) => {
       success: true,
       message: 'Recipe data prepared successfully',
       mealData: mealData,
-      originalRecipe: recipe
+      originalRecipe: recipe,
+      ingredientsCount: recipe.ingredients ? recipe.ingredients.length : 0
     });
 
   } catch (error) {

@@ -137,10 +137,13 @@ async function generateGroceryList() {
     // Get meals from the actual meal plan based on selected categories
     const selectedMeals = [];
     
+    console.log('Current meal plan:', mealPlan);
+    
     if (breakfast) {
         const breakfastMeals = mealPlan.filter(plan => 
             plan.MealTime.toLowerCase() === 'breakfast'
         );
+        console.log('Breakfast meals found:', breakfastMeals);
         breakfastMeals.forEach(meal => {
             selectedMeals.push({
                 mealId: meal.MealID,
@@ -155,6 +158,7 @@ async function generateGroceryList() {
         const lunchMeals = mealPlan.filter(plan => 
             plan.MealTime.toLowerCase() === 'lunch'
         );
+        console.log('Lunch meals found:', lunchMeals);
         lunchMeals.forEach(meal => {
             selectedMeals.push({
                 mealId: meal.MealID,
@@ -169,6 +173,7 @@ async function generateGroceryList() {
         const dinnerMeals = mealPlan.filter(plan => 
             plan.MealTime.toLowerCase() === 'dinner'
         );
+        console.log('Dinner meals found:', dinnerMeals);
         dinnerMeals.forEach(meal => {
             selectedMeals.push({
                 mealId: meal.MealID,
@@ -179,6 +184,8 @@ async function generateGroceryList() {
         });
     }
 
+    console.log('Selected meals for grocery generation:', selectedMeals);
+
     if (selectedMeals.length === 0) {
         alert('No meals found in your meal plan for the selected categories. Please add some meals to your meal plan first.');
         return;
@@ -186,6 +193,7 @@ async function generateGroceryList() {
 
     try {
         // Call backend API to generate grocery list
+        console.log('Calling grocery generation API with:', selectedMeals);
         const response = await fetch(`${BASE_URL}/grocery/generate/${UserID}`, {
             method: 'POST',
             headers: getAuthHeaders(),
@@ -195,13 +203,24 @@ async function generateGroceryList() {
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Error:', errorText);
             throw new Error('Failed to generate grocery list');
         }
 
         const result = await response.json();
+        console.log('Grocery generation result:', result);
         
         if (result.success) {
-            alert(`Successfully added ${result.items.length} ingredients to your grocery list!`);
+            const itemCount = result.items ? result.items.length : 0;
+            const addedCount = result.details ? result.details.addedItems : itemCount;
+            
+            if (itemCount === 0) {
+                alert('No ingredients found for the selected meals. This might mean:\n- The meals don\'t have Spoonacular ingredient data\n- The meals are using fallback category ingredients\n- There was an issue processing the meals');
+            } else {
+                alert(`Successfully added ${addedCount} ingredients to your grocery list!`);
+            }
+            
             // Reload the grocery items
             await loadGroceryItems();
             updateGroceryTable();
@@ -229,6 +248,7 @@ async function addItem() {
                 body: JSON.stringify({
                     item_name: name,
                     quantity: quantity,
+                    unit: 'pcs',
                     bought: false,
                     user_id: UserID,
                     price: 0.00,
@@ -249,6 +269,79 @@ async function addItem() {
             alert('Error adding item. Please try again.');
         }
     }
+}
+
+// Test function to add sample grocery items
+async function addTestItems() {
+    const testItems = [
+        { name: 'Milk', quantity: 1, unit: 'liter' },
+        { name: 'Bread', quantity: 2, unit: 'loaves' },
+        { name: 'Eggs', quantity: 12, unit: 'pieces' },
+        { name: 'Apples', quantity: 6, unit: 'pieces' },
+        { name: 'Chicken breast', quantity: 500, unit: 'grams' }
+    ];
+
+    for (const item of testItems) {
+        try {
+            await fetch(`${BASE_URL}/grocery`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    item_name: item.name,
+                    quantity: item.quantity,
+                    unit: item.unit,
+                    bought: false,
+                    user_id: UserID,
+                    price: 0.00,
+                    notes: 'Test item'
+                })
+            });
+        } catch (error) {
+            console.error('Error adding test item:', error);
+        }
+    }
+    
+    await loadGroceryItems();
+    updateGroceryTable();
+    alert('Test grocery items added!');
+}
+
+// Debug function to check meal data
+async function debugMealData() {
+    console.log('=== DEBUGGING MEAL DATA ===');
+    console.log('All meals:', allMeals);
+    console.log('Meal plan:', mealPlan);
+    
+    if (allMeals.length > 0) {
+        console.log('Sample meal details:');
+        for (let i = 0; i < Math.min(3, allMeals.length); i++) {
+            const meal = allMeals[i];
+            console.log(`Meal ${i + 1}:`, {
+                MealID: meal.MealID,
+                MealName: meal.MealName,
+                Category: meal.Category,
+                SpoonacularID: meal.SpoonacularID,
+                Ingredients: meal.Ingredients,
+                hasIngredients: !!meal.Ingredients
+            });
+        }
+    }
+    
+    if (mealPlan.length > 0) {
+        console.log('Meal plan entries:');
+        mealPlan.forEach((plan, index) => {
+            console.log(`Plan ${index + 1}:`, {
+                MealID: plan.MealID,
+                MealName: plan.MealName,
+                MealTime: plan.MealTime,
+                DayOfWeek: plan.DayOfWeek
+            });
+        });
+    } else {
+        console.log('No meal plan entries found!');
+    }
+    
+    alert('Check the console for meal debugging information');
 }
 
 function handleEnterKey(event) {
