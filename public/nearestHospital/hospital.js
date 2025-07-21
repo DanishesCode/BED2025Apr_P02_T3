@@ -50,7 +50,7 @@ function getAuthHeaders() {
     }, 3000);
   }
   function loadMap(lng, lat, hospitalData) {
-    mapboxgl.accessToken = "pk.eyJ1IjoiZGFuaXNoZXNjb2RlIiwiYSI6ImNtZDh5aWxhczAxbnoya3NmYzUxcmZqM2sifQ.Be8TKU22qp3-RbLJY6m4Zw";
+    mapboxgl.accessToken = "pk.eyJ1IjoiZGFuaXNoZXNjb2RlIiwiYSI6ImNtZDh5ZXp6aTAyMjMya3EwbHRtYnZkdG4ifQ.uuwKNeuw1sPiHh9BqhB31A";
   
     const map = new mapboxgl.Map({
       container: 'map',
