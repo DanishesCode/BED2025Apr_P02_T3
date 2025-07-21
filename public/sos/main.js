@@ -126,7 +126,7 @@ async function sendMessage(data){
       ? await response.json()
       : { message: response.statusText };
 
-    if (response.status === 201) {
+    if (response.status === 201 || response.status === 200) {
     console.log("Send message successfully", responseBody);
     return true;
     } else if (response.status === 400) {
@@ -141,6 +141,7 @@ async function sendMessage(data){
     }
   } catch (error) {
     showNotification("There was an error sending your message!","error");
+    return false;
   }
 }
 
