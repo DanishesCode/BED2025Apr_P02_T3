@@ -4,6 +4,50 @@ const sendBtn = document.getElementById('sendBtn');
 const typingIndicator = document.getElementById('typingIndicator');
 let messageCount = 0;
 let currentChatId = null; // Track current chat ID
+let chatToDelete = null; // Track chat to be deleted
+
+// Custom confirmation dialog functions
+function showConfirmDialog(chatId) {
+    chatToDelete = chatId;
+    const confirmDialog = document.getElementById('confirmDialog');
+    confirmDialog.classList.add('show');
+}
+
+function hideConfirmDialog() {
+    const confirmDialog = document.getElementById('confirmDialog');
+    confirmDialog.classList.remove('show');
+    chatToDelete = null;
+}
+
+function confirmDelete() {
+    if (chatToDelete) {
+        deleteChat(chatToDelete);
+        hideConfirmDialog();
+    }
+}
+
+// Setup confirmation dialog event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const confirmDialog = document.getElementById('confirmDialog');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', hideConfirmDialog);
+    }
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', confirmDelete);
+    }
+
+    // Close dialog when clicking outside
+    if (confirmDialog) {
+        confirmDialog.addEventListener('click', (e) => {
+            if (e.target === confirmDialog) {
+                hideConfirmDialog();
+            }
+        });
+    }
+});
 
 // Auto-resize textarea
 messageInput.addEventListener('input', function() {
@@ -119,9 +163,7 @@ async function loadChats() {
             dropdown.querySelector('.delete-option').addEventListener('click', (e) => {
                 e.stopPropagation();
                 dropdown.style.display = 'none';
-                if (confirm('Are you sure you want to delete this chat?')) {
-                    deleteChat(chat.id);
-                }
+                showConfirmDialog(chat.id);
             });
 
             // Click handler for loading messages
