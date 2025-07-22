@@ -1,3 +1,46 @@
+// Toggle content input visibility based on selected type
+function toggleContentInput() {
+    const textContentGroup = document.getElementById('textContentGroup');
+    const fileUploadGroup = document.getElementById('fileUploadGroup');
+    const contentTypeText = document.getElementById('contentType-text').checked;
+    const contentTypeImage = document.getElementById('contentType-image').checked;
+    const contentTypeVideo = document.getElementById('contentType-video').checked;
+
+    if (contentTypeText) {
+        textContentGroup.style.display = 'block';
+        fileUploadGroup.style.display = 'none';
+        document.getElementById('fileInput').value = '';
+        document.getElementById('filePreview').style.display = 'none';
+    } else if (contentTypeImage) {
+        textContentGroup.style.display = 'none';
+        fileUploadGroup.style.display = 'block';
+        document.getElementById('fileInput').accept = 'image/*';
+    } else if (contentTypeVideo) {
+        textContentGroup.style.display = 'none';
+        fileUploadGroup.style.display = 'block';
+        document.getElementById('fileInput').accept = 'video/*';
+    }
+}
+
+// File preview handler (for showing preview)
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const preview = document.getElementById('filePreview');
+    if (preview) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            if (document.getElementById('contentType-image').checked) {
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px;">`;
+            } else {
+                preview.innerHTML = `<video controls style="max-width: 100%; max-height: 200px;"><source src="${e.target.result}"></video>`;
+            }
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
 // Global state
 let allTopics = [], filteredTopics = [], currentFilter = 'all';
 
@@ -13,7 +56,7 @@ const elements = {
 // Helper functions
 const getBackendUrl = () => window.location.hostname === '127.0.0.1' && window.location.port === '5500' ? 'http://127.0.0.1:3000' : 'http://localhost:3000';
 const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-const escapeHtml = (text) => text.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+const escapeHtml = (text) => text.replace(/[&<>"]'/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 const showLoading = (show) => { 
     const loadingElement = document.querySelector('.loading-message');
     if (loadingElement) {
@@ -305,6 +348,12 @@ async function viewComments(topicId, event) {
         
         if (data.success) {
             showCommentsModal(topicId, data.data);
+            // Update comment count to match actual number of comments
+            const topicIndex = allTopics.findIndex(t => t.id == topicId);
+            if (topicIndex !== -1) {
+                allTopics[topicIndex].commentCount = data.data.length;
+            }
+            renderTopics();
         } else {
             throw new Error(data.message || 'Failed to load comments');
         }
@@ -336,6 +385,9 @@ function showCommentsModal(topicId, comments) {
     commentInput.value = '';
     commentInput.setAttribute('data-topic-id', topicId);
     modal.style.display = 'flex';
+
+    const form = document.getElementById('addCommentForm');
+    if (form) form.setAttribute('data-topic-id', topicId);
 }
 
 // Close comments modal
@@ -348,19 +400,19 @@ function closeCommentsModal() {
 async function submitComment(topicId) {
     const commentInput = document.getElementById('commentInput');
     const comment = commentInput.value.trim();
-    
+
     if (!comment) {
         showError('Please enter a comment');
         return;
     }
-    
+
     try {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             showError('Please log in to add comments');
             return;
         }
-        
+
         const response = await fetch(`${getBackendUrl()}/api/topics/${topicId}/comments`, {
             method: 'POST',
             headers: {
@@ -369,22 +421,41 @@ async function submitComment(topicId) {
             },
             body: JSON.stringify({ comment })
         });
-        
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             commentInput.value = '';
+            // Refresh comments list
             viewComments(topicId, { stopPropagation: () => {} });
+            // Update comment count on topic card
+            // updateCommentCount(topicId); // This line is removed as per the edit hint
         } else {
             throw new Error(data.message || 'Failed to add comment');
         }
-        
+
     } catch (error) {
         console.error('Error adding comment:', error);
         showError('Failed to add comment. Please try again.');
     }
+}
+
+// Update comment count on topic card
+function updateCommentCount(topicId) {
+    // Update in allTopics and filteredTopics
+    const topicIndex = allTopics.findIndex(t => t.id == topicId);
+    if (topicIndex !== -1) {
+        if (!allTopics[topicIndex].commentCount) allTopics[topicIndex].commentCount = 0;
+        allTopics[topicIndex].commentCount++;
+    }
+    const filteredIndex = filteredTopics.findIndex(t => t.id == topicId);
+    if (filteredIndex !== -1) {
+        if (!filteredTopics[filteredIndex].commentCount) filteredTopics[filteredIndex].commentCount = 0;
+        filteredTopics[filteredIndex].commentCount++;
+    }
+    renderTopics();
 }
 
 // Get content preview
@@ -515,15 +586,23 @@ function setupDragAndDrop(area) {
 function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
-    const contentType = document.getElementById('contentType').value;
+
+    // Detect content type from radio buttons
+    const imageRadio = document.getElementById('contentType-image');
+    const videoRadio = document.getElementById('contentType-video');
+    const contentType = imageRadio && imageRadio.checked
+        ? 'image'
+        : videoRadio && videoRadio.checked
+            ? 'video'
+            : 'text';
+
     const allowedTypes = contentType === 'image' ? ['image/*'] : ['video/*'];
-    
+
     if (!allowedTypes.some(type => file.type.match(type))) {
         showError(`Please select a valid ${contentType} file`);
         return;
     }
-    
+
     const preview = document.getElementById('filePreview');
     if (preview) {
         const reader = new FileReader();
@@ -552,10 +631,16 @@ async function handleFormSubmit(event) {
     event.preventDefault();
     
     const formData = new FormData();
-    const title = document.getElementById('title').value.trim();
-    const description = document.getElementById('description').value.trim();
-    const category = document.getElementById('category').value;
-    const contentType = document.getElementById('contentType').value;
+    const titleInput = document.getElementById('topicTitle');
+    const title = titleInput ? titleInput.value : '';
+    const descriptionInput = document.getElementById('topicDescription');
+    const description = descriptionInput ? descriptionInput.value.trim() : '';
+
+    const categoryInput = document.getElementById('topicCategory');
+    const category = categoryInput ? categoryInput.value : '';
+
+    const contentTypeRadio = document.querySelector('input[name="contentType"]:checked');
+    const contentType = contentTypeRadio ? contentTypeRadio.value : '';
     
     if (!title) {
         showError('Please enter a title');
@@ -601,7 +686,8 @@ async function handleFormSubmit(event) {
         const data = await response.json();
         
         if (data.success) {
-            showSuccessModal(contentType);
+            showSuccessModal("Your topic was uploaded successfully!");
+            // Do NOT reset the form or redirect here!
         } else {
             throw new Error(data.message || 'Failed to upload topic');
         }
@@ -623,23 +709,35 @@ function resetForm() {
 }
 
 // Show success modal
-function showSuccessModal(contentType) {
-    const modal = document.getElementById('successModal');
-    const message = document.getElementById('successMessage');
-    
-    if (modal && message) {
-        message.textContent = `Your ${contentType} topic has been uploaded successfully!`;
-        modal.style.display = 'flex';
-    }
+function showSuccessModal(message) {
+  const modal = document.getElementById('successModal');
+  const msg = document.getElementById('successMessage');
+  if (modal && msg) {
+    msg.textContent = message || "Your topic was uploaded successfully.";
+    modal.style.display = "flex";
+  }
 }
-
-// Close success modal
 function closeSuccessModal() {
-    const modal = document.getElementById('successModal');
-    if (modal) modal.style.display = 'none';
+  const modal = document.getElementById('successModal');
+  if (modal) modal.style.display = "none";
+  // Now you can reset the form or redirect if you want:
+  // document.getElementById('uploadForm').reset();
+  // window.location.href = 'topics.html';
 }
 
 // View topics
 function viewTopics() {
     window.location.href = 'topics.html';
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('addCommentForm');
+    if (form && !form.hasListener) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const topicId = this.getAttribute('data-topic-id');
+            submitComment(topicId);
+        });
+        form.hasListener = true; // Custom property to prevent double binding
+    }
+});

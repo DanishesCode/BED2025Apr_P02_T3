@@ -46,7 +46,7 @@
                 <div class="search-bar">
                     <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"/>
-                        <path d="21 21l-4.35-4.35"/>
+                        <path d="M21 21l-4.35-4.35"/>
                     </svg>
                     <input type="text" id="searchInput" placeholder="Search topics..." onkeyup="filterTopics()">
                 </div>
@@ -129,10 +129,38 @@
                 <div class="topic-content" id="modalContent">
                     <!-- Content will be loaded here -->
                 </div>
+                <!-- Comment Section -->
+                <!-- Removed static comment section. -->
             </div>
         </div>
     </div>
 
     <script src="topics.js"></script>
+</body>
+
+<!-- Comments Modal -->
+<div class="modal-overlay" id="commentsModal" style="display:none;">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Comments</h2>
+            <button class="close-btn" onclick="closeCommentsModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="commentsList" class="comments-list">
+                <!-- Comments will be loaded here -->
+            </div>
+            <form id="addCommentForm" class="add-comment-form" style="margin-top: 1em;">
+                <textarea id="commentInput" placeholder="Add a comment..." rows="2" required></textarea>
+                <button type="submit">Post Comment</button>
+            </form>
+            <div id="commentError" style="color: red; display: none;"></div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
