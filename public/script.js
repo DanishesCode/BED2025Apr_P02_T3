@@ -94,6 +94,12 @@ const toolsData = {
             url: "#"
         },
         {
+            title: "Weight Tracker",
+            description: "Track your weight, calculate BMI, and view your progress over time.",
+            icon: "summarizer",
+            url: "weight-tracker/weight-tracker.html"
+        },
+        {
             title: "Weather",
             description: "Get current weather conditions and forecasts for any location.",
             icon: "chat",
