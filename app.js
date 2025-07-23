@@ -224,6 +224,13 @@ app.put("/photos/:id/favorite", photoController.toggleFavorite);
 app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
 app.delete("/photos/:id", photoController.deletePhoto);
 
+//start telebot
+try{
+    teleBot.startBot();
+}catch(error){
+    console.log(error);
+}
+
 // Error handling middleware
 app.use((error, req, res, next) => {
     console.error("=== SERVER ERROR ===");
