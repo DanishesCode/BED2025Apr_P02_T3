@@ -99,6 +99,10 @@ app.get("/appointment", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'appointment', 'appointment.html'));
 });
 
+app.get("/weight-tracker", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'weight-tracker', 'weight-tracker.html'));
+});
+
 // Photo Gallery routes
 app.get("/photogallery", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'photogallery', 'photo.html'));
