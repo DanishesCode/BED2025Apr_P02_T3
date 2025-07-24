@@ -5,37 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Topics Learner - Upload Content</title>
     <link rel="stylesheet" href="topics.css">
+    <link rel="stylesheet" href="../navbar/navbar.css">
 </head>
 <body>
-    <div class="navbar">
-        <div class="navbar-container">
-            <div class="navbar-left">
-                <button class="back-btn" onclick="goBack()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                </button>
-                <h1 class="page-title">Upload Content</h1>
-            </div>
-            <div class="navbar-right">
-                <button class="browse-btn" onclick="window.location.href='topics.html'">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
-                        <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
-                        <path d="M21 17v2a2 2 0 0 1-2 2h-2"/>
-                        <path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
-                    </svg>
-                    Browse Topics
-                </button>
-                <div class="user-info">
-                    <span id="userName">User</span>
-                    <button class="logout-btn" onclick="logout()">Logout</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Navbar will be injected by navbar.js -->
 
-    <div class="upload-container">
+    <div class="upload-container" style="margin-top: 80px;">
+        <div style="display: flex; justify-content: flex-start; margin-top: 10px; margin-bottom: 24px;">
+            <a href="topics.html" class="return-btn">&#8592; Return to Topics</a>
+        </div>
         <div class="upload-form-container">
             <div class="upload-header">
                 <h2>Share Your Knowledge</h2>
@@ -177,5 +155,6 @@
     </div>
 
     <script src="topics.js"></script>
+    <script src="../navbar/navbar.js"></script>
 </body>
 </html>

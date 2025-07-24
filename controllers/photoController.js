@@ -23,6 +23,10 @@ const sendSuccess = (res, status, message, data = null) => {
 const photoController = {
   // Upload a new photo
   async uploadPhoto(req, res) {
+    console.log("=== [UPLOAD PHOTO ROUTE HIT] ===");
+    console.log("Request body:", req.body);
+    console.log("Request file:", req.file);
+    console.log("Request user:", req.user);
     try {
       const { title, description, location, date, category, isFavorite } = req.body;
       const file = req.file;
@@ -32,7 +36,7 @@ const photoController = {
         return sendError(res, 401, "Authentication required");
       }
 
-      if (!file?.buffer) {
+      if (!file?.path) {
         return sendError(res, 400, "No image file uploaded");
       }
 
@@ -43,7 +47,7 @@ const photoController = {
         date: date || new Date(),
         isFavorite: isFavorite === 'true' || isFavorite === true,
         category: category || 'General',
-        imageBuffer: file.buffer,
+        imageUrl: file.path.replace(/^public[\\/]/, ''), // Store relative path
         userId: userId
       };
 
@@ -53,16 +57,9 @@ const photoController = {
         return sendError(res, 500, "Failed to save photo to database", result.error);
       }
 
-      return sendSuccess(res, 201, "Photo uploaded and stored successfully", {
-        title,
-        description,
-        location,
-        date: photoData.date,
-        category: photoData.category,
-        isFavorite: photoData.isFavorite,
-      });
+      return sendSuccess(res, 201, "Photo uploaded successfully", { id: result.id, imageUrl: photoData.imageUrl });
     } catch (error) {
-      console.error("Upload error:", error);
+      console.error("UploadPhoto error:", error);
       return sendError(res, 500, "Server error", error);
     }
   },
@@ -71,23 +68,15 @@ const photoController = {
   async getAllPhotos(req, res) {
     try {
       const currentUserId = req.user?.userId;
-      
       if (!currentUserId) {
         return sendError(res, 401, "Authentication required to view photos");
       }
-      
       const result = await photoModel.getPhotosByUserId(currentUserId);
-
       if (!result.success) {
         return sendError(res, 500, result.message);
       }
-
-      const photosWithBase64 = result.data.map(photo => ({
-        ...photo,
-        imageBase64: convertToBase64(photo.imageBuffer)
-      }));
-
-      return sendSuccess(res, 200, null, photosWithBase64);
+      // Only send imageUrl and other fields, not imageBase64
+      return sendSuccess(res, 200, null, result.data);
     } catch (error) {
       console.error("Get photos error:", error);
       return sendError(res, 500, "Server error", error);
@@ -99,23 +88,15 @@ const photoController = {
     try {
       const { id } = req.params;
       const userId = req.user?.userId;
-      
       if (!userId) {
         return sendError(res, 401, "Authentication required");
       }
-      
       const result = await photoModel.getPhotoById(id, userId);
-      
       if (!result.success) {
         return sendError(res, 404, result.message);
       }
-
-      const photo = {
-        ...result.data,
-        imageBase64: convertToBase64(result.data.imageBuffer)
-      };
-
-      return sendSuccess(res, 200, null, photo);
+      // Only send imageUrl and other fields, not imageBase64
+      return sendSuccess(res, 200, null, result.data);
     } catch (error) {
       console.error("Get photo by ID error:", error);
       return sendError(res, 500, "Server error", error);
@@ -171,8 +152,8 @@ const photoController = {
         isFavorite: isFavorite === true || isFavorite === 'true'
       };
 
-      if (file?.buffer) {
-        photoData.imageBuffer = file.buffer;
+      if (file?.path) {
+        photoData.imageUrl = file.path.replace(/^public[\\/]/, '');
       }
 
       const result = await photoModel.updatePhoto(id, photoData, userId);
@@ -183,7 +164,6 @@ const photoController = {
 
       return sendSuccess(res, 200, "Photo updated successfully", photoData);
     } catch (error) {
-      console.error("Update photo error:", error);
       return sendError(res, 500, "Server error", error);
     }
   },

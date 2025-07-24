@@ -2093,3 +2093,19 @@ body {
     padding: 16px 0 32px 0;
   }
 }
+
+#current-image {
+    max-width: 100%;
+    max-height: 200px;      /* Adjust this value as needed for your modal */
+    object-fit: contain;    /* Ensures the whole image is visible, not cropped */
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;     /* Optional: rounded corners */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Optional: subtle shadow */
+    background: #f8f8f8;    /* Optional: light background */
+}
+
+#current-image-container {
+    text-align: center;
+    margin-bottom: 1em;
+}

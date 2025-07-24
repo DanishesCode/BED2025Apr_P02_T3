@@ -114,9 +114,14 @@ function createPhotoCard(photo) {
         '<svg class="favorite-icon active" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' :
         '<svg class="favorite-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
 
+    // Always use backendUrl for image src if present
+    const backendUrl = getBackendUrl();
+    const imgSrc = photo.imageUrl
+        ? (backendUrl + '/' + photo.imageUrl.replace(/^\/+/, ''))
+        : (photo.photoUrl ? (backendUrl + '/' + photo.photoUrl.replace(/^\/+/, '')) : 'default-image.png');
     card.innerHTML = `
         <div class="photo-wrapper">
-            <img src="${photo.imageBase64 || photo.imageUrl || 'default-image.png'}" alt="${photo.title}" class="photo-image" loading="lazy">
+            <img src="${imgSrc}" alt="${photo.title}" class="photo-image" loading="lazy">
             <div class="photo-overlay">
                 <button class="photo-action edit-btn" onclick="editPhoto(${photo.id})" data-id="${photo.id}">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -145,148 +150,74 @@ function createPhotoCard(photo) {
             </div>
         </div>
     `;
-
     card.addEventListener('click', e => { if (!e.target.closest('.photo-action')) openModal(photo); });
     return card;
 }
 
-// Modal functions
-function openModal(photo) {
-    currentModalIndex = filteredPhotos.findIndex(p => p.id === photo.id);
-    showModalPhoto(currentModalIndex);
-    elements.modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function showModalPhoto(index) {
-    if (filteredPhotos.length === 0) return;
-    if (index < 0) index = filteredPhotos.length - 1;
-    if (index >= filteredPhotos.length) index = 0;
-    
-    currentModalIndex = index;
-    const photo = filteredPhotos[index];
-    
-    elements.modalImg.src = photo.imageBase64 || photo.imageUrl || 'default-image.png';
-    elements.modalImg.alt = photo.title;
-    elements.modalTitle.textContent = photo.title;
-    elements.modalDesc.textContent = photo.description || 'No description';
-    elements.modalDate.textContent = formatDate(photo.date);
-    elements.modalTag.textContent = photo.category || 'General';
-}
-
-function closeModal() {
-    elements.modal.classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-// Search and filter
-function handleSearch(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    filteredPhotos = searchTerm === '' ? [...allPhotos] : allPhotos.filter(photo => 
-        photo.title.toLowerCase().includes(searchTerm) ||
+// Centralized search and filter logic (now inside setupEvents)
+function filterPhotos() {
+    const searchTerm = elements.search.value.toLowerCase();
+    let photos = searchTerm === '' ? [...allPhotos] : allPhotos.filter(photo =>
+        (photo.title && photo.title.toLowerCase().includes(searchTerm)) ||
         (photo.description && photo.description.toLowerCase().includes(searchTerm)) ||
         (photo.location && photo.location.toLowerCase().includes(searchTerm)) ||
         (photo.category && photo.category.toLowerCase().includes(searchTerm))
     );
-    applyFilter(document.querySelector('.filter-tab.active').dataset.filter);
+    const activeTab = document.querySelector('.filter-tab.active');
+    const filter = activeTab ? activeTab.dataset.filter : 'recent';
+    switch (filter) {
+        case 'recent':
+            photos = photos.sort((a, b) => new Date(b.uploadedAt || b.date) - new Date(a.uploadedAt || a.date));
+            break;
+        case 'favorites':
+            photos = photos.filter(photo => photo.isFavorite);
+            break;
+        case 'family': case 'travel': case 'friends': case 'nature': case 'celebrations': case 'hobbies':
+            photos = photos.filter(photo => photo.category && photo.category.toLowerCase() === filter);
+            break;
+    }
+    filteredPhotos = [...photos];
+    displayPhotos(photos);
 }
 
+function handleSearch() { filterPhotos(); }
 function handleFilter(e) {
     elements.filters.forEach(tab => tab.classList.remove('active'));
     e.target.classList.add('active');
-    applyFilter(e.target.dataset.filter);
+    filterPhotos();
 }
 
-function applyFilter(filter) {
-    const searchTerm = elements.search.value.toLowerCase();
-    let photosToDisplay = searchTerm === '' ? [...allPhotos] : allPhotos.filter(photo => 
-        photo.title.toLowerCase().includes(searchTerm) ||
-        (photo.description && photo.description.toLowerCase().includes(searchTerm)) ||
-        (photo.location && photo.location.toLowerCase().includes(searchTerm)) ||
-        (photo.category && photo.category.toLowerCase().includes(searchTerm))
-    );
-    
-    switch (filter) {
-        case 'recent': photosToDisplay = photosToDisplay.sort((a, b) => new Date(b.uploadedAt || b.date) - new Date(a.uploadedAt || a.date)); break;
-        case 'favorites': photosToDisplay = photosToDisplay.filter(photo => photo.isFavorite); break;
-        case 'family': case 'travel': case 'friends': case 'nature': case 'celebrations': case 'hobbies':
-            photosToDisplay = photosToDisplay.filter(photo => photo.category && photo.category.toLowerCase() === filter); break;
-    }
-    
-    filteredPhotos = [...photosToDisplay];
-    displayPhotos(photosToDisplay);
-}
-
-// API functions
-async function toggleFavorite(photoId, buttonElement) {
-    try {
-        const authToken = localStorage.getItem('authToken');
-        if (!authToken) {
-            alert('Please log in to update favorites');
-            return;
-        }
-        
-        const photo = allPhotos.find(p => p.id === photoId);
-        const newStatus = !photo.isFavorite;
-        
-        const response = await fetch(`${getBackendUrl()}/photos/${photoId}/favorite`, {
-            method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify({ isFavorite: newStatus })
-        });
-        
-        const result = await response.json();
-        if (result.success) {
-            photo.isFavorite = newStatus;
-            const icon = buttonElement.querySelector('svg');
-            if (newStatus) {
-                icon.classList.add('active');
-                icon.setAttribute('fill', 'currentColor');
-                icon.removeAttribute('stroke');
-            } else {
-                icon.classList.remove('active');
-                icon.setAttribute('fill', 'none');
-                icon.setAttribute('stroke', 'currentColor');
-            }
-        } else {
-            alert('Failed to update favorite status');
-        }
-    } catch (error) {
-        console.error('Error toggling favorite:', error);
-        alert('Error updating favorite status');
-    }
-}
-
+// Delete photo function 
 async function deletePhoto(photoId) {
     if (!confirm('Are you sure you want to delete this memory? This action cannot be undone.')) return;
-    
     try {
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             alert('Please log in to delete photos');
             return;
         }
-        
-        const response = await fetch(`${getBackendUrl()}/photos/${photoId}`, { 
+        const response = await fetch(`${getBackendUrl()}/photos/${photoId}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${authToken}` }
         });
-        const result = await response.json();
-        
+        let result;
+        try {
+            result = await response.json();
+        } catch (e) {
+            result = { success: false, message: 'Invalid JSON response', raw: await response.text() };
+        }
+        console.log('Delete photo response:', result);
         if (result.success) {
             allPhotos = allPhotos.filter(photo => photo.id !== photoId);
             filteredPhotos = filteredPhotos.filter(photo => photo.id !== photoId);
-            applyFilter(document.querySelector('.filter-tab.active').dataset.filter);
+            filterPhotos();
             alert('Memory deleted successfully');
         } else {
-            alert('Failed to delete memory');
+            alert('Failed to delete memory: ' + (result.message || result.error || 'Unknown error'));
         }
     } catch (error) {
         console.error('Error deleting photo:', error);
-        alert('Error deleting memory');
+        alert('Error deleting memory: ' + (error.message || error));
     }
 }
 
@@ -306,8 +237,9 @@ function editPhoto(photoId) {
     
     const currentImage = document.getElementById('current-image');
     const currentImageContainer = document.getElementById('current-image-container');
-    if (photo.imageUrl) {
-        currentImage.src = photo.imageUrl;
+    const imageSrc = photo.imageUrl || photo.photoUrl || 'default-image.png';
+    if (imageSrc) {
+        currentImage.src = imageSrc;
         currentImageContainer.style.display = 'block';
     } else {
         currentImageContainer.style.display = 'none';
@@ -484,15 +416,13 @@ async function handleUploadSubmission(e) {
     }
 }
 
-// Edit form submission
+// Edit form submission (merged into main DOMContentLoaded)
 document.addEventListener('DOMContentLoaded', function() {
     const editForm = document.getElementById('edit-form');
     if (editForm) {
         editForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
             if (!currentEditingPhotoId) { alert('No photo selected for editing'); return; }
-
             const title = document.getElementById('edit-title').value.trim();
             const description = document.getElementById('edit-description').value.trim();
             const date = document.getElementById('edit-date').value;
@@ -500,9 +430,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const location = document.getElementById('edit-location').value.trim();
             const isFavorite = document.getElementById('edit-favorite').checked;
             const imageFile = document.getElementById('edit-image').files[0];
-
             if (!title) { alert('Title is required'); return; }
-
             try {
                 const formData = new FormData();
                 formData.append('title', title);
@@ -511,22 +439,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('category', category || 'General');
                 formData.append('location', location);
                 formData.append('isFavorite', isFavorite);
-                
                 if (imageFile) formData.append('photo', imageFile);
-
                 const authToken = localStorage.getItem('authToken');
                 if (!authToken) {
                     alert('Please log in to edit photos');
                     return;
                 }
-                
-                const response = await fetch(`${getBackendUrl()}/photos/${currentEditingPhotoId}`, { 
-                    method: 'PUT', 
+                const response = await fetch(`${getBackendUrl()}/photos/${currentEditingPhotoId}`, {
+                    method: 'PUT',
                     headers: { 'Authorization': `Bearer ${authToken}` },
-                    body: formData 
+                    body: formData
                 });
                 const result = await response.json();
-
                 if (result.success) {
                     const photoIndex = allPhotos.findIndex(p => p.id === currentEditingPhotoId);
                     if (photoIndex !== -1) {
@@ -534,8 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (result.data && result.data.imageUrl) updatedPhoto.imageUrl = result.data.imageUrl;
                         allPhotos[photoIndex] = updatedPhoto;
                     }
-
-                    applyFilter(document.querySelector('.filter-tab.active').dataset.filter);
+                    filterPhotos();
                     closeEditModal();
                     alert('Memory updated successfully!');
                 } else {
@@ -547,29 +470,31 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
 
-// Image preview functionality
-document.addEventListener('DOMContentLoaded', function() {
+    // Add preview for new image in edit modal
     const editImageInput = document.getElementById('edit-image');
     if (editImageInput) {
         editImageInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file) {
+            const preview = document.getElementById('edit-image-preview');
+            const img = document.getElementById('edit-preview-img');
+            if (file && preview && img) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    const preview = document.getElementById('edit-image-preview');
-                    const img = document.getElementById('edit-preview-img');
-                    img.src = e.target.result;
+                reader.onload = function(ev) {
+                    img.src = ev.target.result;
                     preview.style.display = 'block';
                 };
                 reader.readAsDataURL(file);
+            } else if (preview && img) {
+                preview.style.display = 'none';
+                img.src = '';
             }
         });
     }
 });
 
+
 // Utility function
 function scrollToGallery() {
     document.getElementById('gallery-start').scrollIntoView({ behavior: 'smooth' });
-} 
+}

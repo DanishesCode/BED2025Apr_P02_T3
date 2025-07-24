@@ -6,6 +6,8 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const multer = require("multer");
 const teleBot = require("./teleBot");
+const fs = require('fs');
+
 
 // Load environment variables FIRST
 dotenv.config();
@@ -49,6 +51,8 @@ app.use(cors({
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
+// Serve uploaded images at /uploads
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Serve MVC files for browser-side loading
 app.use('/middlewares', express.static(path.join(__dirname, 'middlewares')));
@@ -56,13 +60,24 @@ app.use('/models', express.static(path.join(__dirname, 'models')));
 app.use('/controllers', express.static(path.join(__dirname, 'controllers')));
 
 // Multer setup for file uploads
-const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB limit
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const uploadDir = 'public/uploads/photos';
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        cb(null, uploadDir);
     },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
-        // Check file type
         if (file.mimetype.startsWith('image/')) {
             cb(null, true);
         } else {

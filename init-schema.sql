@@ -56,7 +56,6 @@ CREATE TABLE Photos (
     date DATE,
     category NVARCHAR(50),
     isFavorite BIT DEFAULT 0,
-     imageBuffer VARBINARY(MAX) NULL, -- Store image data here
     photoUrl NVARCHAR(MAX),
     uploadedAt DATETIME DEFAULT GETDATE(),
     userId INT NOT NULL,

@@ -3,43 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Topics Learner - Browse Content</title>
+    <title>Topics Learner</title>
     <link rel="stylesheet" href="topics.css">
+    <link rel="stylesheet" href="../navbar/navbar.css">
+    <style>
+        /* Ensure main content is pushed below the fixed navbar */
+        body, .main-container, .topics-hero, .container, .upload-container {
+            margin-top: 60px !important;
+        }
+    </style>
 </head>
 <body>
-    <div class="navbar">
-        <div class="navbar-container">
-            <div class="navbar-left">
-                <button class="back-btn" onclick="goBack()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                </button>
-                <h1 class="page-title">Topics Learner</h1>
-            </div>
-            <div class="navbar-right">
-                <button class="upload-btn" onclick="window.location.href='upload-topic.html'">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="17,8 12,3 7,8"/>
-                        <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    Upload Content
-                </button>
-                <div class="user-info">
-                    <span id="userName">User</span>
-                    <button class="logout-btn" onclick="logout()">Logout</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Navbar will be injected by navbar.js -->
 
     <div class="main-container">
         <!-- New Elderly-Friendly Section Header -->
-        <div class="topics-hero">
-            <h2 class="topics-hero-title">Welcome to Topics Learner</h2>
-            <p class="topics-hero-desc">Learn something new every day! Browse topics designed just for you.</p>
-            <blockquote class="topics-hero-quote">“It’s never too late to learn!”</blockquote>
+        <div class="topics-hero" style="display: flex; flex-direction: column; align-items: stretch; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                    <h1 class="topics-hero-title">Topics Learner</h1>
+                    <p class="topics-hero-desc">A collection of knowledge and learning resources</p>
+                </div>
+                <a href="upload-topic.html" class="upload-btn-page">
+                    <span style="font-size:1.2em;vertical-align:middle;">&#43;</span> Upload Content
+                </a>
+            </div>
+            <!-- If you have a quote or extra hero content, keep it here -->
         </div>
         <div class="content-header">
             <div class="search-filter-container">
@@ -113,29 +102,15 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h2 id="modalTitle">Topic Title</h2>
-                <button class="close-btn" onclick="closeModal()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                </button>
             </div>
-            <div class="modal-body">
-                <div class="topic-meta">
-                    <span class="author">By <span id="modalAuthor">Author</span></span>
-                    <span class="date" id="modalDate">Date</span>
-                    <span class="content-type" id="modalType">Type</span>
-                </div>
-                <div class="topic-content" id="modalContent">
-                    <!-- Content will be loaded here -->
-                </div>
-                <!-- Comment Section -->
-                <!-- Removed static comment section. -->
+            <div class="modal-body" id="modalContent">
+                <!-- Modal content will be injected here by JS -->
             </div>
         </div>
     </div>
 
     <script src="topics.js"></script>
+    <script src="../navbar/navbar.js"></script>
 </body>
 
 <!-- Comments Modal -->
