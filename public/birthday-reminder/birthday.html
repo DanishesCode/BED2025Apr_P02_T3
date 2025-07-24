@@ -30,11 +30,21 @@
   </div>
   <div id="sms-form" style="display:none; text-align: center; margin-top: 20px; position: relative;">
     <button class="sms-close-btn" onclick="document.getElementById('sms-form').style.display='none'">&times;</button>
-    <div>
-      <strong>Recipient:</strong> <span id="sms-recipient-name"></span>
+    <div style="margin-bottom: 15px;">
+      <h3 style="margin: 10px 0; color: #333;">📱 Set Birthday Reminder</h3>
+      <p style="margin: 5px 0; color: #666; font-size: 14px;">
+        Get an SMS reminder about <strong><span id="sms-recipient-name"></span>'s</strong> birthday
+      </p>
     </div>
-    <input type="text" id="sms-phone" placeholder="Enter phone number (e.g., +1234567890)" />
-    <button id="send-sms-button">Send SMS Reminder</button>  
+    <div style="margin-bottom: 10px;">
+      <label for="sms-phone" style="display: block; margin-bottom: 5px; font-weight: bold; color: #555;">
+        Your Phone Number:
+      </label>
+      <input type="text" id="sms-phone" placeholder="Enter your phone number (e.g., +1234567890)" style="width: 250px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" />
+    </div>
+    <button id="send-sms-button" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer;">
+      📲 Send Me a Reminder
+    </button>  
   </div>
   </div>
   <script src="birthday.js"></script>

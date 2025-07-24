@@ -69,7 +69,7 @@ function renderTodaysBirthdays(birthdays) {
         <div class="actions">
           <button class="action-btn edit" title="Edit">✏️</button>
           <button class="action-btn delete" title="Delete">🗑️</button>
-          <button class="action-btn sms" title="Send SMS Reminder">📨 SMS</button>
+          <button class="action-btn sms" title="Set SMS Reminder for Me">📨 Remind Me</button>
         </div>
       </div>
     `;
@@ -108,7 +108,7 @@ function renderUpcomingBirthdays(upcomingList) {
           <div class="actions">
             <button class="action-btn edit" title="Edit">✏️</button>
             <button class="action-btn delete" title="Delete">🗑️</button>
-            <button class="action-btn sms" title="Send SMS Reminder">📨 SMS</button>
+            <button class="action-btn sms" title="Set SMS Reminder for Me">📨 Remind Me</button>
           </div>
         </div>
       `;
