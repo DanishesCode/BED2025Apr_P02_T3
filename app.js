@@ -110,6 +110,7 @@ const birthdayController = require('./controllers/birthdayController');
 const weatherApiController = require('./controllers/weatherApiController');
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
 const topicController = require('./controllers/topicController');
+const weightController = require('./controllers/weightController');
 // Routes for pages
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -122,6 +123,14 @@ app.get("/login", (req, res) => {
 
 app.get("/signup", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'signup', 'signup.html'));
+});
+
+app.get("/appointment", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'appointment', 'appointment.html'));
+});
+
+app.get("/weight-tracker", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'weight-tracker', 'weight-tracker.html'));
 });
 
 // Photo Gallery routes
@@ -273,6 +282,16 @@ app.post("/api/topics/:id/comments", AuthMiddleware.authenticateToken, topicCont
 app.get("/api/topics/:id/comments", topicController.getComments);
 
 
+// Weight API routes
+app.post('/api/weight', AuthMiddleware.authenticateToken, weightController.addWeightEntry);
+app.get('/api/weight', AuthMiddleware.authenticateToken, weightController.getWeightHistory);
+
+//start telebot
+try{
+    teleBot.startBot();
+}catch(error){
+    console.log(error);
+}
 
 // Error handling middleware
 app.use((error, req, res, next) => {
