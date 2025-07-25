@@ -325,25 +325,25 @@ function getOrdinalSuffix(num) {
   return num + "th";
 }
 
-// Schedule automatic birthday wishes to run daily at 9:00 AM
+// Schedule automatic birthday wishes to run daily at 8:00 PM
 function startAutomaticBirthdayWishes() {
   console.log('🚀 Starting automatic birthday wish system...');
   
-  // Calculate milliseconds until next 9:00 AM
-  function getMillisecondsUntilNineAM() {
+  // Calculate milliseconds until next 8:00 PM
+  function getMillisecondsUntilEightPM() {
     const now = new Date();
-    const next9AM = new Date();
-    next9AM.setHours(9, 0, 0, 0);
+    const next8PM = new Date();
+    next8PM.setHours(20, 0, 0, 0); // 20 = 8 PM in 24-hour format
     
-    // If it's already past 9 AM today, schedule for tomorrow
-    if (now.getTime() > next9AM.getTime()) {
-      next9AM.setDate(next9AM.getDate() + 1);
+    // If it's already past 8 PM today, schedule for tomorrow
+    if (now.getTime() > next8PM.getTime()) {
+      next8PM.setDate(next8PM.getDate() + 1);
     }
     
-    return next9AM.getTime() - now.getTime();
+    return next8PM.getTime() - now.getTime();
   }
   
-  // Set initial timeout to run at next 9:00 AM
+  // Set initial timeout to run at next 8:00 PM
   setTimeout(() => {
     // Run the check immediately
     checkAndSendAutomaticBirthdayWishes();
@@ -351,10 +351,10 @@ function startAutomaticBirthdayWishes() {
     // Then set interval to run every 24 hours
     setInterval(checkAndSendAutomaticBirthdayWishes, 24 * 60 * 60 * 1000);
     
-    console.log('🎂 Automatic birthday wishes scheduled to run daily at 9:00 AM');
-  }, getMillisecondsUntilNineAM());
+    console.log('🎂 Automatic birthday wishes scheduled to run daily at 8:00 PM');
+  }, getMillisecondsUntilEightPM());
   
-  console.log('⏰ Next birthday check scheduled for 9:00 AM');
+  console.log('⏰ Next birthday check scheduled for 8:00 PM');
 }
 
 function getDateDisplay(daysUntil) {
