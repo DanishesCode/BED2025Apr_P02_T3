@@ -81,11 +81,6 @@ const appointmentController = require("./controllers/appointmentController");
 const birthdayController = require('./controllers/birthdayController');
 const weatherApiController = require('./controllers/weatherApiController');
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
-const mealController = require("./controllers/mealController");
-const mealPlanController = require('./controllers/mealplanController');
-const suggestionController = require('./controllers/mealsuggestionController');
-const groceryController = require('./controllers/groceryController');
-const {  validateMeal, validateMealUpdate, validateMealId, validateUserId } = require('./middlewares/mealValidation');
 const weightController = require('./controllers/weightController');
 // Routes for pages
 app.get("/", (req, res) => {
@@ -235,64 +230,33 @@ app.post('/api/weight', AuthMiddleware.authenticateToken, weightController.addWe
 app.get('/api/weight', AuthMiddleware.authenticateToken, weightController.getWeightHistory);
 
 //start telebot
-/*try{
+try{
     teleBot.startBot();
 }catch(error){
     console.log(error);
 }
-*/
-//Meal Recipe routes
-app.use(express.static(path.join(__dirname, "public")));
-app.get("/meals/:userId", 
-    AuthMiddleware.authenticateToken,
-    mealController.getAllMeals
-);
-app.get("/meals/:userId/:mealId", 
-    AuthMiddleware.authenticateToken,
-    mealController.getMealById
-);
-app.post("/meals", 
-    AuthMiddleware.authenticateToken,
-    mealController.addMeal
-);
-app.post("/meals/import-spoonacular", 
-    AuthMiddleware.authenticateToken,
-    mealController.importSpoonacularRecipe
-);
-app.put("/meals/:mealId", 
-    AuthMiddleware.authenticateToken,
-    mealController.updateMeal
-);
-app.delete("/meals/:mealId", 
-    AuthMiddleware.authenticateToken,
-    mealController.deleteMeal
-);
-// Meal Plan routes
-app.get("/mealplans/:userId", AuthMiddleware.authenticateToken, mealPlanController.getAllMealPlans);
-app.get("/mealplans/:userId/:planId", AuthMiddleware.authenticateToken, mealPlanController.getMealPlanById);
-app.post("/mealplans", AuthMiddleware.authenticateToken, mealPlanController.addMealPlan);
-app.put("/mealplans/:planId", AuthMiddleware.authenticateToken, mealPlanController.updateMealPlan);
-app.delete("/mealplans/:planId", AuthMiddleware.authenticateToken, mealPlanController.deleteMealPlan);
 
-// Recipe Suggestion Routes (Spoonacular API)
-app.get("/suggestions", suggestionController.getSuggestions);
-app.get("/suggestions/random", suggestionController.getRandomRecipes);
-app.get("/suggestions/:recipeId", suggestionController.getRecipeDetails);
-app.post("/suggestions/add", suggestionController.addSuggestedRecipe);
-
-// Grocery List routes
-app.get("/grocery/user/:userId", AuthMiddleware.authenticateToken, groceryController.getAllGroceryItems);
-app.get("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.getGroceryItemById);
-app.post("/grocery", AuthMiddleware.authenticateToken, groceryController.addGroceryItem);
-app.put("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.updateGroceryItem);
-app.delete("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.deleteGroceryItem);
-app.post("/grocery/generate/:userId", AuthMiddleware.authenticateToken, groceryController.generateFromMealPlan);
+// Error handling middleware
+app.use((error, req, res, next) => {
+    console.error("=== SERVER ERROR ===");
+    console.error(error);
+    res.status(500).json({ 
+        success: false, 
+        message: "Server error", 
+        error: error.message 
+    });
+});
 
 // Start server
 app.listen(port, async () => {
     try {
         await sql.connect(dbConfig);
         console.log("Database connected");
+        
+        // Start automatic birthday wish system
+        birthdayController.startAutomaticBirthdayWishes(); // Disabled temporarily for Twilio free trial
+        console.log("Automatic birthday wish system started");
+        
     } catch (err) {
         console.error("DB connection error:", err);
         process.exit(1);
