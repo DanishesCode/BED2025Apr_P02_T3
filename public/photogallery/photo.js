@@ -21,13 +21,14 @@ const elements = {
 };
 
 // Helper functions
+// Use the same protocol, hostname, and (optionally) port as the page, but default to 3000 if running on 5500 (Live Server)
 const getBackendUrl = () => {
-    const host = window.location.hostname;
-    const port = window.location.port;
-    if ((host === '127.0.0.1' || host === 'localhost') && port === '5500') {
-        return 'http://127.0.0.1:3000';
+    // If running on Live Server (port 5500), assume backend is on 3000 at same host
+    if (window.location.port === '5500') {
+        return `${window.location.protocol}//${window.location.hostname}:3000`;
     }
-    return '';
+    // Otherwise, use same origin
+    return `${window.location.protocol}//${window.location.host}`;
 };
 const formatDate = (date) => new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 const showLoading = () => { elements.loading.style.display = 'flex'; elements.gallery.style.display = 'none'; elements.noPhotos.style.display = 'none'; };
@@ -346,9 +347,11 @@ function removeFilePreview() {
 
 async function handleUploadSubmission(e) {
     e.preventDefault();
+    console.log('[DEBUG] Upload form submitted');
 
     const fileInput = document.getElementById('photo-upload');
     const file = fileInput.files[0];
+    console.log('[DEBUG] Selected file:', file);
     if (!file) { alert('Please select a photo to upload'); return; }
 
     const title = document.getElementById('memory-title').value.trim();
@@ -358,6 +361,7 @@ async function handleUploadSubmission(e) {
     const location = document.getElementById('memory-location').value.trim();
     const isFavorite = document.getElementById('memory-favorite').checked;
 
+    console.log('[DEBUG] Form values:', { title, description, date, category, location, isFavorite });
     if (!title) { alert('Please enter a title for your memory'); return; }
 
     const submitButton = e.target.querySelector('button[type="submit"]');
@@ -370,7 +374,7 @@ async function handleUploadSubmission(e) {
         let userId = 1;
         const currentUser = localStorage.getItem('currentUser');
         if (currentUser) {
-            try { userId = JSON.parse(currentUser).id || JSON.parse(currentUser).userId || 1; } catch (e) { console.error('Error parsing user data:', e); }
+            try { userId = JSON.parse(currentUser).id || JSON.parse(currentUser).userId || 1; } catch (e) { console.error('[DEBUG] Error parsing user data:', e); }
         }
 
         const formData = new FormData();
@@ -383,19 +387,26 @@ async function handleUploadSubmission(e) {
         formData.append('isFavorite', isFavorite);
         formData.append('userId', userId);
 
+        console.log('[DEBUG] FormData entries:');
+        for (let pair of formData.entries()) {
+            console.log('  ', pair[0], pair[1]);
+        }
+
         const authToken = localStorage.getItem('authToken');
         if (!authToken) {
             throw new Error('Please log in to upload photos');
         }
         let response;
         try {
+            console.log('[DEBUG] Sending fetch to:', `${getBackendUrl()}/photos/upload`);
             response = await fetch(`${getBackendUrl()}/photos/upload`, { 
                 method: 'POST', 
                 headers: { 'Authorization': `Bearer ${authToken}` },
                 body: formData 
             });
+            console.log('[DEBUG] Fetch response received:', response);
         } catch (networkError) {
-            console.error('Network error or CORS issue:', networkError);
+            console.error('[DEBUG] Network error or CORS issue:', networkError);
             alert('Network error: Could not reach the server.\nPossible CORS issue, server crash, or network disconnect.');
             return;
         }
@@ -415,20 +426,29 @@ async function handleUploadSubmission(e) {
                 errorMessage = errorText || `HTTP ${response.status}: Upload failed`;
             }
             // Extra logging for debugging
-            console.error('Upload failed. Status:', response.status, 'Response:', errorText);
-            alert(errorMessage + `\n(HTTP ${response.status})`);
+            console.error('[DEBUG] Upload failed. Status:', response.status, 'Response:', errorText);
+            alert('[DEBUG] ' + errorMessage + `\n(HTTP ${response.status})`);
             return;
         }
 
         let result;
         try {
             result = await response.json();
+            console.log('[DEBUG] Parsed JSON result:', result);
         } catch (jsonErr) {
-            console.error('Failed to parse JSON response:', jsonErr);
-            alert('Upload succeeded but server returned invalid JSON.');
+            // Try to get the raw text for debugging
+            let rawText = '';
+            try {
+                rawText = await response.text();
+            } catch (e) {
+                rawText = '[No response body]';
+            }
+            console.error('[DEBUG] Failed to parse JSON response:', jsonErr, 'Raw response:', rawText);
+            alert('[DEBUG] Upload succeeded but server returned invalid JSON.\nRaw response: ' + rawText);
             return;
         }
         if (result.success) {
+            console.log('[DEBUG] Upload success, result.data:', result.data);
             // Optimistically add the new photo to the gallery
             const newPhoto = {
                 id: result.data.id,
@@ -443,15 +463,16 @@ async function handleUploadSubmission(e) {
             };
             allPhotos.unshift(newPhoto);
             filterPhotos();
-            alert('Memory saved successfully!');
+            alert('[DEBUG] Memory saved successfully!');
             // Optionally, you can reset the form or redirect after a short delay
             setTimeout(() => { window.location.href = 'photo.html'; }, 500);
         } else {
-            alert('Failed to save memory: ' + (result.message || 'Unknown error'));
+            console.error('[DEBUG] Upload failed, result:', result);
+            alert('[DEBUG] Failed to save memory: ' + (result.message || 'Unknown error'));
         }
     } catch (error) {
-        console.error('Upload error:', error);
-        alert((error && error.message ? error.message : error) || 'Error uploading photo. Please try again.');
+        console.error('[DEBUG] Upload error:', error);
+        alert('[DEBUG] ' + ((error && error.message ? error.message : error) || 'Error uploading photo. Please try again.'));
     } finally {
         submitButton.innerHTML = originalText;
         submitButton.disabled = false;

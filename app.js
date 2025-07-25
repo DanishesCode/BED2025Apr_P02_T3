@@ -22,23 +22,40 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-// CORS configuration - allow multiple origins
+
+// CORS configuration - allow all localhost/127.0.0.1 for dev, log errors
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         if (
-            origin.startsWith('http://localhost:') ||
-            origin.startsWith('http://127.0.0.1:')
+            /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
         ) {
             return callback(null, true);
         }
-        callback(new Error('Not allowed by CORS'));
+        console.error('Blocked by CORS:', origin);
+        callback(new Error('Not allowed by CORS: ' + origin));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
 }));
+
+// Health check route for debugging
+app.get('/healthz', (req, res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.json({ status: 'ok' });
+});
+
+// Catch-all CORS header for all responses (including errors)
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    next();
+});
+
+// Ensure all OPTIONS requests are handled for CORS preflight
+app.options('*', cors());
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));

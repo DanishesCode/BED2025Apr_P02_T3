@@ -118,11 +118,11 @@ function createTopicCard(topic) {
                     `<p class="topic-summary">Complete Step-by-Step Guide</p>` : 
                     topic.contentType === 'image' ? 
                     `<div class="topic-media-container">
-                        <img src="${getBackendUrl()}${topic.content}${cacheBuster}" alt="${escapeHtml(topic.title)}" class="topic-image" onclick="openTopicModal(${topic.id})">
+                        <img src="${topic.content}${cacheBuster}" alt="${escapeHtml(topic.title)}" class="topic-image" onclick="openTopicModal(${topic.id})">
                      </div>` : 
                     `<div class="topic-media-container">
                         <video class="topic-video" controls preload="metadata" onclick="openTopicModal(${topic.id})">
-                            <source src="${getBackendUrl()}${topic.content}${cacheBuster}" type="video/mp4">
+                            <source src="${topic.content}${cacheBuster}" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                      </div>`
@@ -325,10 +325,10 @@ function openTopicModal(topicId) {
         contentHtml = `<div class="modal-text-content">${escapeHtml(topic.content)}</div>`;
     } else if (topic.contentType === 'image') {
         const cacheBuster = `?t=${Date.now()}`;
-        contentHtml = `<img src="${getBackendUrl()}${topic.content}${cacheBuster}" alt="${escapeHtml(topic.title)}" class="modal-image">`;
+        contentHtml = `<img src="${topic.content}${cacheBuster}" alt="${escapeHtml(topic.title)}" class="modal-image">`;
     } else if (topic.contentType === 'video') {
         const cacheBuster = `?t=${Date.now()}`;
-        contentHtml = `<video controls class="modal-video"><source src="${getBackendUrl()}${topic.content}${cacheBuster}" type="video/mp4"></video>`;
+        contentHtml = `<video controls class="modal-video"><source src="${topic.content}${cacheBuster}" type="video/mp4"></video>`;
     }
     modalContent.innerHTML = `
         <div class="modal-header">
@@ -409,9 +409,9 @@ function handleFileSelect(event) {
         const reader = new FileReader();
         reader.onload = e => {
             if (contentType === 'image') {
-                preview.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width: 100%; max-height: 200px;">`;
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
             } else {
-                preview.innerHTML = `<video controls style="max-width: 100%; max-height: 200px;"><source src="${e.target.result}"></video>`;
+                preview.innerHTML = `<video controls><source src="${e.target.result}"></video>`;
             }
             preview.style.display = 'block';
         };
@@ -600,10 +600,10 @@ function editTopic(topicId, event) {
     let mediaInput = '';
     const cacheBuster = `?t=${Date.now()}`;
     if (topic.contentType === 'image') {
-        mediaPreview = `<div id="editMediaPreview" class="edit-preview-media"><img src="${getBackendUrl()}${topic.content}${cacheBuster}" alt="Current Image" style="max-width:100%;max-height:180px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:8px;"></div>`;
+        mediaPreview = `<div id="editMediaPreview" class="edit-preview-media"><img src="${topic.content}${cacheBuster}" alt="Current Image"></div>`;
         mediaInput = `<label>Replace Image:<input type="file" id="editMediaFile" accept="image/*"></label>`;
     } else if (topic.contentType === 'video') {
-        mediaPreview = `<div id="editMediaPreview" class="edit-preview-media"><video src="${getBackendUrl()}${topic.content}${cacheBuster}" controls style="max-width:100%;max-height:180px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:8px;"></video></div>`;
+        mediaPreview = `<div id="editMediaPreview" class="edit-preview-media"><video src="${topic.content}${cacheBuster}" controls></video></div>`;
         mediaInput = `<label>Replace Video:<input type="file" id="editMediaFile" accept="video/*"></label>`;
     }
     modalContent.innerHTML = `
@@ -633,11 +633,11 @@ function editTopic(topicId, event) {
                 if (!file) return;
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    if (topic.contentType === 'image') {
-                        previewDiv.innerHTML = `<img src="${e.target.result}" alt="Preview" style="max-width:100%;max-height:180px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:8px;">`;
-                    } else if (topic.contentType === 'video') {
-                        previewDiv.innerHTML = `<video src="${e.target.result}" controls style="max-width:100%;max-height:180px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:8px;"></video>`;
-                    }
+                if (topic.contentType === 'image') {
+                    previewDiv.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                } else if (topic.contentType === 'video') {
+                    previewDiv.innerHTML = `<video src="${e.target.result}" controls></video>`;
+                }
                 };
                 reader.readAsDataURL(file);
             });

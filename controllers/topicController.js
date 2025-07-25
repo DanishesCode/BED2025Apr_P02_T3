@@ -1,34 +1,19 @@
+
 const topicModel = require('../models/topicModel');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const cloudinary = require('../cloudinaryConfig');
+const streamifier = require('streamifier');
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = 'public/uploads/topics';
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
+// Multer memory storage for direct buffer upload to Cloudinary
+const upload = multer({
+    storage: multer.memoryStorage(),
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image and video files are allowed!'), false);
         }
-        cb(null, uploadDir);
     },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
-const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
-        cb(null, true);
-    } else {
-        cb(new Error('Only image and video files are allowed!'), false);
-    }
-};
-
-const upload = multer({ 
-    storage: storage,
-    fileFilter: fileFilter,
     limits: { fileSize: 50 * 1024 * 1024 }
 }).single('file');
 
@@ -43,6 +28,7 @@ const handleError = (res, error, message = 'Operation failed') => {
     console.error(message, error);
     return sendResponse(res, 500, false, message, error.message);
 };
+
 
 const uploadFile = (req, res, next) => {
     upload(req, res, (err) => {
@@ -88,37 +74,39 @@ const topicController = {
         }
     },
 
-    // Create new topic
+
+    // Create new topic (Cloudinary for image/video)
     createTopic: async (req, res) => {
         try {
             const userId = req.user.userId;
             const { title, category, contentType, description, tags } = req.body;
-            console.log('[DEBUG] Topic upload request:', {
-                userId,
-                title,
-                category,
-                contentType,
-                description,
-                tags,
-                hasFile: !!req.file
-            });
             if (!title || !contentType) {
-                console.log('[DEBUG] Missing title or contentType');
                 return sendResponse(res, 400, false, 'Title and content type are required');
             }
             let content = '';
             if (contentType === 'text') {
                 content = req.body.textContent;
                 if (!content) {
-                    console.log('[DEBUG] Missing text content');
                     return sendResponse(res, 400, false, 'Text content is required for text type');
                 }
             } else {
                 if (!req.file) {
-                    console.log('[DEBUG] Missing file for image/video');
                     return sendResponse(res, 400, false, 'File is required for image/video type');
                 }
-                content = `/uploads/topics/${req.file.filename}`;
+                // Upload to Cloudinary
+                const uploadPromise = () => new Promise((resolve, reject) => {
+                    let resourceType = req.file.mimetype.startsWith('video/') ? 'video' : 'image';
+                    let stream = cloudinary.uploader.upload_stream(
+                        { resource_type: resourceType, folder: 'topics' },
+                        (error, result) => {
+                            if (error) reject(error);
+                            else resolve(result);
+                        }
+                    );
+                    streamifier.createReadStream(req.file.buffer).pipe(stream);
+                });
+                const result = await uploadPromise();
+                content = result.secure_url;
             }
             const topicData = {
                 userId,
@@ -129,17 +117,15 @@ const topicController = {
                 description: description || null,
                 tags: tags ? tags.split(',').map(tag => tag.trim()) : []
             };
-            console.log('[DEBUG] topicData to insert:', topicData);
             const topicId = await topicModel.createTopic(topicData);
-            console.log('[DEBUG] Inserted topicId:', topicId);
             return sendResponse(res, 201, true, 'Topic created successfully', { id: topicId });
         } catch (error) {
-            console.error('[DEBUG] Error in createTopic controller:', error);
             return handleError(res, error, 'Failed to create topic');
         }
     },
 
-    // Update topic (with file upload support)
+
+    // Update topic (Cloudinary for image/video)
     updateTopic: async (req, res) => {
         try {
             const { id } = req.params;
@@ -158,53 +144,50 @@ const topicController = {
             if (description !== undefined) updateData.description = description;
             if (tags !== undefined) updateData.tags = tags.split(',').map(tag => tag.trim());
 
-            let newContentPath = null;
+            let newContentUrl = null;
             // Only handle file upload for non-text topics
             if (existingTopic.contentType !== 'text' && req.file) {
-                // Save new file, update content path, and optionally delete old file
-                newContentPath = `/uploads/topics/${req.file.filename}`;
-                updateData.content = newContentPath;
-                // Delete old file if it exists and is different
-                if (existingTopic.content && existingTopic.content !== newContentPath) {
-                    const oldFilePath = path.join(__dirname, '..', 'public', existingTopic.content);
-                    if (fs.existsSync(oldFilePath)) {
-                        fs.unlinkSync(oldFilePath);
-                    }
-                }
+                // Upload new file to Cloudinary
+                const uploadPromise = () => new Promise((resolve, reject) => {
+                    let resourceType = req.file.mimetype.startsWith('video/') ? 'video' : 'image';
+                    let stream = cloudinary.uploader.upload_stream(
+                        { resource_type: resourceType, folder: 'topics' },
+                        (error, result) => {
+                            if (error) reject(error);
+                            else resolve(result);
+                        }
+                    );
+                    streamifier.createReadStream(req.file.buffer).pipe(stream);
+                });
+                const result = await uploadPromise();
+                newContentUrl = result.secure_url;
+                updateData.content = newContentUrl;
             }
 
             await topicModel.updateTopic(id, updateData);
-            // Return new content path if updated, else old one
+            // Return new content url if updated, else old one
             return sendResponse(res, 200, true, 'Topic updated successfully', {
-                content: newContentPath || existingTopic.content
+                content: newContentUrl || existingTopic.content
             });
         } catch (error) {
             return handleError(res, error, 'Failed to update topic');
         }
     },
 
-    // Delete topic
+
+    // Delete topic (no local file deletion, Cloudinary cleanup optional)
     deleteTopic: async (req, res) => {
         try {
             const { id } = req.params;
             const userId = req.user.userId;
-            
             const existingTopic = await topicModel.getTopicById(id);
             if (!existingTopic) {
                 return sendResponse(res, 404, false, 'Topic not found');
             }
-            
             if (existingTopic.userId !== userId) {
                 return sendResponse(res, 403, false, 'You can only delete your own topics');
             }
-            
-            if (existingTopic.contentType !== 'text' && existingTopic.content) {
-                const filePath = path.join(__dirname, '..', 'public', existingTopic.content);
-                if (fs.existsSync(filePath)) {
-                    fs.unlinkSync(filePath);
-                }
-            }
-            
+            // Optionally: delete from Cloudinary using public_id (not implemented here)
             await topicModel.deleteTopic(id);
             return sendResponse(res, 200, true, 'Topic deleted successfully');
         } catch (error) {

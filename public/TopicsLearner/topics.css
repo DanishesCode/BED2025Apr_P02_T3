@@ -1,131 +1,32 @@
-/* --- Enhanced Edit Modal Styles for Topics Learner --- */
+/* --- Clean, Modern Edit Modal Styles for Topics Learner --- */
 .edit-modal-content {
   background: #fff;
   border-radius: 22px;
-  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.16), 0 2px 8px rgba(0,0,0,0.04);
-  max-width: 520px;
-  width: 95%;
-  margin: 40px auto;
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.22), 0 2px 8px rgba(0,0,0,0.06);
+  border: 1.5px solid #e0e7ff;
+  max-width: 500px;
+  width: 98%;
+  margin: 56px auto;
   padding: 0;
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+  transition: box-shadow 0.2s, border 0.2s;
 }
 .edit-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 28px 32px 18px 32px;
+  padding: 26px 32px 16px 32px;
   border-bottom: 2px solid #e0e7ff;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 800;
   background: linear-gradient(135deg, #f8f9ff 0%, #e0e7ff 100%);
   color: #4a569d;
-}
-.edit-modal-close {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  color: #667eea;
-  cursor: pointer;
-  border-radius: 8px;
-  padding: 4px 10px;
-  transition: background 0.2s, color 0.2s;
-}
-.edit-modal-close:hover {
-  background: #e0e7ff;
-  color: #764ba2;
-}
-.edit-modal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding: 28px 32px 32px 32px;
-}
-.edit-modal-form label {
-  font-weight: 700;
-  color: #1f2937;
-  font-size: 15px;
-  margin-bottom: 6px;
-}
-.edit-modal-form input[type="text"],
-.edit-modal-form textarea,
-.edit-modal-form select {
-  padding: 14px 16px;
-  border: 2px solid #e0e7ff;
-  border-radius: 10px;
-  font-size: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 24px 20px 20px 20px;
-  background: transparent;
-  transition: border 0.2s, box-shadow 0.2s;
- .edit-modal-form label {
-  font-weight: 500;
-  color: #222;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 1rem;
-}
- .edit-modal-form input[type="text"],
- .edit-modal-form textarea {
-  padding: 10px 12px;
-  border: 1.5px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 1rem;
-  background: #f9fafb;
-  color: #222;
-  transition: border 0.2s;
-  resize: vertical;
-}
- .edit-modal-form input[type="text"]:focus,
- .edit-modal-form textarea:focus {
-  border-color: #4caf50;
-  outline: none;
-}
- .edit-modal-form textarea {
-  min-height: 90px;
-  font-size: 1rem;
-}
- .edit-modal-save {
-  background: linear-gradient(90deg, #4caf50 60%, #43a047 100%);
-  color: #fff;
-  padding: 12px 0;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 1.08rem;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.08);
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-  margin-top: 8px;
-}
- .edit-modal-save:hover, .edit-modal-save:focus {
-  background: linear-gradient(90deg, #43a047 60%, #388e3c 100%);
-  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.16);
-  transform: translateY(-1px) scale(1.02);
-}
-  width: 95%;
-  margin: 40px auto;
-  padding: 0;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.edit-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 28px 32px 18px 32px;
-  border-bottom: 2px solid #e0e7ff;
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #f8f9ff 0%, #e0e7ff 100%);
+  box-shadow: 0 2px 8px rgba(102,126,234,0.06);
 }
 .edit-modal-close {
   background: none;
@@ -135,209 +36,83 @@
   cursor: pointer;
   border-radius: 8px;
   padding: 4px 10px;
-  transition: background 0.2s, color 0.2s;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  outline: none;
 }
-.edit-modal-close:hover {
+.edit-modal-close:hover, .edit-modal-close:focus {
   background: #e0e7ff;
   color: #764ba2;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.10);
 }
-.edit-modal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding: 28px 32px 32px 32px;
-}
-.edit-modal-form label {
-  font-weight: 700;
-  color: #1f2937;
-  font-size: 15px;
-  margin-bottom: 6px;
-}
-.edit-modal-form input[type="text"],
-.edit-modal-form textarea,
-.edit-modal-form select {
-  padding: 14px 16px;
-  border: 2px solid #e0e7ff;
-  border-radius: 10px;
-  font-size: 15px;
-  background: #f8f9ff;
-  font-family: inherit;
-  color: #222;
-  margin-bottom: 2px;
-  transition: border 0.2s, box-shadow 0.2s;
-}
-.edit-modal-form input[type="text"]:focus,
-.edit-modal-form textarea:focus,
-.edit-modal-form select:focus {
-  outline: none;
-  border-color: #667eea;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(103, 126, 234, 0.10);
-}
-.edit-modal-form textarea {
-  resize: vertical;
-  min-height: 90px;
-  font-size: 15px;
-}
-.edit-modal-actions {
-  display: flex;
-  gap: 14px;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-.edit-modal-save {
-  padding: 12px 26px;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  border: none;
-  font-size: 15px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(103, 126, 234, 0.13);
-  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
-}
-/* --- Modern Edit Modal Section Styles --- */
 .edit-modal-form {
   display: flex;
   flex-direction: column;
   gap: 22px;
   padding: 32px 28px 28px 28px;
   background: #f8f9fa;
-  border-radius: 16px;
-  box-shadow: 0 2px 16px rgba(76,175,80,0.07);
-  max-width: 420px;
+  border-radius: 0 0 18px 18px;
+  box-shadow: none;
+  max-width: 440px;
   margin: 0 auto;
+  border-top: 1.5px solid #e0e7ff;
 }
 .edit-modal-form label {
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #3b3b3b;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 1.08rem;
+  gap: 6px;
+  font-size: 1.05rem;
   margin-bottom: 2px;
+  letter-spacing: 0.1px;
 }
 .edit-modal-form input[type="text"],
-.edit-modal-form textarea {
-  padding: 13px 14px;
-  border: 1.5px solid #c8e6c9;
+  .edit-modal-form textarea {
+  padding: 13px 15px;
+  border: 1.5px solid #b2dfdb;
   border-radius: 8px;
-  font-size: 1.05rem;
+  font-size: 1.04rem;
   background: #fff;
-  color: #222;
+  color: #232323;
   transition: border 0.2s, box-shadow 0.2s;
   resize: vertical;
   box-shadow: 0 1px 4px rgba(76,175,80,0.04);
   margin-bottom: 2px;
 }
 .edit-modal-form input[type="text"]:focus,
-.edit-modal-form textarea:focus {
+  .edit-modal-form textarea:focus {
   border-color: #43a047;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(76,175,80,0.13);
+  box-shadow: 0 0 0 3px rgba(76,175,80,0.13);
 }
 .edit-modal-form textarea {
-  min-height: 90px;
-  font-size: 1.05rem;
-  line-height: 1.5;
+  min-height: 100px;
+  font-size: 1.04rem;
+  line-height: 1.6;
   resize: vertical;
 }
 .edit-modal-save {
   background: linear-gradient(90deg, #4caf50 60%, #43a047 100%);
   color: #fff;
-  padding: 14px 0;
+  padding: 13px 0;
   border: none;
   border-radius: 10px;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 1.12rem;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   box-shadow: 0 3px 12px rgba(76, 175, 80, 0.13);
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-  margin-top: 12px;
+  margin-top: 10px;
   margin-bottom: 2px;
+  outline: none;
 }
 .edit-modal-save:hover, .edit-modal-save:focus {
   background: linear-gradient(90deg, #43a047 60%, #388e3c 100%);
   box-shadow: 0 6px 20px rgba(76, 175, 80, 0.18);
   transform: translateY(-2px) scale(1.03);
 }
-.edit-topic-form input[type="text"]:focus,
-.edit-topic-form textarea:focus,
-.edit-topic-form select:focus {
-    outline: none;
-    border-color: #667eea;
-    background: rgba(255, 255, 255, 1);
-    box-shadow: 0 0 0 4px rgba(103, 126, 234, 0.1);
-    transform: translateY(-2px);
-}
-.edit-topic-form textarea {
-    resize: vertical;
-    min-height: 120px;
-    font-family: inherit;
-    font-size: 15px;
-    color: #222;
-}
-.edit-topic-actions {
-    display: flex;
-    gap: 16px;
-    justify-content: flex-end;
-    padding-top: 20px;
-    border-top: 2px solid rgba(103, 126, 234, 0.1);
-    margin-top: 10px;
-}
-.edit-topic-btn-primary {
-    padding: 14px 28px;
-    border-radius: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: none;
-    font-size: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 4px 15px rgba(103, 126, 234, 0.18);
-    position: relative;
-    overflow: hidden;
-    min-width: 120px;
-}
-.edit-topic-btn-primary:hover {
-    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-    box-shadow: 0 8px 25px rgba(103, 126, 234, 0.28);
-    transform: translateY(-2px);
-}
-.edit-topic-btn-secondary {
-    padding: 14px 28px;
-    border-radius: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border: 2px solid rgba(103, 126, 234, 0.3);
-    font-size: 16px;
-    background: rgba(255, 255, 255, 0.8);
-    color: #667eea;
-    box-shadow: 0 2px 8px rgba(103, 126, 234, 0.10);
-    min-width: 120px;
-}
-.edit-topic-btn-secondary:hover {
-    background: rgba(255, 255, 255, 1);
-    border-color: #667eea;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(103, 126, 234, 0.18);
-}
-.edit-topic-form .form-group small {
-    color: #6b7280;
-    font-size: 13px;
-    margin-top: 5px;
-    margin-bottom: 0;
-}
+
 
 /* Responsive for edit section */
 
@@ -2196,71 +1971,45 @@ body::before {
     background: #eee;
 }
 
-/* --- Edit Modal Preview Media --- */
-.edit-preview-media img,
-.edit-preview-media video {
-  max-width: 100%;
-  max-height: 220px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(102,126,234,0.18);
-  background: #eee;
-  display: block;
-  margin: 0 auto 16px auto;
-}
+/* --- Edit Modal Preview Media (Polished) --- */
 .edit-preview-media {
-  margin-bottom: 18px;
+  margin: 22px 0 18px 0;
   text-align: center;
 }
-
-/* --- Edit Modal Improvements --- */
-.edit-modal-form label {
-  margin-bottom: 8px;
-  font-weight: 600;
-}
-
-.edit-preview-media {
-  margin: 24px 0 18px 0 !important;
-  text-align: center;
-}
-
 .edit-preview-media img,
 .edit-preview-media video {
-  max-width: 160px;
-  max-height: 160px;
+  max-width: 180px;
+  max-height: 180px;
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(102,126,234,0.18);
+  box-shadow: 0 6px 20px rgba(102,126,234,0.15);
   background: #fff;
-  border: 2px solid #e0e7ff;
+  border: 2.5px solid #e0e7ff;
   display: block;
-  margin: 0 auto;
+  margin: 0 auto 8px auto;
+  object-fit: contain;
 }
-
 .edit-modal-form input[type="file"] {
   display: block;
-  margin: 10px 0 24px 0;
+  margin: 12px 0 20px 0;
   padding: 8px 0;
   font-size: 1rem;
   border: none;
   background: none;
 }
-
 .edit-modal-form input[type="file"]::-webkit-file-upload-button {
   background: linear-gradient(135deg, #667eea 0%, #43a047 100%);
   color: #fff;
   border: none;
   border-radius: 8px;
-  padding: 8px 18px;
-  font-weight: 600;
+  padding: 9px 22px;
+  font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
-  margin-right: 10px;
+  margin-right: 12px;
+  font-size: 1rem;
+  letter-spacing: 0.2px;
 }
-
 .edit-modal-form input[type="file"]:hover::-webkit-file-upload-button {
   background: linear-gradient(135deg, #43a047 0%, #667eea 100%);
-}
-
-.edit-modal-save {
-  margin-top: 24px !important;
 }
 
