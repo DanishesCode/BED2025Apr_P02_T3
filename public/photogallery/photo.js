@@ -54,6 +54,22 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.modal.appendChild(elements.modalRight);
     }
 });
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadForm = document.getElementById('memory-form');
+    if (uploadForm) {
+        setupUpload();
+    } else {
+        // Only run gallery logic if not on upload page
+        loadPhotos();
+        setupEvents();
+        // Move modal arrows
+        const modalContent = elements.modal.querySelector('.modal-content');
+        if (elements.modalLeft && elements.modalRight && elements.modal && modalContent) {
+            elements.modal.insertBefore(elements.modalLeft, modalContent);
+            elements.modal.appendChild(elements.modalRight);
+        }
+    }
+});
 
 // Setup event listeners
 function setupEvents() {
@@ -349,17 +365,31 @@ async function handleUploadSubmission(e) {
     e.preventDefault();
     console.log('[DEBUG] Upload form submitted');
 
+
     const fileInput = document.getElementById('photo-upload');
+    if (!fileInput) { alert('Photo input not found'); return; }
     const file = fileInput.files[0];
     console.log('[DEBUG] Selected file:', file);
     if (!file) { alert('Please select a photo to upload'); return; }
 
-    const title = document.getElementById('memory-title').value.trim();
-    const description = document.getElementById('memory-description').value.trim();
-    const date = document.getElementById('memory-date').value;
-    const category = document.getElementById('memory-category').value || 'General';
-    const location = document.getElementById('memory-location').value.trim();
-    const isFavorite = document.getElementById('memory-favorite').checked;
+    const titleInput = document.getElementById('memory-title');
+    const descriptionInput = document.getElementById('memory-description');
+    const dateInput = document.getElementById('memory-date');
+    const categoryInput = document.getElementById('memory-category');
+    const locationInput = document.getElementById('memory-location');
+    const favoriteInput = document.getElementById('memory-favorite');
+
+    if (!titleInput || !descriptionInput || !dateInput || !categoryInput || !locationInput || !favoriteInput) {
+        alert('One or more form fields are missing.');
+        return;
+    }
+
+    const title = titleInput.value.trim();
+    const description = descriptionInput.value.trim();
+    const date = dateInput.value;
+    const category = categoryInput.value || 'General';
+    const location = locationInput.value.trim();
+    const isFavorite = favoriteInput.checked;
 
     console.log('[DEBUG] Form values:', { title, description, date, category, location, isFavorite });
     if (!title) { alert('Please enter a title for your memory'); return; }
@@ -402,7 +432,8 @@ async function handleUploadSubmission(e) {
             response = await fetch(`${getBackendUrl()}/photos/upload`, { 
                 method: 'POST', 
                 headers: { 'Authorization': `Bearer ${authToken}` },
-                body: formData 
+                body: formData,
+                credentials: 'include' // Required for CORS with credentials
             });
             console.log('[DEBUG] Fetch response received:', response);
         } catch (networkError) {

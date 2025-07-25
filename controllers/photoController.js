@@ -1,5 +1,5 @@
 const photoModel = require("../models/photoModel");
-const fs = require('fs');
+// const fs = require('fs'); // No longer needed with memory storage
 const axios = require('axios');
 const FormData = require('form-data');
 
@@ -7,12 +7,11 @@ require('dotenv').config();
 
 const imgbbApiKey = process.env.IMGBB_API_KEY;
 
-async function uploadToImgbb(filePath) {
-    const imageBase64 = fs.readFileSync(filePath, { encoding: 'base64' });
+async function uploadToImgbbFromBuffer(buffer) {
+    const imageBase64 = buffer.toString('base64');
     const form = new FormData();
     form.append('key', imgbbApiKey);
     form.append('image', imageBase64);
-
     try {
         const response = await axios.post('https://api.imgbb.com/1/upload', form, {
             headers: form.getHeaders(),
@@ -22,7 +21,6 @@ async function uploadToImgbb(filePath) {
         console.log('imgbb response:', response.data); // Log the full response
         return response.data.data.url;
     } catch (err) {
-        // Log the full error from imgbb
         if (err.response && err.response.data) {
             console.error('imgbb upload error:', err.response.data);
         } else {
@@ -69,15 +67,15 @@ const photoController = {
         return sendError(res, 401, "Authentication required");
       }
 
-      if (!file?.path) {
+      if (!file?.buffer) {
         return sendError(res, 400, "No image file uploaded");
       }
 
       console.log("imgbb API key:", imgbbApiKey);
-      console.log("Uploading file:", file.path);
+      console.log("Uploading file from buffer, size:", file.size);
 
-      // Upload to imgbb
-      const imageUrl = await uploadToImgbb(file.path);
+      // Upload to imgbb using buffer
+      const imageUrl = await uploadToImgbbFromBuffer(file.buffer);
 
       const photoData = {
         title,
@@ -96,18 +94,15 @@ const photoController = {
         return sendError(res, 500, "Failed to save photo to database", result.error);
       }
 
-      // Delete the local file after upload, but before sending the response
-      try {
-        fs.unlinkSync(file.path);
-      } catch (err) {
-        console.error('Failed to delete local file:', err.message);
-        // Do not throw, just log
-      }
 
-      console.log('About to send success response');
-      return sendSuccess(res, 201, "Photo uploaded successfully", { id: result.id, imageUrl: photoData.imageUrl });
+      // No local file to delete with memory storage
+
+      console.log('[DEBUG] About to send success response for uploadPhoto');
+      const responseResult = sendSuccess(res, 201, "Photo uploaded successfully", { id: result.id, imageUrl: photoData.imageUrl });
+      console.log('[DEBUG] Success response sent for uploadPhoto');
+      return responseResult;
       // Add a log after (should never be reached)
-      console.log('This should not print after response');
+      // console.log('This should not print after response');
     } catch (error) {
       // Log the error in detail
       if (error.response && error.response.data) {

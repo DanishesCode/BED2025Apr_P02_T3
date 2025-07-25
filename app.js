@@ -19,40 +19,28 @@ const dbConfig = require("./dbConfig");
 // Create Express app
 const app = express();
 const port = process.env.PORT || 3000;
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
-
-// CORS configuration - allow all localhost/127.0.0.1 for dev, log errors
+// Custom CORS middleware MUST be first to ensure headers are set for all requests
 app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
-        if (
-            /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)
-        ) {
-            return callback(null, true);
+    origin: function(origin, callback) {
+        const allowedOrigins = [
+            'http://localhost:5500',
+            'http://127.0.0.1:5500',
+            'http://localhost:3000'
+        ];
+        // Allow requests with no origin (like mobile apps, curl, or Postman)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
         }
-        console.error('Blocked by CORS:', origin);
-        callback(new Error('Not allowed by CORS: ' + origin));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-// Health check route for debugging
-app.get('/healthz', (req, res) => {
-    res.set('Access-Control-Allow-Origin', '*');
-    res.json({ status: 'ok' });
-});
-
-// Catch-all CORS header for all responses (including errors)
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    next();
-});
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
 
 // Ensure all OPTIONS requests are handled for CORS preflight
 app.options('*', cors());
@@ -67,23 +55,9 @@ app.use('/middlewares', express.static(path.join(__dirname, 'middlewares')));
 app.use('/models', express.static(path.join(__dirname, 'models')));
 app.use('/controllers', express.static(path.join(__dirname, 'controllers')));
 
-// Multer setup for file uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = 'public/uploads/photos';
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
-
+// Multer setup for file uploads (memory storage)
 const upload = multer({
-    storage: storage,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         if (file.mimetype.startsWith('image/')) {
