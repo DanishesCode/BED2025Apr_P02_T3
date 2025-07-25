@@ -252,6 +252,11 @@ app.listen(port, async () => {
     try {
         await sql.connect(dbConfig);
         console.log("Database connected");
+        
+        // Start automatic birthday wish system
+        // birthdayController.startAutomaticBirthdayWishes(); // Disabled temporarily for Twilio free trial
+        // console.log("Automatic birthday wish system started");
+        
     } catch (err) {
         console.error("DB connection error:", err);
         process.exit(1);

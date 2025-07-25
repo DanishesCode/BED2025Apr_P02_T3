@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const lastNameInput = document.getElementById('last_name');
   const dateInput = document.getElementById('birth_date');
   const relationshipInput = document.getElementById('relationship');
+  const phoneInput = document.getElementById('phone');
   const notesInput = document.getElementById('notes');
 
   const saveBtn = document.getElementById('save-btn');
@@ -39,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
           lastNameInput.value = data.lastName || '';
           dateInput.value = data.birthDate ? data.birthDate.split('T')[0] : '';
           relationshipInput.value = data.relationship || '';
+          phoneInput.value = data.phone || '';
           notesInput.value = data.notes || '';
           if (deleteBtn) {
             deleteBtn.style.display = 'inline-block';
@@ -62,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
       lastName: lastNameInput.value.trim(),
       birthDate: dateInput.value,
       relationship: relationshipInput.value.trim(),
+      phone: phoneInput.value.trim(),
       notes: notesInput.value.trim()
     };
 

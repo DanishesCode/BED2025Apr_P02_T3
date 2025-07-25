@@ -46,10 +46,11 @@ async function addBirthday(birthday, userId) {
     request.input('BirthDate', sql.Date, birthday.birthDate);
     request.input('Relationship', sql.VarChar(50), birthday.relationship || '');
     request.input('Notes', sql.Text, birthday.notes || '');
+    request.input('Phone', sql.VarChar(20), birthday.phone || '');
 
     const result = await request.query(`
-      INSERT INTO Birthdays (userId, FirstName, LastName, BirthDate, Relationship, Notes)
-      VALUES (@userId, @FirstName, @LastName, @BirthDate, @Relationship, @Notes)
+      INSERT INTO Birthdays (userId, FirstName, LastName, BirthDate, Relationship, Notes, Phone)
+      VALUES (@userId, @FirstName, @LastName, @BirthDate, @Relationship, @Notes, @Phone)
     `);
     return result;
   } catch (error) {
@@ -71,6 +72,7 @@ async function updateBirthday(birthdayId, updatedBirthday, userId) {
     request.input('BirthDate', sql.Date, updatedBirthday.birthDate);
     request.input('Relationship', sql.VarChar(50), updatedBirthday.relationship || '');
     request.input('Notes', sql.Text, updatedBirthday.notes || '');
+    request.input('Phone', sql.VarChar(20), updatedBirthday.phone || '');
 
     const result = await request.query(`
       UPDATE Birthdays
@@ -78,7 +80,8 @@ async function updateBirthday(birthdayId, updatedBirthday, userId) {
           LastName = @LastName,
           BirthDate = @BirthDate,
           Relationship = @Relationship,
-          Notes = @Notes
+          Notes = @Notes,
+          Phone = @Phone
       WHERE BirthdayID = @BirthdayID AND userId = @userId
     `);
     return result;
@@ -128,6 +131,26 @@ async function getTodaysBirthdays(userId) {
   }
 }
 
+async function getAllBirthdaysForReminder() {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const request = connection.request();
+    const result = await request.query(`
+      SELECT birthdayId, userId, firstName, lastName, birthDate, relationship, notes, phone
+      FROM Birthdays 
+      WHERE phone IS NOT NULL AND phone != ''
+      ORDER BY firstName
+    `);
+    return result.recordset;
+  } catch (error) {
+    console.error('Database error (getAllBirthdaysForReminder):', error);
+    throw error;
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
 module.exports = {
   getAllBirthdays,
   getBirthdayById,
@@ -135,4 +158,5 @@ module.exports = {
   updateBirthday,
   deleteBirthday,
   getTodaysBirthdays,
+  getAllBirthdaysForReminder,
 };
