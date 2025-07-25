@@ -52,6 +52,12 @@ const toolsData = {
             description: "Store and organize your precious memories with a beautiful photo gallery.",
             icon: "chat",
             url: "photogallery/photo.html"
+        },
+        {
+            title: "Trivia",
+            description: "Test out your knowledge by playing our trivia consisting of 6 different topics consisting of 5 different questions each.",
+            icon: "chat",
+            url: "trivia/trivia.html"
         }
     ],
     scheduling: [
@@ -88,10 +94,22 @@ const toolsData = {
             url: "#"
         },
         {
+            title: "Weight Tracker",
+            description: "Track your weight, calculate BMI, and view your progress over time.",
+            icon: "summarizer",
+            url: "weight-tracker/weight-tracker.html"
+        },
+        {
             title: "Weather",
             description: "Get current weather conditions and forecasts for any location.",
             icon: "chat",
             url: "weather/weather.html"
+        },
+        {
+            title: "SOS system",
+            description: "Alert your caretaker via telegram with a button.",
+            icon: "chat",
+            url: "sos/main.html"
         }
     ]
 };

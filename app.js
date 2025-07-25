@@ -81,6 +81,7 @@ const appointmentController = require("./controllers/appointmentController");
 const birthdayController = require('./controllers/birthdayController');
 const weatherApiController = require('./controllers/weatherApiController');
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
+const weightController = require('./controllers/weightController');
 // Routes for pages
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -97,6 +98,10 @@ app.get("/signup", (req, res) => {
 
 app.get("/appointment", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'appointment', 'appointment.html'));
+});
+
+app.get("/weight-tracker", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'weight-tracker', 'weight-tracker.html'));
 });
 
 // Photo Gallery routes
@@ -219,6 +224,17 @@ app.post("/photos/upload", upload.single("photo"), validatePhoto, photoControlle
 app.put("/photos/:id/favorite", photoController.toggleFavorite);
 app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
 app.delete("/photos/:id", photoController.deletePhoto);
+
+// Weight API routes
+app.post('/api/weight', AuthMiddleware.authenticateToken, weightController.addWeightEntry);
+app.get('/api/weight', AuthMiddleware.authenticateToken, weightController.getWeightHistory);
+
+//start telebot
+try{
+    teleBot.startBot();
+}catch(error){
+    console.log(error);
+}
 
 // Error handling middleware
 app.use((error, req, res, next) => {
