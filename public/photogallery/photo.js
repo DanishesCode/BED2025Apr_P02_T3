@@ -21,7 +21,14 @@ const elements = {
 };
 
 // Helper functions
-const getBackendUrl = () => window.location.hostname === '127.0.0.1' && window.location.port === '5500' ? 'http://127.0.0.1:3000' : '';
+const getBackendUrl = () => {
+    const host = window.location.hostname;
+    const port = window.location.port;
+    if ((host === '127.0.0.1' || host === 'localhost') && port === '5500') {
+        return 'http://127.0.0.1:3000';
+    }
+    return '';
+};
 const formatDate = (date) => new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 const showLoading = () => { elements.loading.style.display = 'flex'; elements.gallery.style.display = 'none'; elements.noPhotos.style.display = 'none'; };
 const hideLoading = () => { elements.loading.style.display = 'none'; elements.gallery.style.display = 'grid'; };
@@ -114,11 +121,10 @@ function createPhotoCard(photo) {
         '<svg class="favorite-icon active" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' :
         '<svg class="favorite-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
 
-    // Always use backendUrl for image src if present
-    const backendUrl = getBackendUrl();
+    // Use imageUrl directly if present (for imgbb), otherwise fallback
     const imgSrc = photo.imageUrl
-        ? (backendUrl + '/' + photo.imageUrl.replace(/^\/+/, ''))
-        : (photo.photoUrl ? (backendUrl + '/' + photo.photoUrl.replace(/^\/+/, '')) : 'default-image.png');
+        ? photo.imageUrl
+        : (photo.photoUrl ? photo.photoUrl : 'default-image.png');
     card.innerHTML = `
         <div class="photo-wrapper">
             <img src="${imgSrc}" alt="${photo.title}" class="photo-image" loading="lazy">
@@ -381,15 +387,26 @@ async function handleUploadSubmission(e) {
         if (!authToken) {
             throw new Error('Please log in to upload photos');
         }
-        
-        const response = await fetch(`${getBackendUrl()}/photos/upload`, { 
-            method: 'POST', 
-            headers: { 'Authorization': `Bearer ${authToken}` },
-            body: formData 
-        });
+        let response;
+        try {
+            response = await fetch(`${getBackendUrl()}/photos/upload`, { 
+                method: 'POST', 
+                headers: { 'Authorization': `Bearer ${authToken}` },
+                body: formData 
+            });
+        } catch (networkError) {
+            console.error('Network error or CORS issue:', networkError);
+            alert('Network error: Could not reach the server.\nPossible CORS issue, server crash, or network disconnect.');
+            return;
+        }
 
         if (!response.ok) {
-            const errorText = await response.text();
+            let errorText = '';
+            try {
+                errorText = await response.text();
+            } catch (e) {
+                errorText = '[No response body]';
+            }
             let errorMessage = 'Upload failed';
             try {
                 const errorData = JSON.parse(errorText);
@@ -397,19 +414,44 @@ async function handleUploadSubmission(e) {
             } catch (e) {
                 errorMessage = errorText || `HTTP ${response.status}: Upload failed`;
             }
-            throw new Error(errorMessage);
+            // Extra logging for debugging
+            console.error('Upload failed. Status:', response.status, 'Response:', errorText);
+            alert(errorMessage + `\n(HTTP ${response.status})`);
+            return;
         }
 
-        const result = await response.json();
+        let result;
+        try {
+            result = await response.json();
+        } catch (jsonErr) {
+            console.error('Failed to parse JSON response:', jsonErr);
+            alert('Upload succeeded but server returned invalid JSON.');
+            return;
+        }
         if (result.success) {
+            // Optimistically add the new photo to the gallery
+            const newPhoto = {
+                id: result.data.id,
+                title,
+                description,
+                date: date || new Date().toISOString().split('T')[0],
+                category,
+                location,
+                isFavorite,
+                imageUrl: result.data.imageUrl,
+                userId
+            };
+            allPhotos.unshift(newPhoto);
+            filterPhotos();
             alert('Memory saved successfully!');
-            window.location.href = 'photo.html';
+            // Optionally, you can reset the form or redirect after a short delay
+            setTimeout(() => { window.location.href = 'photo.html'; }, 500);
         } else {
             alert('Failed to save memory: ' + (result.message || 'Unknown error'));
         }
     } catch (error) {
         console.error('Upload error:', error);
-        alert(error.message || 'Error uploading photo. Please try again.');
+        alert((error && error.message ? error.message : error) || 'Error uploading photo. Please try again.');
     } finally {
         submitButton.innerHTML = originalText;
         submitButton.disabled = false;
@@ -497,4 +539,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // Utility function
 function scrollToGallery() {
     document.getElementById('gallery-start').scrollIntoView({ behavior: 'smooth' });
+}
+
+function closeModal() {
+    const modal = document.getElementById('photo-modal');
+    if (modal) modal.classList.remove('active');
+    document.body.style.overflow = '';
 }

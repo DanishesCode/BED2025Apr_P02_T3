@@ -1,18 +1,380 @@
-/* Topics Learner Styles */
-
-html {
-    scroll-behavior: smooth;
-    overflow-x: hidden;
+/* --- Enhanced Edit Modal Styles for Topics Learner --- */
+.edit-modal-content {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.16), 0 2px 8px rgba(0,0,0,0.04);
+  max-width: 520px;
+  width: 95%;
+  margin: 40px auto;
+  padding: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.edit-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 32px 18px 32px;
+  border-bottom: 2px solid #e0e7ff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e0e7ff 100%);
+  color: #4a569d;
+}
+.edit-modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #667eea;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px 10px;
+  transition: background 0.2s, color 0.2s;
+}
+.edit-modal-close:hover {
+  background: #e0e7ff;
+  color: #764ba2;
+}
+.edit-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 28px 32px 32px 32px;
+}
+.edit-modal-form label {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+.edit-modal-form input[type="text"],
+.edit-modal-form textarea,
+.edit-modal-form select {
+  padding: 14px 16px;
+  border: 2px solid #e0e7ff;
+  border-radius: 10px;
+  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 20px 20px 20px;
+  background: transparent;
+  transition: border 0.2s, box-shadow 0.2s;
+ .edit-modal-form label {
+  font-weight: 500;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 1rem;
+}
+ .edit-modal-form input[type="text"],
+ .edit-modal-form textarea {
+  padding: 10px 12px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: #f9fafb;
+  color: #222;
+  transition: border 0.2s;
+  resize: vertical;
+}
+ .edit-modal-form input[type="text"]:focus,
+ .edit-modal-form textarea:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+ .edit-modal-form textarea {
+  min-height: 90px;
+  font-size: 1rem;
+}
+ .edit-modal-save {
+  background: linear-gradient(90deg, #4caf50 60%, #43a047 100%);
+  color: #fff;
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.08rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.08);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  margin-top: 8px;
+}
+ .edit-modal-save:hover, .edit-modal-save:focus {
+  background: linear-gradient(90deg, #43a047 60%, #388e3c 100%);
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.16);
+  transform: translateY(-1px) scale(1.02);
+}
+  width: 95%;
+  margin: 40px auto;
+  padding: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.edit-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 32px 18px 32px;
+  border-bottom: 2px solid #e0e7ff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f8f9ff 0%, #e0e7ff 100%);
+}
+.edit-modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #667eea;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 4px 10px;
+  transition: background 0.2s, color 0.2s;
+}
+.edit-modal-close:hover {
+  background: #e0e7ff;
+  color: #764ba2;
+}
+.edit-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 28px 32px 32px 32px;
+}
+.edit-modal-form label {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+.edit-modal-form input[type="text"],
+.edit-modal-form textarea,
+.edit-modal-form select {
+  padding: 14px 16px;
+  border: 2px solid #e0e7ff;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #f8f9ff;
+  font-family: inherit;
+  color: #222;
+  margin-bottom: 2px;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.edit-modal-form input[type="text"]:focus,
+.edit-modal-form textarea:focus,
+.edit-modal-form select:focus {
+  outline: none;
+  border-color: #667eea;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(103, 126, 234, 0.10);
+}
+.edit-modal-form textarea {
+  resize: vertical;
+  min-height: 90px;
+  font-size: 15px;
+}
+.edit-modal-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+.edit-modal-save {
+  padding: 12px 26px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  font-size: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(103, 126, 234, 0.13);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+/* --- Modern Edit Modal Section Styles --- */
+.edit-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding: 32px 28px 28px 28px;
+  background: #f8f9fa;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(76,175,80,0.07);
+  max-width: 420px;
+  margin: 0 auto;
+}
+.edit-modal-form label {
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 1.08rem;
+  margin-bottom: 2px;
+}
+.edit-modal-form input[type="text"],
+.edit-modal-form textarea {
+  padding: 13px 14px;
+  border: 1.5px solid #c8e6c9;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  background: #fff;
+  color: #222;
+  transition: border 0.2s, box-shadow 0.2s;
+  resize: vertical;
+  box-shadow: 0 1px 4px rgba(76,175,80,0.04);
+  margin-bottom: 2px;
+}
+.edit-modal-form input[type="text"]:focus,
+.edit-modal-form textarea:focus {
+  border-color: #43a047;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(76,175,80,0.13);
+}
+.edit-modal-form textarea {
+  min-height: 90px;
+  font-size: 1.05rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+.edit-modal-save {
+  background: linear-gradient(90deg, #4caf50 60%, #43a047 100%);
+  color: #fff;
+  padding: 14px 0;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1.12rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 3px 12px rgba(76, 175, 80, 0.13);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  margin-top: 12px;
+  margin-bottom: 2px;
+}
+.edit-modal-save:hover, .edit-modal-save:focus {
+  background: linear-gradient(90deg, #43a047 60%, #388e3c 100%);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.18);
+  transform: translateY(-2px) scale(1.03);
+}
+.edit-topic-form input[type="text"]:focus,
+.edit-topic-form textarea:focus,
+.edit-topic-form select:focus {
+    outline: none;
+    border-color: #667eea;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 0 0 4px rgba(103, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+.edit-topic-form textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+    font-size: 15px;
+    color: #222;
+}
+.edit-topic-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    padding-top: 20px;
+    border-top: 2px solid rgba(103, 126, 234, 0.1);
+    margin-top: 10px;
+}
+.edit-topic-btn-primary {
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    font-size: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(103, 126, 234, 0.18);
+    position: relative;
+    overflow: hidden;
+    min-width: 120px;
+}
+.edit-topic-btn-primary:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    box-shadow: 0 8px 25px rgba(103, 126, 234, 0.28);
+    transform: translateY(-2px);
+}
+.edit-topic-btn-secondary {
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 2px solid rgba(103, 126, 234, 0.3);
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #667eea;
+    box-shadow: 0 2px 8px rgba(103, 126, 234, 0.10);
+    min-width: 120px;
+}
+.edit-topic-btn-secondary:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(103, 126, 234, 0.18);
+}
+.edit-topic-form .form-group small {
+    color: #6b7280;
+    font-size: 13px;
+    margin-top: 5px;
+    margin-bottom: 0;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* Responsive for edit section */
 
+/* Responsive for edit section */
+@media (max-width: 768px) {
+  .edit-topic-container {
+    padding: 18px 4vw 18px 4vw;
+    min-width: 0;
+  }
+  .edit-topic-form {
+    gap: 16px;
+  }
+  .edit-topic-btn-primary,
+  .edit-topic-btn-secondary,
+  .edit-topic-btn-cancel {
+    padding: 12px 10px;
+    font-size: 15px;
+    min-width: 80px;
+  }
+}
+@media (max-width: 480px) {
+  .edit-topic-container {
+    padding: 8px 1vw 8px 1vw;
+    min-width: 0;
+  }
+  .edit-topic-form label {
+    font-size: 12px;
+  }
+  .edit-topic-btn-primary,
+  .edit-topic-btn-secondary,
+  .edit-topic-btn-cancel {
+    padding: 8px 4px;
+    font-size: 12px;
+    min-width: 60px;
+  }
+}
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     position: relative;
@@ -20,6 +382,78 @@ body {
     overflow-y: auto;
     height: auto;
 }
+/* --- Overlay for Action Buttons on Hover for Topic Cards --- */
+.topic-card {
+    position: relative;
+    background: rgba(255,255,255,0.07);
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s, transform 0.2s;
+    cursor: pointer;
+}
+.topic-card:hover {
+    box-shadow: 0 6px 24px rgba(0,0,0,0.18);
+    transform: translateY(-2px) scale(1.01);
+}
+/* Centered overlay for action buttons */
+.topic-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: row;
+    gap: 18px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, box-shadow 0.2s, background 0.2s;
+    z-index: 2;
+    background: rgba(255,255,255,0.92);
+    border-radius: 18px;
+    padding: 18px 28px;
+    box-shadow: 0 6px 32px rgba(102,126,234,0.18), 0 1.5px 8px rgba(0,0,0,0.08);
+    border: 1.5px solid #e0e7ff;
+    backdrop-filter: blur(8px);
+}
+.topic-card:hover .topic-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Blur and scale card background when overlay is visible */
+.topic-card:hover {
+    /* Remove blur so overlay buttons are not blurred */
+    filter: brightness(0.98);
+    transform: scale(1.01);
+}
+/* No need to reset filter on .topic-overlay anymore */
+.topic-action {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(102,126,234,0.18);
+    outline: none;
+    font-size: 1.3rem;
+    border: 2px solid #e0e7ff;
+}
+.topic-action:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: scale(1.16);
+    box-shadow: 0 4px 16px rgba(102,126,234,0.28);
+    border-color: #667eea;
+}
+
 
 body::before {
     content: '';
@@ -1761,3 +2195,72 @@ body::before {
     box-shadow: 0 4px 16px rgba(102,126,234,0.18);
     background: #eee;
 }
+
+/* --- Edit Modal Preview Media --- */
+.edit-preview-media img,
+.edit-preview-media video {
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(102,126,234,0.18);
+  background: #eee;
+  display: block;
+  margin: 0 auto 16px auto;
+}
+.edit-preview-media {
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+/* --- Edit Modal Improvements --- */
+.edit-modal-form label {
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.edit-preview-media {
+  margin: 24px 0 18px 0 !important;
+  text-align: center;
+}
+
+.edit-preview-media img,
+.edit-preview-media video {
+  max-width: 160px;
+  max-height: 160px;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(102,126,234,0.18);
+  background: #fff;
+  border: 2px solid #e0e7ff;
+  display: block;
+  margin: 0 auto;
+}
+
+.edit-modal-form input[type="file"] {
+  display: block;
+  margin: 10px 0 24px 0;
+  padding: 8px 0;
+  font-size: 1rem;
+  border: none;
+  background: none;
+}
+
+.edit-modal-form input[type="file"]::-webkit-file-upload-button {
+  background: linear-gradient(135deg, #667eea 0%, #43a047 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-right: 10px;
+}
+
+.edit-modal-form input[type="file"]:hover::-webkit-file-upload-button {
+  background: linear-gradient(135deg, #43a047 0%, #667eea 100%);
+}
+
+.edit-modal-save {
+  margin-top: 24px !important;
+}
+

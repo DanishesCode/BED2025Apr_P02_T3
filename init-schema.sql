@@ -328,7 +328,7 @@ CREATE TABLE Caretaker (
 INSERT INTO Users (name, email, password, date_of_birth)
 VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
 
--- [Assistant] - [Topics Learner table for user-generated content] - [2025-07-17]
+-- [Dev] - [Topics Learner table for user-generated content] - [2025-07-17]
 CREATE TABLE Topics (
     id INT IDENTITY(1,1) PRIMARY KEY,
     userId INT NOT NULL,

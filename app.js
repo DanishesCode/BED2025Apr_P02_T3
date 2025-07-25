@@ -27,22 +27,13 @@ app.use(cors({
     origin: function (origin, callback) {
         // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        
-        const allowedOrigins = [
-            'http://localhost:3000',
-            'http://127.0.0.1:5500',
-            'http://localhost:5500',
-            'http://127.0.0.1:3000',
-            'file://',
-            undefined,
-            null
-        ];
-        
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
+        if (
+            origin.startsWith('http://localhost:') ||
+            origin.startsWith('http://127.0.0.1:')
+        ) {
+            return callback(null, true);
         }
+        callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -254,7 +245,7 @@ app.get("/api/topics/category/:category", topicController.getTopicsByCategory);
 app.get("/api/topics/:id", topicController.getTopicById);
 app.post("/api/topics", AuthMiddleware.authenticateToken, topicController.createTopic);
 app.post("/api/topics/upload", AuthMiddleware.authenticateToken, topicController.uploadFile, topicController.createTopic);
-app.put("/api/topics/:id", AuthMiddleware.authenticateToken, topicController.updateTopic);
+app.put("/api/topics/:id", AuthMiddleware.authenticateToken, topicController.uploadFile, topicController.updateTopic);
 app.delete("/api/topics/:id", AuthMiddleware.authenticateToken, topicController.deleteTopic);
 
 // Topic like/unlike routes

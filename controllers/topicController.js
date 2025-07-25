@@ -93,25 +93,33 @@ const topicController = {
         try {
             const userId = req.user.userId;
             const { title, category, contentType, description, tags } = req.body;
-            
+            console.log('[DEBUG] Topic upload request:', {
+                userId,
+                title,
+                category,
+                contentType,
+                description,
+                tags,
+                hasFile: !!req.file
+            });
             if (!title || !contentType) {
+                console.log('[DEBUG] Missing title or contentType');
                 return sendResponse(res, 400, false, 'Title and content type are required');
             }
-            
             let content = '';
-            
             if (contentType === 'text') {
                 content = req.body.textContent;
                 if (!content) {
+                    console.log('[DEBUG] Missing text content');
                     return sendResponse(res, 400, false, 'Text content is required for text type');
                 }
             } else {
                 if (!req.file) {
+                    console.log('[DEBUG] Missing file for image/video');
                     return sendResponse(res, 400, false, 'File is required for image/video type');
                 }
                 content = `/uploads/topics/${req.file.filename}`;
             }
-            
             const topicData = {
                 userId,
                 title,
@@ -121,38 +129,55 @@ const topicController = {
                 description: description || null,
                 tags: tags ? tags.split(',').map(tag => tag.trim()) : []
             };
-            
+            console.log('[DEBUG] topicData to insert:', topicData);
             const topicId = await topicModel.createTopic(topicData);
+            console.log('[DEBUG] Inserted topicId:', topicId);
             return sendResponse(res, 201, true, 'Topic created successfully', { id: topicId });
         } catch (error) {
+            console.error('[DEBUG] Error in createTopic controller:', error);
             return handleError(res, error, 'Failed to create topic');
         }
     },
 
-    // Update topic
+    // Update topic (with file upload support)
     updateTopic: async (req, res) => {
         try {
             const { id } = req.params;
             const userId = req.user.userId;
             const { title, category, description, tags } = req.body;
-            
             const existingTopic = await topicModel.getTopicById(id);
             if (!existingTopic) {
                 return sendResponse(res, 404, false, 'Topic not found');
             }
-            
             if (existingTopic.userId !== userId) {
                 return sendResponse(res, 403, false, 'You can only update your own topics');
             }
-            
             const updateData = {};
             if (title) updateData.title = title;
             if (category) updateData.category = category;
             if (description !== undefined) updateData.description = description;
             if (tags !== undefined) updateData.tags = tags.split(',').map(tag => tag.trim());
-            
+
+            let newContentPath = null;
+            // Only handle file upload for non-text topics
+            if (existingTopic.contentType !== 'text' && req.file) {
+                // Save new file, update content path, and optionally delete old file
+                newContentPath = `/uploads/topics/${req.file.filename}`;
+                updateData.content = newContentPath;
+                // Delete old file if it exists and is different
+                if (existingTopic.content && existingTopic.content !== newContentPath) {
+                    const oldFilePath = path.join(__dirname, '..', 'public', existingTopic.content);
+                    if (fs.existsSync(oldFilePath)) {
+                        fs.unlinkSync(oldFilePath);
+                    }
+                }
+            }
+
             await topicModel.updateTopic(id, updateData);
-            return sendResponse(res, 200, true, 'Topic updated successfully');
+            // Return new content path if updated, else old one
+            return sendResponse(res, 200, true, 'Topic updated successfully', {
+                content: newContentPath || existingTopic.content
+            });
         } catch (error) {
             return handleError(res, error, 'Failed to update topic');
         }

@@ -157,8 +157,8 @@ const topicModel = {
     // Create new topic
     createTopic: async (topicData) => {
         try {
+            console.log('[DEBUG] createTopic called with:', topicData);
             let pool = await getConnection();
-            
             const request = pool.request();
             request.input('userId', sql.Int, topicData.userId);
             request.input('title', sql.VarChar, topicData.title);
@@ -167,17 +167,17 @@ const topicModel = {
             request.input('category', sql.VarChar, topicData.category);
             request.input('description', sql.Text, topicData.description);
             request.input('tags', sql.Text, JSON.stringify(topicData.tags));
-            
             const query = `
                 INSERT INTO Topics (userId, title, content, content_type, category, description, tags)
                 VALUES (@userId, @title, @content, @contentType, @category, @description, @tags);
                 SELECT SCOPE_IDENTITY() AS id;
             `;
-            
+            console.log('[DEBUG] Executing query:', query);
             const result = await request.query(query);
+            console.log('[DEBUG] Insert result:', result);
             return result.recordset[0].id;
         } catch (error) {
-            console.error('Error in createTopic:', error);
+            console.error('[DEBUG] Error in createTopic model:', error);
             throw error;
         }
     },
@@ -186,38 +186,33 @@ const topicModel = {
     updateTopic: async (id, updateData) => {
         try {
             let pool = await getConnection();
-            
             const request = pool.request();
             request.input('id', sql.Int, id);
-            
             let updateFields = [];
-            
             if (updateData.title) {
                 updateFields.push('title = @title');
                 request.input('title', sql.VarChar, updateData.title);
             }
-            
             if (updateData.category) {
                 updateFields.push('category = @category');
                 request.input('category', sql.VarChar, updateData.category);
             }
-            
             if (updateData.description !== undefined) {
                 updateFields.push('description = @description');
                 request.input('description', sql.Text, updateData.description);
             }
-            
             if (updateData.tags) {
                 updateFields.push('tags = @tags');
                 request.input('tags', sql.Text, JSON.stringify(updateData.tags));
             }
-            
+            if (updateData.content) {
+                updateFields.push('content = @content');
+                request.input('content', sql.Text, updateData.content);
+            }
             if (updateFields.length === 0) {
                 return;
             }
-            
             updateFields.push('updated_at = GETDATE()');
-            
             const query = `UPDATE Topics SET ${updateFields.join(', ')} WHERE id = @id`;
             await request.query(query);
         } catch (error) {
