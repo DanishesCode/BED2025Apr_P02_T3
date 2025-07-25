@@ -10,6 +10,7 @@ body {
     background-color: #f8fafc;
     color: #1e293b;
     line-height: 1.6;
+    padding-top: 80px; /* Account for fixed navbar */
 }
 
 .container {
@@ -18,8 +19,8 @@ body {
     padding: 0 20px;
 }
 
-/* Header Styles */
-.header {
+/* Meal Header Styles (renamed from .header to avoid conflict) */
+.meal-header {
     background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     color: white;
     padding: 2rem 0;
@@ -27,14 +28,14 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 
-.header h1 {
+.meal-header h1 {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
     text-align: center;
 }
 
-.header p {
+.meal-header p {
     font-size: 1.1rem;
     text-align: center;
     margin-bottom: 2rem;

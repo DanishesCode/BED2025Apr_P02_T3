@@ -10,6 +10,7 @@ body {
   min-height: 100vh;
   color: #333;
   line-height: 1.6;
+  padding-top: 80px; /* Account for fixed navbar */
 }
 .edit-form-container {
   display: flex;

@@ -11,6 +11,7 @@ body {
     background-color: #f8f9fa;
     color: #212529;
     padding: 20px;
+    padding-top: 100px; /* Account for fixed navbar */
 }
 
 .container {
