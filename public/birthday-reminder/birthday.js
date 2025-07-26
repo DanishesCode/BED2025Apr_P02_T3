@@ -69,7 +69,6 @@ function renderTodaysBirthdays(birthdays) {
         <div class="actions">
           <button class="action-btn edit" title="Edit">✏️</button>
           <button class="action-btn delete" title="Delete">🗑️</button>
-          <button class="action-btn sms" title="Set SMS Reminder for Me">📨 Remind Me</button>
         </div>
       </div>
     `;
@@ -108,7 +107,6 @@ function renderUpcomingBirthdays(upcomingList) {
           <div class="actions">
             <button class="action-btn edit" title="Edit">✏️</button>
             <button class="action-btn delete" title="Delete">🗑️</button>
-            <button class="action-btn sms" title="Set SMS Reminder for Me">📨 Remind Me</button>
           </div>
         </div>
       `;
@@ -140,21 +138,8 @@ document.addEventListener('click', async (e) => {
     const id = birthdayItem.getAttribute('data-id');
     window.location.href = `edit-birthday.html?id=${id}`;
   }
-  if (e.target.matches('.action-btn.sms')) {
-    const birthdayItem = e.target.closest('.birthday-item');
-    const recipientName = birthdayItem.getAttribute('data-name');
-    const recipientId = birthdayItem.getAttribute('data-id');
-    const daysUntil = parseInt(birthdayItem.getAttribute('data-days-until')) || 0;
-
-    document.getElementById('sms-recipient-name').textContent = recipientName;
-    document.getElementById('sms-form').style.display = 'block';
-
-    // Store all data in the form for sending
-    document.getElementById('sms-form').setAttribute('data-recipient-id', recipientId);
-    document.getElementById('sms-form').setAttribute('data-recipient-name', recipientName);
-    document.getElementById('sms-form').setAttribute('data-days-until', daysUntil);
-  }
 });
+
 async function deleteBirthday(id) {
   try {
     const res = await fetch(`${API_BASE}/birthdays/${id}`, {
@@ -175,54 +160,7 @@ async function deleteBirthday(id) {
   }
 }
 
-function sendSMSReminder() {
-  const smsForm = document.getElementById('sms-form');
-  const name = smsForm.getAttribute('data-recipient-name').trim();
-  const toPhone = document.getElementById('sms-phone').value.trim();
-  const daysUntil = parseInt(smsForm.getAttribute('data-days-until')) || 0;
-  const birthdayId = smsForm.getAttribute('data-recipient-id');
-
-  if (!name || !toPhone) {
-    alert('Please enter both name and phone number!');
-    return;
-  }
-
-  // Show timing info to user
-  let timingText = daysUntil === 0 ? "today's birthday" : `birthday in ${daysUntil} days`;
-  console.log(`Sending SMS for ${name}'s ${timingText}`);
-
-  fetch('http://localhost:3000/birthdays/send-sms', {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ 
-      name, 
-      toPhone, 
-      daysUntil,
-      birthdayId 
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.sid) {
-      alert(`✅ SMS sent! ${data.message}\nSID: ${data.sid}`);
-      document.getElementById('sms-form').style.display = 'none';
-      document.getElementById('sms-recipient-name').textContent = '';
-      document.getElementById('sms-phone').value = '';
-    } else {
-      alert('❌ Error: ' + data.error);
-    }
-  })
-  .catch(err => {
-    console.error('Error sending SMS:', err);
-    alert('❌ Network error.');
-  });
-}
 document.addEventListener('DOMContentLoaded', () => {
   // existing load
   loadDashboardBirthdays();
-  const sendSMSButton = document.getElementById('send-sms-button');
-
-  if (sendSMSButton) {
-    sendSMSButton.addEventListener('click', sendSMSReminder);
-  }
 });

@@ -200,56 +200,6 @@ function getInitials(firstName, lastName) {
   return (fi + li).trim();
 }
 
-// SMS function for sending birthday reminders
-async function sendBirthdaySMS(req, res) {
-  try {
-    const { toPhone, name, daysUntil, birthdayId } = req.body;
-
-    if (!toPhone || !name) {
-      return res.status(400).json({ error: 'Missing toPhone or name in request' });
-    }
-
-    // Generate dynamic message
-    let messageBody;
-    
-    if (daysUntil === 0) {
-      messageBody = `🎉 Happy Birthday ${name}! Hope you have an amazing day filled with joy and celebration! 🎂🎈`;
-    } else if (daysUntil === 1) {
-      // Tomorrow
-      messageBody = `⏰ Reminder: It's ${name}'s birthday tomorrow! Don't forget to wish them well! 🎂`;
-    } else if (daysUntil <= 7) {
-      // Within a week
-      messageBody = `📅 Reminder: ${name}'s birthday is coming up in ${daysUntil} days (${getDateDisplay(daysUntil)})! 🎉`;
-    } else if (daysUntil <= 30) {
-      // Within a month
-      messageBody = `📝 Heads up: ${name}'s birthday is in ${daysUntil} days. Mark your calendar! 🗓️`;
-    } else {
-      // More than a month
-      messageBody = `📌 Save the date: ${name}'s birthday is coming up in ${daysUntil} days! 🎂`;
-    }
-
-    console.log(`📱 Sending SMS to ${toPhone}: "${messageBody}"`);
-
-    const message = await twilioClient.messages.create({
-      body: messageBody,
-      from: twilioNumber,
-      to: toPhone,
-    });
-
-    res.json({ 
-      success: true, 
-      sid: message.sid,
-      message: `Birthday reminder sent for ${name} (${daysUntil === 0 ? 'today' : `${daysUntil} days away`})`
-    });
-  } catch (err) {
-    console.error('Error sending SMS:', err);
-    res.status(500).json({ 
-      error: 'Failed to send SMS',
-      details: err.message 
-    });
-  }
-}
-
 // Automatic Birthday Reminder System - Sends wishes directly to birthday person
 async function checkAndSendAutomaticBirthdayWishes() {
   try {
@@ -333,7 +283,7 @@ function startAutomaticBirthdayWishes() {
   function getMillisecondsUntilNineAM() {
     const now = new Date();
     const next9AM = new Date();
-    next9AM.setHours(9, 0, 0, 0); // 9:00 AM
+    next9AM.setHours(19, 53, 0, 0); // 9:00 AM
     
     // If it's already past 9 AM today, schedule for tomorrow
     if (now.getTime() > next9AM.getTime()) {
@@ -374,7 +324,6 @@ module.exports = {
   updateBirthday,
   deleteBirthday,
   getBirthdaysForDashboard,
-  sendBirthdaySMS,
   checkAndSendAutomaticBirthdayWishes,
   startAutomaticBirthdayWishes
 };
