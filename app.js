@@ -218,7 +218,6 @@ app.get("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.g
 app.post("/birthdays", AuthMiddleware.authenticateToken, validateAdd, birthdayController.addBirthday);
 app.put("/birthdays/:id", AuthMiddleware.authenticateToken, validateUpdate, birthdayController.updateBirthday);
 app.delete("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.deleteBirthday);
-app.post("/birthdays/send-sms", AuthMiddleware.authenticateToken, birthdayController.sendBirthdaySMS);
 
 // Photo Gallery API Routes
 
@@ -293,6 +292,11 @@ app.listen(port, async () => {
     try {
         await sql.connect(dbConfig);
         console.log("Database connected");
+        
+        // Start automatic birthday wish system
+        birthdayController.startAutomaticBirthdayWishes(); // Enabled for testing
+        console.log("Automatic birthday wish system started");
+        
     } catch (err) {
         console.error("DB connection error:", err);
         process.exit(1);

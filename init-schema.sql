@@ -317,7 +317,8 @@ CREATE TABLE Birthdays (
     lastName VARCHAR(50),
     birthDate DATE NOT NULL,
     relationship VARCHAR(50),                    
-    notes TEXT,                                   
+    notes TEXT,
+    phone VARCHAR(20), -- Phone number to send birthday wishes to
     FOREIGN KEY (userId) REFERENCES Users(userId)
 );
 -- Sample data for Birthdays table
