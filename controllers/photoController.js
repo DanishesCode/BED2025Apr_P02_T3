@@ -95,14 +95,8 @@ const photoController = {
       }
 
 
-      // No local file to delete with memory storage
-
-      console.log('[DEBUG] About to send success response for uploadPhoto');
       const responseResult = sendSuccess(res, 201, "Photo uploaded successfully", { id: result.id, imageUrl: photoData.imageUrl });
-      console.log('[DEBUG] Success response sent for uploadPhoto');
       return responseResult;
-      // Add a log after (should never be reached)
-      // console.log('This should not print after response');
     } catch (error) {
       // Log the error in detail
       if (error.response && error.response.data) {
@@ -185,6 +179,8 @@ const photoController = {
       const file = req.file;
       const userId = req.user?.userId;
       
+
+      
       if (!userId) {
         return sendError(res, 401, "Authentication required");
       }
@@ -202,12 +198,10 @@ const photoController = {
         isFavorite: isFavorite === true || isFavorite === 'true'
       };
 
-      if (file?.path) {
+      if (file?.buffer) {
         // If an image is being updated, upload it to imgbb and update the imageUrl
-        const imageUrl = await uploadToImgbb(file.path);
+        const imageUrl = await uploadToImgbbFromBuffer(file.buffer);
         photoData.imageUrl = imageUrl;
-        // Optionally, delete the local file after upload
-        fs.unlinkSync(file.path);
       }
 
       const result = await photoModel.updatePhoto(id, photoData, userId);

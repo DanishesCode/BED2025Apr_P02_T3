@@ -524,13 +524,22 @@ body::before {
 }
 
 /* Knowledge Hub Style Cards */
+
 .topics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 40px;
-    padding: 20px 0;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 32px;
+    margin-top: 32px;
+    padding-bottom: 32px;
+    /* Prevent single card from stretching */
+    justify-items: center;
 }
 
+.topic-card {
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+}
 .topic-card {
     background: white;
     border-radius: 24px;
