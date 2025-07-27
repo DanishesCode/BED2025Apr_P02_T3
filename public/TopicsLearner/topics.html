@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topics Learner</title>
+    <link rel="stylesheet" href="../navbar/navbar.css">
+    <link rel="stylesheet" href="topics.css">
+    <style>
+        /* Ensure main content is pushed below the fixed navbar */
+        body, .main-container, .topics-hero, .container, .upload-container {
+            margin-top: 60px !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar will be injected by navbar.js -->
+
+    <div class="main-container">
+        <!-- New Elderly-Friendly Section Header -->
+        <div class="topics-hero" style="display: flex; flex-direction: column; align-items: stretch; position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div>
+                    <h1 class="topics-hero-title">Topics Learner</h1>
+                    <p class="topics-hero-desc">A collection of knowledge and learning resources</p>
+                </div>
+                <a href="upload-topic.html" class="upload-btn-page">
+                    <span style="font-size:1.2em;vertical-align:middle;">&#43;</span> Upload Content
+                </a>
+            </div>
+            <!-- If you have a quote or extra hero content, keep it here -->
+        </div>
+        <div class="content-header">
+            <div class="search-filter-container">
+                <div class="search-bar">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search topics..." onkeyup="filterTopics()">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-type="all" onclick="filterByType('all')">All</button>
+                    <button class="filter-btn" data-type="text" onclick="filterByType('text')">Text</button>
+                    <button class="filter-btn" data-type="image" onclick="filterByType('image')">Images</button>
+                    <button class="filter-btn" data-type="video" onclick="filterByType('video')">Videos</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Horizontally scrollable topics strip -->
+        <div class="topics-grid" id="topicsGrid">
+            <!-- Example of new card structure for dynamic rendering -->
+            <!--
+            <div class="topic-card elderly-card">
+                <div class="topic-card-header">
+                    <span class="topic-icon">📘</span>
+                    <span class="topic-badge">New</span>
+                </div>
+                <div class="topic-card-body">
+                    <h3 class="topic-title">Topic Title</h3>
+                    <p class="topic-summary">Short summary of the topic goes here. This is easy to read and inviting for elderly users.</p>
+                </div>
+                <div class="topic-card-footer">
+                    <button class="start-learning-btn">Start Learning</button>
+                    <div class="topic-progress-bar">
+                        <div class="topic-progress" style="width: 40%"></div>
+                    </div>
+                </div>
+            </div>
+            -->
+            <!-- Topics will be loaded here dynamically -->
+            <div class="loading-message">
+                <svg class="loading-spinner" width="24" height="24" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="60" stroke-dashoffset="60" opacity="0.3"/>
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="15" stroke-dashoffset="15"/>
+                </svg>
+                Loading topics...
+            </div>
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+            <div class="empty-icon" style="margin-bottom: 12px;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                </svg>
+            </div>
+            <h3 style="margin-bottom: 8px;">No topics found</h3>
+            <p style="margin-bottom: 18px;">Be the first to share some knowledge!</p>
+            <button class="upload-btn" style="margin: 0 auto; display: block; min-width: 180px; font-size: 1.1em;" onclick="window.location.href='upload-topic.html'">
+                Upload Content
+            </button>
+        </div>
+    </div>
+
+    <!-- Topic Detail Modal -->
+    <div class="modal-overlay" id="topicModal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="modalTitle">Topic Title</h2>
+            </div>
+            <div class="modal-body" id="modalContent">
+                <!-- Modal content will be injected here by JS -->
+            </div>
+        </div>
+    </div>
+
+
+    <script src="topics.js"></script>
+    <script src="../navbar/navbar.js"></script>
+</body>
+
+<!-- Comments Modal -->
+<div class="modal-overlay" id="commentsModal" style="display:none;">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Comments</h2>
+            <button class="close-btn" onclick="closeCommentsModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="commentsList" class="comments-list">
+                <!-- Comments will be loaded here -->
+            </div>
+            <form id="addCommentForm" class="add-comment-form" style="margin-top: 1em;">
+                <textarea id="commentInput" placeholder="Add a comment..." rows="2" required></textarea>
+                <button type="submit">Post Comment</button>
+            </form>
+            <div id="commentError" style="color: red; display: none;"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
