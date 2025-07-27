@@ -16,6 +16,18 @@ const toolsData = {
     ],
     health: [
         {
+            title: "Meal Planner",
+            description: "Plan your weekly meals and generate grocery lists automatically.",
+            icon: "chat",
+            url: "meal-planner/meal.html"
+        },
+        {
+            title: "Grocery List",
+            description: "Smart grocery lists with units, auto-generated from your meal plans.",
+            icon: "summarizer",
+            url: "grocery-list/grocery.html"
+        },
+        {
             title: "Book Health Appointment",
             description: "Schedule an appointment with your personalized health coach or AI assistant.",
             icon: "chat",
@@ -92,6 +104,12 @@ const toolsData = {
             description: "Generate secure passwords for all your accounts.",
             icon: "summarizer",
             url: "#"
+        },
+        {
+            title: "Weight Tracker",
+            description: "Track your weight, calculate BMI, and view your progress over time.",
+            icon: "summarizer",
+            url: "weight-tracker/weight-tracker.html"
         },
         {
             title: "Weather",

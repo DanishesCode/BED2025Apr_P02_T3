@@ -24,6 +24,20 @@ CREATE TABLE Appointments (
     createdAt DATETIME DEFAULT GETDATE()
 );
 
+-- Weight history per user
+CREATE TABLE WeightHistory (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    date DATE NOT NULL,
+    weight FLOAT NOT NULL,
+    height FLOAT NOT NULL,
+    age INT NOT NULL,
+    bmi FLOAT NOT NULL,
+    FOREIGN KEY (userId) REFERENCES Users(userId)
+);
+
+
+
 
 -- [Linn] - [Chat and Messages table to store chats and messages between user and AI] - [Last Modified Date: 2025-07-09]
 -- Chats table
@@ -327,3 +341,46 @@ CREATE TABLE Caretaker (
 INSERT INTO Users (name, email, password, date_of_birth)
 VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
 
+-- [Tze Wei] - [Meal and Meal Plan Tables] - [Last Modified Date: 2025-07-20]
+CREATE TABLE Meals (
+    MealID INT PRIMARY KEY IDENTITY(1,1),
+    UserID INT FOREIGN KEY REFERENCES Users(userId),
+    MealName NVARCHAR(100) NOT NULL,
+    Category NVARCHAR(50),
+    Instructions NVARCHAR(MAX),
+    SpoonacularID INT NULL,
+    Ingredients NVARCHAR(MAX) NULL,
+    Servings INT DEFAULT 4,
+    ReadyInMinutes INT NULL,
+    ImageUrl NVARCHAR(500) NULL
+);
+Meal Plan Table:
+CREATE TABLE MealPlan (
+  PlanID INT IDENTITY(1,1) PRIMARY KEY,
+  UserID INT NOT NULL,
+  MealID INT NOT NULL,
+  DayOfWeek NVARCHAR(10) NOT NULL,
+  MealTime NVARCHAR(20) NOT NULL
+);
+-- For foreign keys of Meal Plan Table:
+ALTER TABLE MealPlan
+  ADD CONSTRAINT FK_MealPlan_UserID FOREIGN KEY (UserID) REFERENCES Users(userId);
+
+ALTER TABLE MealPlan
+  ADD CONSTRAINT FK_MealPlan_MealID FOREIGN KEY (MealID) REFERENCES Meals(MealID);
+
+-- [Tze Wei] - [Grocery List Tables] - [Last Modified Date: 2025-07-20]
+CREATE TABLE GroceryItems (
+    item_id INT IDENTITY(1,1) PRIMARY KEY,
+    item_name VARCHAR(255) NOT NULL,
+    quantity DECIMAL(10,2) NOT NULL,
+    unit VARCHAR(20) DEFAULT 'pcs',
+    bought BIT DEFAULT 0,
+    user_id INT NOT NULL,
+    date_added DATE DEFAULT GETDATE(),
+    notes VARCHAR(500),
+    price DECIMAL(10,2) DEFAULT 0.00
+);
+ALTER TABLE GroceryItems 
+ADD CONSTRAINT FK_GroceryItems_Users 
+FOREIGN KEY (user_Id) REFERENCES Users(userId);

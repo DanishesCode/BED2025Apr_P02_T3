@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MealPlan - Smart Meal Planning</title>
+    <link rel="stylesheet" href="meal.css">
+    <link rel="stylesheet" href="../navbar/navbar.css">
+</head>
+<body>
+    <div class="container">
+        <div class="meal-header">
+            <h1>Meal</h1>
+            <p>Your intelligent meal planning companion</p>
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="showSection('planner', event)">Meal Planner</button>
+                <button class="nav-btn" onclick="showSection('recipes', event)">My Recipes</button>
+                <button class="nav-btn" onclick="window.location.href='../grocery-list/grocery.html'">Grocery List</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Meal Planner Section -->
+            <div id="planner" class="section active">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="plannedMeals">0</div>
+                        <div>Meals Planned</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalRecipes">0</div>
+                        <div>Total Recipes</div>
+                    </div>
+                </div>
+
+                <h2>Weekly Meal Plan</h2>
+                <div class="meal-grid">
+                    <div class="meal-card">
+                        <h3>Monday</h3>
+                        <div class="meal-slot" onclick="openMealModal('monday-breakfast')">
+                            <span id="monday-breakfast-text">+ Add Breakfast</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('monday-lunch')">
+                            <span id="monday-lunch-text">+ Add Lunch</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('monday-dinner')">
+                            <span id="monday-dinner-text">+ Add Dinner</span>
+                        </div>
+                    </div>
+
+                    <div class="meal-card">
+                        <h3>Tuesday</h3>
+                        <div class="meal-slot" onclick="openMealModal('tuesday-breakfast')">
+                            <span id="tuesday-breakfast-text">+ Add Breakfast</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('tuesday-lunch')">
+                            <span id="tuesday-lunch-text">+ Add Lunch</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('tuesday-dinner')">
+                            <span id="tuesday-dinner-text">+ Add Dinner</span>
+                        </div>
+                    </div>
+
+                    <div class="meal-card">
+                        <h3>Wednesday</h3>
+                        <div class="meal-slot" onclick="openMealModal('wednesday-breakfast')">
+                            <span id="wednesday-breakfast-text">+ Add Breakfast</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('wednesday-lunch')">
+                            <span id="wednesday-lunch-text">+ Add Lunch</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('wednesday-dinner')">
+                            <span id="wednesday-dinner-text">+ Add Dinner</span>
+                        </div>
+                    </div>
+
+                    <div class="meal-card">
+                        <h3>Thursday</h3>
+                        <div class="meal-slot" onclick="openMealModal('thursday-breakfast')">
+                            <span id="thursday-breakfast-text">+ Add Breakfast</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('thursday-lunch')">
+                            <span id="thursday-lunch-text">+ Add Lunch</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('thursday-dinner')">
+                            <span id="thursday-dinner-text">+ Add Dinner</span>
+                        </div>
+                    </div>
+
+                    <div class="meal-card">
+                        <h3>Friday</h3>
+                        <div class="meal-slot" onclick="openMealModal('friday-breakfast')">
+                            <span id="friday-breakfast-text">+ Add Breakfast</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('friday-lunch')">
+                            <span id="friday-lunch-text">+ Add Lunch</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('friday-dinner')">
+                            <span id="friday-dinner-text">+ Add Dinner</span>
+                        </div>
+                    </div>
+
+                    <div class="meal-card">
+                        <h3>Saturday</h3>
+                        <div class="meal-slot" onclick="openMealModal('saturday-breakfast')">
+                            <span id="saturday-breakfast-text">+ Add Breakfast</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('saturday-lunch')">
+                            <span id="saturday-lunch-text">+ Add Lunch</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('saturday-dinner')">
+                            <span id="saturday-dinner-text">+ Add Dinner</span>
+                        </div>
+                    </div>
+
+                    <div class="meal-card">
+                        <h3>Sunday</h3>
+                        <div class="meal-slot" onclick="openMealModal('sunday-breakfast')">
+                            <span id="sunday-breakfast-text">+ Add Breakfast</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('sunday-lunch')">
+                            <span id="sunday-lunch-text">+ Add Lunch</span>
+                        </div>
+                        <div class="meal-slot" onclick="openMealModal('sunday-dinner')">
+                            <span id="sunday-dinner-text">+ Add Dinner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recipes Section -->
+            <div id="recipes" class="section">
+                <h2>My Recipes</h2>
+                
+                <!-- Meal Suggestion Section -->
+                <div class="suggestion-section">
+                    <h3>Need Recipe Ideas?</h3>
+                    <p>Get personalized meal suggestions from thousands of recipes!</p>
+                    <div class="suggestion-controls">
+                        <select id="suggestionCategory">
+                            <option value="">Any Category</option>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="dinner">Dinner</option>
+                            <option value="snack">Snack</option>
+                            <option value="dessert">Dessert</option>
+                        </select>
+                        <input type="text" id="suggestionQuery" placeholder="Search for specific ingredients or cuisine...">
+                        <button class="btn" onclick="getSuggestedMeals()">
+                            <span>🎯</span>
+                            Suggest Meals
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Suggested Meals Display -->
+                <div id="suggestedMeals" class="suggested-meals" style="display: none;">
+                    <h3>Suggested Recipes</h3>
+                    <div id="suggestedMealsList" class="recipe-list">
+                        <!-- Suggested meals will be populated here -->
+                    </div>
+                </div>
+
+                <div class="recipe-form">
+                    <h3>Add New Recipe</h3>
+                    <form id="recipeForm">
+                        <div class="form-group">
+                            <label for="recipeName">Recipe Name</label>
+                            <input type="text" id="recipeName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipeCategory">Category</label>
+                            <select id="recipeCategory">
+                                <option value="breakfast">Breakfast</option>
+                                <option value="lunch">Lunch</option>
+                                <option value="dinner">Dinner</option>
+                                <option value="snack">Snack</option>
+                                <option value="dessert">Dessert</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipeIngredients">Ingredients (one per line)</label>
+                            <textarea id="recipeIngredients" rows="4" placeholder="2 cups flour&#10;1 cup sugar&#10;3 eggs"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="recipeInstructions">Instructions</label>
+                            <textarea id="recipeInstructions" rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn">Add Recipe</button>
+                    </form>
+                </div>
+
+                <div class="recipe-list" id="recipeList">
+                    <!-- Recipes will be populated here -->
+                </div>
+            </div>
+
+            <!-- Calendar Section -->
+            <div id="calendar" class="section">
+                <h2>Calendar View</h2>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for meal selection -->
+    <div id="mealModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeMealModal()">&times;</span>
+            <h3>Select a Recipe</h3>
+            <div id="recipeOptions">
+                <!-- Recipe options will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="meal.js"></script>
+    <script src="../navbar/navbar.js"></script>
+</body>
+</html>
+
