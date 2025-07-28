@@ -145,10 +145,93 @@ const createChat = async (req, res) => {
     }
 };
 
+const renameChat = async (req, res) => {
+    try {
+        const chatId = req.params.id;
+        const userId = req.user?.id || req.body.userId; // Prefer authenticated user, fallback to body
+        const { newTitle } = req.body;
+
+        if (!chatId || isNaN(chatId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Chat ID is required and must be a number',
+            });
+        }
+        if (!userId || isNaN(userId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'User ID is required and must be a number',
+            });
+        }
+        if (!newTitle || typeof newTitle !== 'string' || newTitle.trim().length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'New title is required',
+            });
+        }
+
+        const updated = await chatModel.renameChat(parseInt(chatId), parseInt(userId), newTitle.trim());
+        if (!updated) {
+            return res.status(404).json({
+                success: false,
+                message: 'Chat not found or not owned by user',
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: 'Chat renamed successfully',
+        });
+    } catch (error) {
+        console.error('[ChatController] Error (renameChat):', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Something went wrong. Please try again later.',
+        });
+    }
+};
+
+const deleteChat = async (req, res) => {
+    try {
+        const chatId = req.params.id;
+        const userId = req.user?.id || req.body.userId;
+        if (!chatId || isNaN(chatId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Chat ID is required and must be a number',
+            });
+        }
+        if (!userId || isNaN(userId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'User ID is required and must be a number',
+            });
+        }
+        const deleted = await chatModel.deleteChat(parseInt(chatId), parseInt(userId));
+        if (!deleted) {
+            return res.status(404).json({
+                success: false,
+                message: 'Chat not found or not owned by user',
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: 'Chat deleted successfully',
+        });
+    } catch (error) {
+        console.error('[ChatController] Error (deleteChat):', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Something went wrong. Please try again later.',
+        });
+    }
+};
+
 module.exports = { 
     getAIResponse,
     retrieveChats,
     retrieveMessages,
     saveMessage,
-    createChat
+    createChat,
+    renameChat,
+    deleteChat
 };

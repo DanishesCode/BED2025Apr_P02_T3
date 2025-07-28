@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Summarizer</title>
+    <link rel="stylesheet" href="summarizer.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">AI Summarizer</h1>
+        <div class="output-section" id="outputSection" style="display: none;">
+            <h2 class="output-header" id="outputHeader">Here is the summarized version:</h2>
+            <div class="summary-display">
+                <div class="summary-text" id="summaryText"></div>
+            </div>
+        </div>
+        <div class="input-container" id="initialInput">
+            <textarea 
+                class="text-input" 
+                id="inputText" 
+                placeholder="Enter your texts here..."
+            ></textarea>
+            <button class="summarize-btn" id="summarizeBtn">
+                <div class="spinner"></div>
+                <span class="btn-text">✨ Summarize Now</span>
+            </button>
+        </div>
+        <div class="error-message" id="errorMessage"></div>
+    </div>
+
+    <script src="summarizer.js"></script>
+</body>
+</html>
