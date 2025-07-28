@@ -251,10 +251,6 @@ async function loadChatMessages(chatId) {
       return null;
     }
   }
-  
-  
-
-
 
 // Convert **bold** markdown to <b>bold</b>
 function markdownBoldToHtml(text) {
@@ -399,10 +395,76 @@ document.querySelectorAll('button').forEach(btn => {
     });
 });
 
-// Voice button functionality (placeholder)
-document.querySelector('.voice-btn').addEventListener('click', () => {
-    console.log('Voice functionality would be implemented here');
-});
+// Voice to text functionality
+let recognition = null;
+let recognizing = false;
+const voiceBtn = document.querySelector('.voice-btn');
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    let finalTranscript = '';
+
+    recognition.onstart = function() {
+        recognizing = true;
+        voiceBtn.textContent = '⏹ Stop Recording';
+        voiceBtn.classList.add('recording');
+        voiceBtn.style.background = '#ffd9d9ff'; // Red background
+        voiceBtn.style.color = '#ff4f4fff';
+    };
+
+    recognition.onerror = function(event) {
+        recognizing = false;
+        voiceBtn.textContent = '🎤 Use my voice';
+        voiceBtn.classList.remove('recording');
+        voiceBtn.style.background = '';
+        voiceBtn.style.color = '';
+        if (event.error !== 'no-speech') {
+            alert('Speech recognition error: ' + event.error);
+        }
+    };
+
+    recognition.onend = function() {
+        recognizing = false;
+        voiceBtn.textContent = '🎤 Use my voice';
+        voiceBtn.classList.remove('recording');
+        voiceBtn.style.background = '';
+        voiceBtn.style.color = '';
+        // Do NOT send the message automatically
+        // User can edit or click send manually
+    };
+
+    recognition.onresult = function(event) {
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            } else {
+                interimTranscript += event.results[i][0].transcript;
+            }
+        }
+        messageInput.value = finalTranscript + interimTranscript;
+        messageInput.style.height = 'auto';
+        messageInput.style.height = (messageInput.scrollHeight) + 'px';
+    };
+
+    voiceBtn.addEventListener('click', () => {
+        if (recognizing) {
+            recognition.stop();
+        } else {
+            finalTranscript = '';
+            messageInput.value = '';
+            recognition.start();
+        }
+    });
+} else {
+    voiceBtn.disabled = true;
+    voiceBtn.textContent = '🎤 Voice not supported';
+}
 
 // Summarize button functionality (placeholder)
 document.querySelector('.summarize-btn').addEventListener('click', () => {
@@ -478,3 +540,4 @@ async function deleteChat(chatId) {
         console.error('Error deleting chat:', err);
     }
 }
+
