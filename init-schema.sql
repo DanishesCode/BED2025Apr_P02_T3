@@ -34,11 +34,8 @@ CREATE TABLE WeightHistory (
     height FLOAT NOT NULL,
     age INT NOT NULL,
     bmi FLOAT NOT NULL,
-    FOREIGN KEY (userId) REFERENCES Users(userId)
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
-
-
-
 
 -- [Linn] - [Chat and Messages table to store chats and messages between user and AI] - [Last Modified Date: 2025-07-09]
 -- Chats table
