@@ -81,6 +81,7 @@ const groceryController = require('./controllers/groceryController');
 const {  validateMeal, validateMealUpdate, validateMealId, validateUserId } = require('./middlewares/mealValidation');
 const topicController = require('./controllers/topicController');
 const weightController = require('./controllers/weightController');
+const summarizerController = require('./controllers/summarizerController'); // at the top with other controllers
 // Routes for pages
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -322,6 +323,9 @@ app.post("/grocery", AuthMiddleware.authenticateToken, groceryController.addGroc
 app.put("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.updateGroceryItem);
 app.delete("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.deleteGroceryItem);
 app.post("/grocery/generate/:userId", AuthMiddleware.authenticateToken, groceryController.generateFromMealPlan);
+
+// Summarization API route
+app.post('/api/summarize', summarizerController.summarizeText);
 
 // Start server
 app.listen(port, async () => {
