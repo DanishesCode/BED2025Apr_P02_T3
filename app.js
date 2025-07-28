@@ -21,19 +21,12 @@ const app = express();
 const port = process.env.PORT || 3000;
 // Custom CORS middleware MUST be first to ensure headers are set for all requests
 app.use(cors({
-    origin: function(origin, callback) {
-        const allowedOrigins = [
-            'http://localhost:5500',
-            'http://127.0.0.1:5500',
-            'http://localhost:3000'
-        ];
-        // Allow requests with no origin (like mobile apps, curl, or Postman)
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: [
+        'http://localhost:5500',
+        'http://127.0.0.1:5500',
+        'http://localhost:5504',
+        'http://127.0.0.1:5504'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -42,8 +35,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Ensure all OPTIONS requests are handled for CORS preflight
-app.options('*', cors());
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -191,8 +182,21 @@ app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 teleBot.startBot();
 
 
-app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+app.post("/chat/", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
 
+// Retrive Chats and Messages
+app.get("/chat/:id", AuthMiddleware.authenticateToken, aichatController.retrieveChats);
+app.get("/chat/messages/:chatId", AuthMiddleware.authenticateToken, aichatController.retrieveMessages);
+
+// Save Messages
+app.post("/chat/messages", AuthMiddleware.authenticateToken, aichatController.saveMessage);
+
+// Add route for creating new chat
+app.post("/chat/new", AuthMiddleware.authenticateToken, aichatController.createChat);
+app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+app.post("/chat", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+app.put("/chat/:id", AuthMiddleware.authenticateToken, aichatController.renameChat);
+app.delete("/chat/:id", AuthMiddleware.authenticateToken, aichatController.deleteChat);
 
 // Birthday routes
 app.get("/birthdays", birthdayController.getAllBirthdays);
