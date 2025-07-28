@@ -1,435 +1,331 @@
-
 const WEATHER_CONFIG = {
-    // Determine base URL based on environment
     baseURL: (() => {
         const isLiveServer = window.location.port === '5500' || window.location.hostname === '127.0.0.1';
         return isLiveServer ? 'http://localhost:3000/api' : '/api';
     })(),
     endpoints: {
-        weather: '/weather',
-        search: '/weather/search'
+        weather: '/weather'
     },
     defaultLocation: 'Singapore'
 };
 
-
-
 class WeatherAppLoader {
     constructor() {
-        this.loadedModules = new Set();
-        this.weatherController = null;
-        this.weatherModel = null;
-        this.weatherValidator = null;
         this.config = WEATHER_CONFIG;
     }
 
-    /**
-     * @param {string} src - Source path of the JavaScript file
-     * @returns {Promise} Promise that resolves when script is loaded
-     */
-    loadScript(src) {
-        return new Promise((resolve, reject) => {
-            if (this.loadedModules.has(src)) {
-                resolve();
-                return;
-            }
-
-            const script = document.createElement('script');
-            script.src = src;
-            script.onload = () => {
-                this.loadedModules.add(src);
-                console.log(`✅ Loaded: ${src}`);
-                resolve();
-            };
-            script.onerror = () => {
-                console.error(`❌ Failed to load: ${src}`);
-                reject(new Error(`Failed to load script: ${src}`));
-            };
-            document.head.appendChild(script);
-        });
-    }
-
-    /**
-     
-     */
-    async loadAllModules() {
-        try {
-            console.log('🚀 Loading Weather App modules...');
-
-            // Detect environment and use appropriate paths
-            const isLiveServer = window.location.port === '5500' || window.location.hostname === '127.0.0.1';
-            
-            let modules;
-            if (isLiveServer) {
-                // Relative paths for Live Server
-                modules = [
-                    '../../middlewares/weatherValidation.js',
-                    '../../models/weatherModel.js',
-                    '../../controllers/weatherController.js'
-                ];
-            } else {
-                // Absolute paths for Node.js Express server
-                modules = [
-                    '/middlewares/weatherValidation.js',
-                    '/models/weatherModel.js',
-                    '/controllers/weatherController.js'
-                ];
-            }
-
-            console.log(`🔧 Environment: ${isLiveServer ? 'Live Server' : 'Node.js Express'}`);
-            console.log('📂 Loading modules:', modules);
-
-            // Load each module sequentially to maintain dependency order
-            for (const module of modules) {
-                await this.loadScript(module);
-            }
-
-            console.log('✅ All Weather App modules loaded successfully!');
-            return true;
-
-        } catch (error) {
-            console.error('❌ Failed to load modules:', error);
-            this.showError('Failed to load weather application modules. Please refresh the page.');
-            return false;
-        }
-    }
-
-    /**
-     * Initialize the weather application using loaded modules
-     */
     async initializeApp() {
         try {
-            // Wait a bit to ensure all modules are properly loaded
-            await new Promise(resolve => setTimeout(resolve, 200));
-
-            // Check if required classes exist
-            if (typeof WeatherController === 'undefined') {
-                throw new Error('WeatherController not loaded');
-            }
-
-            if (typeof WeatherModel === 'undefined') {
-                throw new Error('WeatherModel not loaded');
-            }
-
-            if (typeof WeatherValidator === 'undefined') {
-                console.warn('WeatherValidator not loaded - using fallback validation');
-            }
-
-            // Initialize the weather controller (which will create its own model instance)
-            this.weatherController = new WeatherController();
-            window.weatherController = this.weatherController;
-
-            // Set up configuration
-            window.WEATHER_CONFIG = this.config;
-
-            // Initialize the app with default location
-            await this.weatherController.init(this.config.defaultLocation);
-
-            console.log('🌟 Weather App initialized successfully!');
-
-        } catch (error) {
-            console.error('❌ Failed to initialize weather app:', error);
+            const location = this.config.defaultLocation;
+            const response = await fetch(`${this.config.baseURL}${this.config.endpoints.weather}?location=${encodeURIComponent(location)}`);
+            if (!response.ok) throw new Error('Failed to fetch weather data');
+            const data = await response.json();
             
-            // Try to reinitialize after a delay
-            setTimeout(async () => {
-                try {
-                    console.log('🔄 Attempting to reinitialize...');
-                    this.weatherController = new WeatherController();
-                    window.weatherController = this.weatherController;
-                    
-                    // Set up global references
-                    window.weatherController = this.controller;
-                    
-                    await this.weatherController.init(this.config.defaultLocation);
-                    console.log('🔄 Weather App initialized on retry!');
-                } catch (retryError) {
-                    console.error('❌ Retry failed:', retryError);
-                    this.showError('Weather application failed to start. Please refresh the page.');
-                }
-            }, 1500);
+            // Set Singapore background image by default
+            const heroSection = document.querySelector('.hero-section');
+            if (heroSection) {
+                heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1506351421178-63b52a2d2562?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')`;
+                heroSection.style.backgroundSize = 'cover';
+                heroSection.style.backgroundPosition = 'center';
+                heroSection.style.backgroundRepeat = 'no-repeat';
+            }
+            
+            this.updateWeatherDisplay(data);
+        } catch (error) {
+            console.error('Failed to initialize weather app:', error);
+            this.showError('Weather application failed to start. Please refresh the page.');
         }
     }
 
-    /**
-     * Show error message to user
-     * @param {string} message - Error message to display
-     */
     showError(message) {
-        // Create a simple error overlay
         const errorDiv = document.createElement('div');
-        errorDiv.className = 'app-error';
         errorDiv.innerHTML = `
-            <div class="error-content">
-                <h3>Application Error</h3>
-                <p>${message}</p>
-                <button onclick="window.location.reload()">Refresh Page</button>
+            <div style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                color: white;
+                font-family: Arial, sans-serif;
+            ">
+                <div style="
+                    background: #dc3545;
+                    padding: 2rem;
+                    border-radius: 10px;
+                    text-align: center;
+                    max-width: 400px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                ">
+                    <h3>Application Error</h3>
+                    <p>${message}</p>
+                    <button onclick="window.location.reload()" style="
+                        background: white;
+                        color: #dc3545;
+                        border: none;
+                        padding: 0.75rem 1.5rem;
+                        border-radius: 5px;
+                        margin-top: 1rem;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 1rem;
+                    ">Refresh Page</button>
+                </div>
             </div>
         `;
-        
-        // Add error styling
-        errorDiv.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            color: white;
-            font-family: Arial, sans-serif;
-        `;
-
-        const errorContent = errorDiv.querySelector('.error-content');
-        errorContent.style.cssText = `
-            background: #dc3545;
-            padding: 2rem;
-            border-radius: 10px;
-            text-align: center;
-            max-width: 400px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        `;
-
-        const button = errorContent.querySelector('button');
-        button.style.cssText = `
-            background: white;
-            color: #dc3545;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 5px;
-            margin-top: 1rem;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1rem;
-        `;
-
         document.body.appendChild(errorDiv);
     }
 
-    /**
-     
-     */
-    async start() {
-        const modulesLoaded = await this.loadAllModules();
-        if (modulesLoaded) {
-            await this.initializeApp();
+    updateWeatherDisplay(data) {
+        if (data.error) {
+            this.showError(data.error);
+            return;
         }
-    }
-}
 
-
-class WeatherApp {
-    constructor() {
-        this.controller = null;
-        this.model = null;
-        this.validator = null;
-        this.config = WEATHER_CONFIG;
-    }
-
-
-    async init() {
-        try {
-            // Wait for modules to be available
-            let attempts = 0;
-            const maxAttempts = 10;
-            
-            while (attempts < maxAttempts) {
-                if (typeof WeatherController !== 'undefined' && 
-                    typeof WeatherModel !== 'undefined') {
-                    break;
-                }
-                await new Promise(resolve => setTimeout(resolve, 100));
-                attempts++;
-            }
-
-            if (attempts >= maxAttempts) {
-                throw new Error('Modules failed to load within timeout');
-            }
-
-            // Initialize the weather controller
-            this.controller = new WeatherController();
-            
-            // Set up model reference
-            this.model = this.controller.model;
-            
-            // Set up global references
-            window.weatherController = this.controller;
-            window.weatherModel = this.model;
-            window.weatherConfig = this.config;
-
-            // Initialize with default location
-            await this.controller.init(this.config.defaultLocation);
-
-            console.log('🌈 Weather App fully initialized!');
-            
-        } catch (error) {
-            console.error('Weather App initialization error:', error);
-            throw error;
+        function setText(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
         }
-    }
-
-    /**
-     * Get weather data using the loaded model
-     * @param {string} location - Location to search
-     */
-    async getWeatherData(location) {
-        if (!this.model) {
-            throw new Error('Weather model not initialized');
-        }
-        return await this.model.fetchWeatherData(location);
-    }
-
-    /**
-     * Update weather display using the loaded controller
-     * @param {Object} data - Weather data
-     */
-    async updateDisplay(data) {
-        if (!this.controller) {
-            throw new Error('Weather controller not initialized');
-        }
-        await this.controller.updateWeatherDisplay(data);
-    }
-
-    /**
-     * Validate configuration - no longer checks API key
-     */
-    validateConfiguration() {
-        // Configuration is always valid in backend mode
-        return true;
-    }
-}
-
-window.WeatherUtils = {
-    /**
-     * Format temperature
-     * @param {number} temp - Temperature in Celsius
-     * @returns {string} Formatted temperature
-     */
-    formatTemperature(temp) {
-        return `${Math.round(temp)}°C`;
-    },
-
-    /**
-     * Format date for weather display
-     * @param {string} dateString - ISO date string
-     * @returns {string} Formatted date
-     */
-    formatWeatherDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            weekday: 'long',
-            month: 'short',
-            day: 'numeric'
-        });
-    },
-
-    /**
-     * @param {string} condition - Weather condition text
-     * @returns {string} Weather emoji
-     */
-    getWeatherIcon(condition) {
-        const conditionLower = condition.toLowerCase();
         
-        if (conditionLower.includes('sunny') || conditionLower.includes('clear')) {
-            return '☀️';
+        // Location and temperature
+        setText('displayLocation', data.location || 'Unknown Location');
+        setText('tempValue', typeof data.temperature === 'number' ? Math.round(data.temperature) : '--');
+        setText('tempDescription', data.condition || '--');
+        
+        // Date and time display
+        const now = new Date();
+        const dayName = now.toLocaleDateString('en-US', { weekday: 'long' });
+        const dateStr = now.toLocaleDateString('en-US', { 
+            month: 'long', 
+            day: 'numeric', 
+            year: 'numeric' 
+        });
+        const timeStr = now.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: true 
+        });
+        
+        setText('weatherDesc', `${dayName}, ${dateStr} at ${timeStr}`);
+        
+        // Weather details
+        setText('humidity', `Humidity: ${data.humidity !== undefined ? data.humidity + '%' : '--'}`);
+        setText('realFeel', `Feels Like: ${data.feelsLike !== undefined ? Math.round(data.feelsLike) + '°C' : '--'}`);
+        setText('uvIndex', `UV Index: ${data.uvIndex !== undefined ? data.uvIndex : '--'}`);
+        setText('visibility', `Visibility: ${data.visibility !== undefined ? data.visibility + ' km' : '--'}`);
+        
+        // Wind and pressure info
+        const windInfo = document.getElementById('windInfo');
+        if (windInfo && data.windSpeed) {
+            windInfo.textContent = `Wind: ${data.windSpeed} km/h ${data.windDirection || ''}`;
+            windInfo.style.display = 'block';
         }
-        if (conditionLower.includes('rain')) {
-            return '🌧️';
+        
+        const pressureInfo = document.getElementById('pressureInfo');
+        if (pressureInfo && data.pressure) {
+            pressureInfo.textContent = `Pressure: ${data.pressure} mb`;
+            pressureInfo.style.display = 'block';
         }
-        if (conditionLower.includes('cloud')) {
-            return '☁️';
+
+        // Set background image
+        const heroSection = document.querySelector('.hero-section');
+        if (heroSection && data.imageUrl) {
+            heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${data.imageUrl}')`;
+            heroSection.style.backgroundSize = 'cover';
+            heroSection.style.backgroundPosition = 'center';
+            heroSection.style.backgroundRepeat = 'no-repeat';
         }
-        if (conditionLower.includes('storm')) {
-            return '⛈️';
+
+        // Update activities
+        if (data.activities && data.activities.length > 0) {
+            const compactActivitiesGrid = document.getElementById('compactActivitiesGrid');
+            if (compactActivitiesGrid) {
+                compactActivitiesGrid.style.display = 'block';
+                
+                const activityCards = data.activities.map((activity, index) => {
+                    let title, description, icon;
+                    
+                    if (typeof activity === 'string') {
+                        title = activity;
+                        description = 'Activity recommended for current weather conditions.';
+                        icon = ['🌱', '📚', '🚶', '🏠', '☕', '🎨', '🧘', '🌞', '❄️', '🌧️'][index % 10];
+                    } else if (typeof activity === 'object' && activity.title) {
+                        title = activity.title;
+                        description = activity.description || 'Activity recommended for current weather conditions.';
+                        icon = activity.icon || '🌟';
+                    } else {
+                        title = 'Activity';
+                        description = 'Activity recommended for current weather conditions.';
+                        icon = '🌟';
+                    }
+                    
+                    return `
+                        <div class="activity-card">
+                            <div class="activity-title">
+                                <span class="activity-icon">${icon}</span>
+                                ${title}
+                            </div>
+                            <div class="activity-description">
+                                ${description}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                compactActivitiesGrid.innerHTML = activityCards;
+
+                const cards = document.querySelectorAll('.activity-card');
+                cards.forEach((card, i) => {
+                    card.classList.remove('slide-in');
+                    setTimeout(() => {
+                        card.classList.add('slide-in');
+                    }, i * 80); // Stagger animation
+                });
+            }
         }
+
+        // Update forecast
+        this.updateForecast(data);
+        
+        // Clear error display
+        const errorDiv = document.getElementById('weatherError');
+        if (errorDiv) {
+            errorDiv.textContent = '';
+            errorDiv.style.display = 'none';
+        }
+    }
+
+    updateForecast(data) {
+        // Update hourly forecast
+        if (data.hourly && data.hourly.length > 0) {
+            const hourlyContainer = document.querySelector('.hourly-forecast-container');
+            if (hourlyContainer) {
+                const hourlyHTML = data.hourly.slice(0, 10).map(hour => {
+                    const time = new Date(hour.time).getHours();
+                    const timeStr = time === 0 ? '12 AM' : time > 12 ? `${time - 12} PM` : `${time} AM`;
+                    const humidity = hour.humidity || '--';
+                    const windSpeed = hour.wind_kph || '--';
+                    return `
+                        <div class="hourly-item">
+                            <div class="hour-time">${timeStr}</div>
+                            <div class="hour-emoji">${this.getWeatherEmoji(hour.condition.text)}</div>
+                            <div class="hour-temp">${Math.round(hour.temp_c)}°</div>
+                            <div class="hour-details">
+                                <div class="hour-humidity">💧 ${humidity}%</div>
+                                <div class="hour-wind">💨 ${windSpeed} km/h</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                hourlyContainer.innerHTML = hourlyHTML;
+            }
+        } else {
+            const hourlyContainer = document.querySelector('.hourly-forecast-container');
+            if (hourlyContainer) {
+                hourlyContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 1rem;">Hourly data not available</p>';
+            }
+        }
+
+        // Update weekly forecast
+        if (data.forecast && data.forecast.length > 0) {
+            const dailyContainer = document.querySelector('.daily-forecast-container');
+            if (dailyContainer) {
+                const dailyHTML = data.forecast.map(day => {
+                    const date = new Date(day.date);
+                    const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const maxTemp = Math.round(day.day.maxtemp_c || day.day.avgtemp_c);
+                    const minTemp = Math.round(day.day.mintemp_c || day.day.avgtemp_c);
+                    const humidity = day.day.avghumidity || '--';
+                    const windSpeed = day.day.maxwind_kph || '--';
+                    return `
+                        <div class="day-forecast">
+                            <div class="forecast-day">${dayName}</div>
+                            <div class="forecast-date">${dateStr}</div>
+                            <div class="forecast-emoji">${this.getWeatherEmoji(day.day.condition.text)}</div>
+                            <div class="forecast-temp">
+                                <span class="max-temp">${maxTemp}°</span>
+                                <span class="min-temp">${minTemp}°</span>
+                            </div>
+                            <div class="forecast-desc">${day.day.condition.text}</div>
+                            <div class="forecast-details">
+                                <div class="forecast-humidity">💧 ${humidity}%</div>
+                                <div class="forecast-wind">💨 ${windSpeed} km/h</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                dailyContainer.innerHTML = dailyHTML;
+            }
+        } else {
+            const dailyContainer = document.querySelector('.daily-forecast-container');
+            if (dailyContainer) {
+                dailyContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 1rem;">Forecast data not available</p>';
+            }
+        }
+    }
+
+    getWeatherEmoji(condition) {
+        if (!condition) return '🌤️';
+        const conditionLower = condition.toLowerCase();
+        if (conditionLower.includes('sunny') || conditionLower.includes('clear')) return '☀️';
+        if (conditionLower.includes('rain')) return '🌧️';
+        if (conditionLower.includes('cloud')) return '☁️';
+        if (conditionLower.includes('storm')) return '⛈️';
+        if (conditionLower.includes('snow')) return '❄️';
         return '🌤️';
     }
-};
+}
 
-
-window.searchWeather = function(defaultLocation = "") {
+// Search weather function
+window.searchWeather = async function(location = "") {
     try {
-        if (window.weatherController) {
-            window.weatherController.searchWeather(defaultLocation);
-        } else {
-            console.error('Weather controller not available');
-            // Try to initialize if not available
-            setTimeout(() => {
-                if (window.weatherController) {
-                    window.weatherController.searchWeather(defaultLocation);
-                }
-            }, 1000);
+        const config = WEATHER_CONFIG;
+        const loc = location || config.defaultLocation;
+        
+        const response = await fetch(`${config.baseURL}${config.endpoints.weather}?location=${encodeURIComponent(loc)}`);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP ${response.status}: Failed to fetch weather data`);
+        }
+        
+        const data = await response.json();
+        
+        // Set Singapore background image if searching for Singapore
+        const heroSection = document.querySelector('.hero-section');
+        if (heroSection && (loc.toLowerCase() === 'singapore' || loc.toLowerCase() === 'sg')) {
+            heroSection.style.backgroundImage = `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1506351421178-63b52a2d2562?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80')`;
+            heroSection.style.backgroundSize = 'cover';
+            heroSection.style.backgroundPosition = 'center';
+            heroSection.style.backgroundRepeat = 'no-repeat';
+        }
+        
+        const loader = window.weatherAppLoaderInstance;
+        if (loader) {
+            loader.updateWeatherDisplay(data);
         }
     } catch (error) {
         console.error('Search weather error:', error);
-    }
-};
-
-window.getWeatherData = async function(location) {
-    try {
-        if (window.weatherModel) {
-            return await window.weatherModel.fetchWeatherData(location);
-        } else {
-            console.error('Weather model not available');
-            return { success: false, error: 'Weather model not available' };
+        const errorDiv = document.getElementById('weatherError');
+        if (errorDiv) {
+            errorDiv.textContent = error.message;
+            errorDiv.style.display = 'block';
         }
-    } catch (error) {
-        console.error('Get weather data error:', error);
-        return { success: false, error: error.message };
     }
 };
 
-
-window.addEventListener('error', function(e) {
-    console.error('Weather App Error:', e.error);
-});
-
-window.addEventListener('unhandledrejection', function(e) {
-    console.error('Unhandled Promise Rejection:', e.reason);
-});
-
-
+// Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('🌦️ Starting Weather Application...');
-    
     try {
         const loader = new WeatherAppLoader();
-        await loader.start();
+        window.weatherAppLoaderInstance = loader;
+        await loader.initializeApp();
     } catch (error) {
         console.error('Failed to start weather app:', error);
     }
 });
-
-
-if (document.readyState === 'loading') {
-    // DOMContentLoaded has not fired yet, event listener above will handle it
-} else {
-    
-    setTimeout(async () => {
-        console.log('🌦️ Starting Weather Application (fallback)...');
-        try {
-            const loader = new WeatherAppLoader();
-            await loader.start();
-        } catch (error) {
-            console.error('Fallback initialization failed:', error);
-        }
-    }, 100);
-}
-
-
-window.addEventListener('load', function() {
-    setTimeout(() => {
-        if (!window.weatherController) {
-            console.log('🔧 Final fallback initialization...');
-            const loader = new WeatherAppLoader();
-            loader.start().catch(console.error);
-        }
-    }, 500);
-});
-
-
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { WeatherAppLoader, WeatherApp, WEATHER_CONFIG };
-}

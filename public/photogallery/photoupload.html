@@ -26,7 +26,7 @@
                     <!-- Photo Upload Section -->
                     <div class="upload-section">
                         <div class="upload-area" id="upload-area">
-                            <input type="file" id="photo-upload" accept="image/*" multiple class="file-input">
+                            <input type="file" id="photo-upload" name="photo" accept="image/*" multiple class="file-input">
                             <div class="upload-placeholder">
                                 <div class="upload-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -96,19 +96,15 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">
-                                    <span class="label-text">Mark as Favorite</span>
-                                </label>
-                                <div class="checkbox-container">
+                                <label class="checkbox-label" for="memory-favorite">
                                     <input type="checkbox" id="memory-favorite" class="form-checkbox">
-                                    <label for="memory-favorite" class="checkbox-label">
-                                        <span class="checkbox-icon">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                            </svg>
-                                        </span>
-                                    </label>
-                                </div>
+                                    <span class="checkbox-custom">
+                                        <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                        </svg>
+                                    </span>
+                                    Mark as Favorite
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -156,7 +152,6 @@
     </div>
 
     <script src="photo.js"></script>
-    <script src="photo_auth_patch.js"></script>
     
 </body>
 </html>

@@ -33,11 +33,8 @@ CREATE TABLE WeightHistory (
     height FLOAT NOT NULL,
     age INT NOT NULL,
     bmi FLOAT NOT NULL,
-    FOREIGN KEY (userId) REFERENCES Users(userId)
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
-
-
-
 
 -- [Linn] - [Chat and Messages table to store chats and messages between user and AI] - [Last Modified Date: 2025-07-09]
 -- Chats table
@@ -340,6 +337,87 @@ CREATE TABLE Caretaker (
 );
 INSERT INTO Users (name, email, password, date_of_birth)
 VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
+
+-- [Dev] - [Topics Learner table for user-generated content] - [2025-07-17]
+CREATE TABLE Topics (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    title NVARCHAR(255) NOT NULL,
+    content NTEXT NOT NULL,
+    content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('text', 'image', 'video')),
+    category VARCHAR(50) NOT NULL DEFAULT 'general',
+    description NTEXT,
+    tags NTEXT, -- JSON array of tags
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    updated_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_Topics_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
+);
+-- Dev Topic Learner
+CREATE TABLE TopicLikes (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    topicId INT NOT NULL,
+    userId INT NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_TopicLikes_Topics FOREIGN KEY (topicId) REFERENCES Topics(id) ON DELETE CASCADE,
+    CONSTRAINT FK_TopicLikes_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE NO ACTION,
+    CONSTRAINT UQ_TopicLikes UNIQUE (topicId, userId)
+);
+
+-- Dev Topic Learner
+CREATE TABLE TopicComments (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    topicId INT NOT NULL,
+    userId INT NOT NULL,
+    comment NVARCHAR(1000) NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_TopicComments_Topics FOREIGN KEY (topicId) REFERENCES Topics(id) ON DELETE CASCADE,
+    CONSTRAINT FK_TopicComments_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE NO ACTION
+);
+
+-- Sample data for Topics table
+INSERT INTO Topics (userId, title, content, content_type, category, description, tags) VALUES
+(1, 'Introduction to JavaScript Promises', 'JavaScript Promises are a powerful way to handle asynchronous operations. They provide a clean alternative to callback functions and help avoid callback hell. A Promise represents a value that may be available now, in the future, or never.', 'text', 'technology', 'A comprehensive guide to understanding and using JavaScript Promises', '["javascript", "promises", "async", "programming"]'),
+(2, 'Healthy Morning Routine', 'Starting your day with a healthy routine can significantly improve your productivity and well-being. Here are some key practices: 1. Wake up early and get sunlight exposure, 2. Drink water immediately, 3. Exercise or stretch, 4. Eat a nutritious breakfast, 5. Practice mindfulness or meditation.', 'text', 'health', 'A guide to building a healthy and productive morning routine', '["health", "morning", "routine", "wellness"]'),
+(3, 'React Best Practices', 'When developing React applications, following best practices ensures maintainable and performant code. Key practices include: using functional components with hooks, proper state management, avoiding prop drilling, and implementing proper error boundaries.', 'text', 'technology', 'Essential best practices for React development', '["react", "best-practices", "frontend", "development"]'),
+(1, 'Beautiful Sunset Photo', '/uploads/topics/sunset_2025_001.jpg', 'image', 'photography', 'A stunning sunset captured during my vacation in Bali', '["sunset", "photography", "bali", "nature"]'),
+(2, 'Cooking Tutorial Video', '/uploads/topics/pasta_recipe_2025_002.mp4', 'video', 'cooking', 'Step-by-step guide to making authentic Italian pasta', '["cooking", "pasta", "italian", "tutorial"]'),
+(3, 'Mountain Hiking Adventure', '/uploads/topics/mountain_hike_2025_003.jpg', 'image', 'travel', 'Epic mountain hiking experience with breathtaking views', '["hiking", "mountain", "adventure", "nature"]');
+
+-- [Assistant] - [Topic Likes table for tracking user likes] - [2025-07-17]
+-- Add like_count column to Topics table
+ALTER TABLE Topics ADD like_count INT DEFAULT 0;
+
+-- Create TopicLikes table
+CREATE TABLE TopicLikes (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    topicId INT NOT NULL,
+    userId INT NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_TopicLikes_Topics FOREIGN KEY (topicId) REFERENCES Topics(id) ON DELETE CASCADE,
+    CONSTRAINT FK_TopicLikes_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
+    CONSTRAINT UQ_TopicLikes UNIQUE (topicId, userId) -- Prevent duplicate likes
+);
+
+-- Sample data for TopicLikes table
+INSERT INTO TopicLikes (topicId, userId) VALUES
+(1, 2), -- User 2 likes topic 1
+(1, 3), -- User 3 likes topic 1
+(2, 1), -- User 1 likes topic 2
+(2, 3), -- User 3 likes topic 2
+(3, 1), -- User 1 likes topic 3
+(4, 2), -- User 2 likes topic 4
+(5, 1), -- User 1 likes topic 5
+(5, 3), -- User 3 likes topic 5
+(6, 1), -- User 1 likes topic 6
+(6, 2); -- User 2 likes topic 6
+
+-- Update like counts in Topics table
+UPDATE Topics SET like_count = 2 WHERE id = 1;
+UPDATE Topics SET like_count = 2 WHERE id = 2;
+UPDATE Topics SET like_count = 1 WHERE id = 3;
+UPDATE Topics SET like_count = 1 WHERE id = 4;
+UPDATE Topics SET like_count = 2 WHERE id = 5;
+UPDATE Topics SET like_count = 2 WHERE id = 6;
 
 -- [Tze Wei] - [Meal and Meal Plan Tables] - [Last Modified Date: 2025-07-20]
 CREATE TABLE Meals (
