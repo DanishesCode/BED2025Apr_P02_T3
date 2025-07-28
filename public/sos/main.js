@@ -1,5 +1,21 @@
 const apiBaseUrl = "http://localhost:3000";
 
+function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+function showLoading() {
+  document.getElementById("loading-screen").style.display = "flex";
+}
+
+function hideLoading() {
+  document.getElementById("loading-screen").style.display = "none";
+}
+
+
 function showNotification(message, type) {
     const notification = document.getElementById("notification");
     const text = document.getElementById("notification-text");
@@ -24,7 +40,9 @@ function showNotification(message, type) {
 
   async function retrieveData(id){
     try{
-        const response = await fetch(`${apiBaseUrl}/caretaker/getrecord/${id}`)
+        const response = await fetch(`${apiBaseUrl}/caretaker/getrecord/${id}`,  {
+          headers: getAuthHeaders()
+        });
         if (!response.ok) {
             // Handle HTTP errors (e.g., 404, 500)
             // Attempt to read error body if available, otherwise use status text
@@ -56,6 +74,7 @@ async function convertAddress(data){
       method: "POST", // Specify the HTTP method
       headers: {
         "Content-Type": "application/json", // Tell the API we are sending JSON
+        ...getAuthHeaders()
       },
       body: JSON.stringify(data), // Send the data as a JSON string in the request body
     });
@@ -95,6 +114,7 @@ async function sendMessage(data){
       method: "POST", // Specify the HTTP method
       headers: {
         "Content-Type": "application/json", // Tell the API we are sending JSON
+        ...getAuthHeaders()
       },
       body: JSON.stringify(data), // Send the data as a JSON string in the request body
     });
@@ -106,7 +126,7 @@ async function sendMessage(data){
       ? await response.json()
       : { message: response.statusText };
 
-    if (response.status === 201) {
+    if (response.status === 201 || response.status === 200) {
     console.log("Send message successfully", responseBody);
     return true;
     } else if (response.status === 400) {
@@ -115,8 +135,13 @@ async function sendMessage(data){
       return false;
       
     } 
+    else if (response.status === 500) {
+      showNotification(`Server error: ${responseBody.error || 'Unknown error'}`, "error");
+      return false;
+    }
   } catch (error) {
     showNotification("There was an error sending your message!","error");
+    return false;
   }
 }
 
@@ -176,6 +201,7 @@ document.addEventListener("DOMContentLoaded",async function(){
     careTakerElement.textContent = telegramName;
 
         sosButton.addEventListener("click",async function(){
+          showLoading();
       try {
         let coord = await receiveCoord();
         console.log(coord);
@@ -190,12 +216,18 @@ document.addEventListener("DOMContentLoaded",async function(){
            }
            let resp = await sendMessage(data);
            console.log(resp)
-           showNotification("Successfully sent SOS to your caretaker","success");
+           if(resp == true){
+            showNotification("Successfully sent SOS to your caretaker","success");
+           }else{
+            showNotification("Error sending SOS,make sure your chatId is correct","error");
+           }
          }
         }
       } catch (error) {
-        
+        console.log(error);
       }
+  hideLoading();
+
     })
 
   }else{
@@ -203,5 +235,6 @@ document.addEventListener("DOMContentLoaded",async function(){
     sosButton.addEventListener("click",function(){
       showNotification("Error sending SOS: Please set up your caretaker settings","error");
     })
+
   }
 })

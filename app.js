@@ -82,6 +82,7 @@ const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
 const birthdayController = require('./controllers/birthdayController');
 const weatherApiController = require('./controllers/weatherApiController');
+const hospitalController = require("./controllers/hospitalController");
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
 const mealController = require("./controllers/mealController");
 const mealPlanController = require('./controllers/mealplanController');
@@ -141,8 +142,8 @@ app.get("/sos/settings", (req, res) => {
 });
 
 // Trivia routes (DANISH)
-app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
-app.get("/trivia/options/:questionText", triviaController.getOptionsByQuestion);
+app.get("/trivia/questions/:categoryName",AuthMiddleware.authenticateToken, triviaController.getQuestionsByCategory);
+app.get("/trivia/options/:questionText",AuthMiddleware.authenticateToken, triviaController.getOptionsByQuestion);
 
 // User authentication routes
 app.post(
@@ -179,12 +180,12 @@ app.put(
 
 
 //ROUTES FOR SOS(Danish)
-app.get("/caretaker/getrecord/:id",sosController.retrieveRecord);
-app.post("/caretaker/convertaddress",sosController.convertLocation);
-app.post('/caretaker/send-message', sosController.sendTelegramMessage);
-app.post("/caretaker/create/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.createRecord);
-app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
-app.delete("/caretaker/delete/:id", sosController.deleteRecord);
+app.get("/caretaker/getrecord/:id",AuthMiddleware.authenticateToken,sosController.retrieveRecord);
+app.post("/caretaker/convertaddress",AuthMiddleware.authenticateToken,sosController.convertLocation);
+app.post('/caretaker/send-message', AuthMiddleware.authenticateToken,sosController.sendTelegramMessage);
+app.post("/caretaker/create/:id",AuthMiddleware.authenticateToken,sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.createRecord);
+app.put("/caretaker/update/:id",AuthMiddleware.authenticateToken,sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
+app.delete("/caretaker/delete/:id", AuthMiddleware.authenticateToken,sosController.deleteRecord);
 
 
 //RUN TELEBOT(Danish)
@@ -264,6 +265,10 @@ app.get("/api/topics/:id/comments", topicController.getComments);
 // Weight API routes
 app.post('/api/weight', AuthMiddleware.authenticateToken, weightController.addWeightEntry);
 app.get('/api/weight', AuthMiddleware.authenticateToken, weightController.getWeightHistory);
+
+//Routes for nearest hospital(danish)
+app.post("/hospital/getroute",AuthMiddleware.authenticateToken,hospitalController.getRouteData);
+app.get("/hospital/getall",AuthMiddleware.authenticateToken,hospitalController.getHopsitals);
 
 //start telebot
 /*try{
