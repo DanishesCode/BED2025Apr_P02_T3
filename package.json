@@ -20,6 +20,7 @@
   "homepage": "https://github.com/DanishesCode/DanishGrp_AssgBED#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",

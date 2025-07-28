@@ -6,7 +6,6 @@
 -- Ensure the script runs in EaseForLifeDB database
 USE EaseForLifeDb;
 
-
 CREATE TABLE Users (
     userId INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(100) NOT NULL,
