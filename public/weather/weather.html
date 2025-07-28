@@ -23,67 +23,85 @@
       <h1 class="hero-title">The only weather forecast you need</h1>
       <div class="search-container">
         <input type="text" class="search-box" placeholder="Enter Location" id="locationInput" />
-        <button class="search-btn" onclick="searchWeather()">Search</button>
+        <button class="search-btn" onclick="(function(){
+          var loc = document.getElementById('locationInput').value.trim();
+          if(loc) { searchWeather(loc); }
+          else { searchWeather(); }
+        })()">Search</button>
       </div>
     </section>
 
     <aside class="weather-sidebar">
       <div class="nav-tabs">
-        <button class="nav-tab active">Weather</button>
-        <button class="nav-tab">News</button>
-        <button class="nav-tab">Alert</button>
+        <button class="nav-tab active" onclick="showTab('weather')">Weather</button>
+        <button class="nav-tab" onclick="showTab('forecast')">Forecast</button>
+        <button class="nav-tab" onclick="showTab('alerts')">Alerts</button>
       </div>
 
-      <div class="weather-section">
-        <h2 class="section-title">Today</h2>
-
-        <div class="current-weather">
-          <div>
-            <div class="temp-display">
-              <span id="tempValue">--</span><span class="temp-unit">°C</span>
+      <!-- Weather Tab Content -->
+      <div id="weatherTab" class="tab-content active">
+        <div class="weather-section">
+          <h2 class="section-title">Today</h2>
+          <div class="current-weather">
+            <div>
+              <div class="temp-display">
+                <span id="tempValue">--</span><span class="temp-unit">°C</span>
+              </div>
+              <div class="temp-description" id="tempDescription">--</div>
+              <div class="day-info">
+                <span id="weatherDesc" class="day-name">--</span>
+              </div>
             </div>
-            <div class="temp-description" id="tempDescription">--</div>
-            <div class="day-info">
-              <span id="weatherDesc" class="day-name">--</span>
+            <div class="weather-details">
+              <div id="humidity">Humidity: --</div>
+              <div id="realFeel">RealFeel: --</div>
+              <div id="uvIndex">UV Index: --</div>
+              <div id="visibility">Visibility: --</div>
+              <div id="windInfo" style="display: none;">Wind: --</div>
+              <div id="pressureInfo" style="display: none;">Pressure: --</div>
             </div>
+            <div id="weatherError" style="color:#dc3545;margin-top:1em;display:none;"></div>
           </div>
-          <div class="weather-details">
-            <div id="humidity">Humidity: --</div>
-            <div id="realFeel">RealFeel: --</div>
-            <div id="uvIndex">UV Index: --</div>
-            <div id="visibility">Visibility: --</div>
+        </div>
+
+        <!-- Compact Activities Section - Right below main weather -->
+        <div class="weather-section activities-compact">
+          <h2 class="section-title">Recommended Activities</h2>
+          <div class="activities-grid-compact" id="compactActivitiesGrid" style="display: none;">
+            <!-- Activities will be dynamically populated here -->
           </div>
         </div>
       </div>
 
-      <div class="weather-section">
-        <h2 class="section-title">Next 10 Hours <span class="last-refresh"></span></h2>
-        <div class="hourly-forecast-container">
-          <!-- Hourly forecast will be dynamically populated here -->
+      <!-- Forecast Tab Content -->
+      <div id="forecastTab" class="tab-content">
+        <div class="weather-section">
+          <h2 class="section-title">Next 10 Hours <span class="last-refresh"></span></h2>
+          <div class="hourly-forecast-container">
+            <!-- Hourly forecast will be dynamically populated here -->
+          </div>
+        </div>
+
+        <div class="weather-section">
+          <h2 class="section-title">7-Day Forecast</h2>
+          <div class="daily-forecast-container">
+            <!-- Forecast days will be dynamically populated here -->
+          </div>
         </div>
       </div>
 
-      <div class="weather-section">
-        <h2 class="section-title">7-Day Forecast</h2>
-        <div class="daily-forecast-container">
-          <!-- Forecast days will be dynamically populated here -->
+      <!-- Alerts Tab Content -->
+      <div id="alertsTab" class="tab-content">
+        <div class="weather-section">
+          <h2 class="section-title">Weather Alerts</h2>
+          <div class="alerts-container">
+            <p class="no-alerts">No weather alerts at this time.</p>
+            <!-- Weather alerts will be dynamically populated here -->
+          </div>
         </div>
       </div>
     </aside>
   </div>
-
-  <!-- Modern Weather Activities Section -->
-  <section class="elderly-activities-full-section">
-    <div class="activities-wrapper">
-      <div class="activities-header">
-        <h2 class="activities-main-title">🌤️ Weather-Smart Activities</h2>
-        <p class="activities-main-subtitle">Thoughtfully curated recommendations for seniors based on current weather conditions and safety considerations</p>
-      </div>
-      <div class="activities-grid">
-        <!-- Activities will be dynamically populated here with new card structure -->
-      </div>
-    </div>
-  </section>
 
   <!-- Load weather app directly - with environment-aware path -->
   <script>
@@ -127,6 +145,26 @@
         console.error('❌ searchWeather function not available');
       }
     }, 3000);
+
+    // Tab switching functionality
+    window.showTab = function(tabName) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Remove active class from all tabs
+      const tabs = document.querySelectorAll('.nav-tab');
+      tabs.forEach(tab => tab.classList.remove('active'));
+      
+      // Show selected tab content
+      const selectedTab = document.getElementById(tabName + 'Tab');
+      if (selectedTab) {
+        selectedTab.classList.add('active');
+      }
+      
+      // Add active class to clicked tab
+      event.target.classList.add('active');
+    };
   </script>
   <!-- Keep navbar separate to avoid conflicts -->
 </body>

@@ -6,6 +6,8 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const multer = require("multer");
 const teleBot = require("./teleBot");
+const fs = require('fs');
+
 
 // Load environment variables FIRST
 dotenv.config();
@@ -17,33 +19,16 @@ const dbConfig = require("./dbConfig");
 // Create Express app
 const app = express();
 const port = process.env.PORT || 3000;
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
-// CORS configuration - allow multiple origins
+// Custom CORS middleware MUST be first to ensure headers are set for all requests
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
+    origin: function(origin, callback) {
         const allowedOrigins = [
-            'http://localhost:3000',
-            'http://localhost:3001',
-            'http://127.0.0.1:5500',
             'http://localhost:5500',
-            'http://127.0.0.1:5501',
-            'http://localhost:5501',
-            'http://127.0.0.1:5502',
-            'http://localhost:5502',
-            'http://127.0.0.1:5503',
-            'http://localhost:5503',
-            'http://127.0.0.1:5504',
-            'http://localhost:5504',
-            'http://127.0.0.1:3000',
-            'http://127.0.0.1:3001'
+            'http://127.0.0.1:5500',
+            'http://localhost:3000'
         ];
-        
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        // Allow requests with no origin (like mobile apps, curl, or Postman)
+        if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
@@ -51,19 +36,37 @@ app.use(cors({
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
+
+// Ensure all OPTIONS requests are handled for CORS preflight
+app.options('*', cors());
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
+// Serve uploaded images at /uploads
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Serve MVC files for browser-side loading
 app.use('/middlewares', express.static(path.join(__dirname, 'middlewares')));
 app.use('/models', express.static(path.join(__dirname, 'models')));
 app.use('/controllers', express.static(path.join(__dirname, 'controllers')));
 
-// Multer setup for file uploads
-const upload = multer();
+// Multer setup for file uploads (memory storage)
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only image files are allowed'), false);
+        }
+    }
+});
 
 app.options('*', cors());
 
@@ -77,7 +80,6 @@ const ValidationMiddleware = require("./middlewares/validationMiddleware");
 const validatePhoto = require("./middlewares/PhotoValidation");
 const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
-const appointmentController = require("./controllers/appointmentController");
 const birthdayController = require('./controllers/birthdayController');
 const weatherApiController = require('./controllers/weatherApiController');
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
@@ -86,6 +88,7 @@ const mealPlanController = require('./controllers/mealplanController');
 const suggestionController = require('./controllers/mealsuggestionController');
 const groceryController = require('./controllers/groceryController');
 const {  validateMeal, validateMealUpdate, validateMealId, validateUserId } = require('./middlewares/mealValidation');
+const topicController = require('./controllers/topicController');
 const weightController = require('./controllers/weightController');
 // Routes for pages
 app.get("/", (req, res) => {
@@ -124,10 +127,9 @@ app.get("/weather", (req, res) => {
 });
 
 // Weather API routes - secure backend endpoints
-app.get("/api/weather", weatherApiController.getWeather);
-app.get("/api/weather/search", weatherApiController.searchLocations);
-
-
+const weatherValidation = require('./middlewares/weatherValidation');
+app.get("/api/weather", weatherValidation.validateLocationMiddleware, weatherApiController.getWeather);
+app.get("/api/weather/search", weatherValidation.validateLocationMiddleware, weatherApiController.searchLocations);
 
 // SOS routes
 app.get("/sos", (req, res) => {
@@ -137,7 +139,6 @@ app.get("/sos", (req, res) => {
 app.get("/sos/settings", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'sos', 'setting.html'));
 });
-
 
 // Trivia routes (DANISH)
 app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
@@ -176,18 +177,6 @@ app.put(
     userController.updateProfile
 );
 
-app.post("/chat/", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
-
-// Retrive Chats and Messages
-app.get("/chat/:id", AuthMiddleware.authenticateToken, aichatController.retrieveChats);
-app.get("/chat/messages/:chatId", AuthMiddleware.authenticateToken, aichatController.retrieveMessages);
-
-// Save Messages
-app.post("/chat/messages", AuthMiddleware.authenticateToken, aichatController.saveMessage);
-
-// Add route for creating new chat
-app.post("/chat/new", AuthMiddleware.authenticateToken, aichatController.createChat);
-
 
 //ROUTES FOR SOS(Danish)
 app.get("/caretaker/getrecord/:id",sosController.retrieveRecord);
@@ -198,36 +187,79 @@ app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.
 app.delete("/caretaker/delete/:id", sosController.deleteRecord);
 
 
-
+//RUN TELEBOT(Danish)
+teleBot.startBot();
 
 
 app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
-app.post("/chat", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
-
-// Appointment API routes
-app.post("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.create);
-app.put("/api/appointments/:id", AuthMiddleware.authenticateToken, appointmentController.update);
-app.delete("/api/appointments/:id", AuthMiddleware.authenticateToken, appointmentController.delete);
-app.get("/api/appointments", AuthMiddleware.authenticateToken, appointmentController.list);
 
 
-// Birthday routes - Now with authentication
-app.get("/birthdays", AuthMiddleware.authenticateToken, birthdayController.getAllBirthdays);
-app.get("/birthdays/dashboard", AuthMiddleware.authenticateToken, birthdayController.getBirthdaysForDashboard);
-app.get("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.getBirthdayById);
-app.post("/birthdays", AuthMiddleware.authenticateToken, validateAdd, birthdayController.addBirthday);
-app.put("/birthdays/:id", AuthMiddleware.authenticateToken, validateUpdate, birthdayController.updateBirthday);
-app.delete("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.deleteBirthday);
+// Birthday routes
+app.get("/birthdays", birthdayController.getAllBirthdays);
+app.get("/birthdays/dashboard", birthdayController.getBirthdaysForDashboard);
+app.get("/birthdays/:id", birthdayController.getBirthdayById);
+app.post("/birthdays", validateAdd, birthdayController.addBirthday);
+app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
+app.delete("/birthdays/:id", birthdayController.deleteBirthday);
 
-// Photo Gallery API Routes
+// Photo Gallery API Routes (grouped together)
+app.get("/photos", AuthMiddleware.authenticateToken, photoController.getAllPhotos);
+app.get("/photos/:id", AuthMiddleware.authenticateToken, photoController.getPhotoById);
+app.post("/photos/upload", AuthMiddleware.authenticateToken, upload.single("photo"), validatePhoto, photoController.uploadPhoto);
+app.put("/photos/:id/favorite", AuthMiddleware.authenticateToken, photoController.toggleFavorite);
+app.put("/photos/:id", AuthMiddleware.authenticateToken, upload.single("photo"), photoController.updatePhoto);
+app.delete("/photos/:id", AuthMiddleware.authenticateToken, photoController.deletePhoto);
 
-app.get("/photos", photoController.getAllPhotos);
-app.get("/photos/:id", photoController.getPhotoById);
-app.post("/photos/upload", upload.single("photo"), validatePhoto, photoController.uploadPhoto);
 
-app.put("/photos/:id/favorite", photoController.toggleFavorite);
-app.put("/photos/:id", upload.single("photo"), photoController.updatePhoto);
-app.delete("/photos/:id", photoController.deletePhoto);
+// Error handling for multer
+app.use((error, req, res, next) => {
+    if (error instanceof multer.MulterError) {
+        if (error.code === 'LIMIT_FILE_SIZE') {
+            return res.status(400).json({ 
+                success: false, 
+                message: "File too large. Maximum size is 5MB." 
+            });
+        }
+        return res.status(400).json({ 
+            success: false, 
+            message: "File upload error: " + error.message 
+        });
+    }
+    if (error.message === 'Only image files are allowed') {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Only image files are allowed" 
+        });
+    }
+    next(error);
+});
+
+// Topics Learner routes
+app.get("/topics", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'TopicsLearner', 'topics.html'));
+});
+
+app.get("/topics/upload", (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'TopicsLearner', 'upload-topic.html'));
+});
+
+// Topics API routes
+app.get("/api/topics", AuthMiddleware.optionalAuth, topicController.getAllTopics);
+app.get("/api/topics/user", AuthMiddleware.authenticateToken, topicController.getUserTopics);
+app.get("/api/topics/category/:category", topicController.getTopicsByCategory);
+app.get("/api/topics/:id", topicController.getTopicById);
+app.post("/api/topics", AuthMiddleware.authenticateToken, topicController.createTopic);
+app.post("/api/topics/upload", AuthMiddleware.authenticateToken, topicController.uploadFile, topicController.createTopic);
+app.put("/api/topics/:id", AuthMiddleware.authenticateToken, topicController.uploadFile, topicController.updateTopic);
+app.delete("/api/topics/:id", AuthMiddleware.authenticateToken, topicController.deleteTopic);
+
+// Topic like/unlike routes
+app.post("/api/topics/:id/toggle-like", AuthMiddleware.authenticateToken, topicController.toggleLike);
+
+// Topic comment routes
+app.post("/api/topics/:id/comments", AuthMiddleware.authenticateToken, topicController.addComment);
+app.get("/api/topics/:id/comments", topicController.getComments);
+
 
 // Weight API routes
 app.post('/api/weight', AuthMiddleware.authenticateToken, weightController.addWeightEntry);

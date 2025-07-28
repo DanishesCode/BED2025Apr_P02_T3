@@ -1,7 +1,7 @@
 /* ===============================
    GLOBAL STYLES & RESET
    =============================== */
-* {
+   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -360,112 +360,120 @@ body {
 /* --- Responsive Grid --- */
 .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 36px;
-    padding: 0 32px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 28px 18px;
+    padding: 0 24px;
     width: 100%;
     margin: 0 auto;
-    max-width: 1100px;
-    justify-content: center;
+    max-width: 1200px;
+    justify-content: start;
+    align-items: start;
+    grid-auto-rows: minmax(220px, auto);
 }
-@media (max-width: 700px) {
-    .gallery-grid { grid-template-columns: 1fr; padding: 0 8px; }
+@media (max-width: 900px) {
+    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); padding: 0 8px; }
 }
 
 /* --- Gallery Card --- */
 .photo-card {
-    background: #f9f9fb;
-    border-radius: 18px;
-    box-shadow: 0 4px 24px rgba(44, 34, 84, 0.10);
+    background: #fff;
+    box-shadow: 0 8px 32px rgba(44, 34, 84, 0.18);
     overflow: hidden;
     transition: box-shadow 0.25s, transform 0.25s;
-    border: 1.5px solid #e3e3ef;
     display: flex;
     flex-direction: column;
-    min-height: 340px;
-    max-width: 400px;
+    align-items: center;
     width: 100%;
-    margin: 0 auto;
+    margin: 0;
+    position: relative;
+    padding: 18px 18px 48px 18px; /* bottom is much thicker */
+    box-sizing: border-box;
 }
 .photo-card:hover {
-    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.18);
-    transform: translateY(-6px) scale(1.025);
-    border-color: #a084e8;
+    box-shadow: 0 16px 48px rgba(102, 126, 234, 0.18);
+    transform: translateY(-8px) scale(1.04);
+    border-color: #764ba2;
 }
 
 /* --- Gallery Image --- */
 .photo-wrapper {
     width: 100%;
     aspect-ratio: 4/3;
+    background: #fff;
     overflow: hidden;
-    background: #eaeaf2;
+    box-shadow: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-bottom: 0; /* no extra margin needed */
+    padding: 0;
+    border-bottom: 2px solid #888 !important; /* Mild grey divider under photo */
 }
 .photo-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
-    transition: transform 0.3s;
-    border-radius: 18px 18px 0 0;
-}
-.photo-card:hover .photo-image {
-    transform: scale(1.04);
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(102,126,234,0.18);
+    background: #eee;
 }
 
 /* --- Info below image --- */
 .photo-info {
-    padding: 22px 20px 16px 20px;
-    background: #f9f9fb;
+    width: 100%;
+    padding: 18px 0 0 0; /* only top padding to separate from image */
+    background: transparent;
+    border: none;
     border-radius: 0 0 18px 18px;
     box-shadow: none;
-    margin-top: 0;
+    margin-top: auto;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 .photo-title {
-    font-size: 1.18rem;
+    font-size: 1.15rem;
     font-weight: 700;
     color: #2c3e50;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
     font-family: 'Playfair Display', serif;
+    text-align: center;
 }
 .photo-description {
-    font-size: 1rem;
+    font-size: 0.98rem;
     color: #7f8c8d;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     line-height: 1.5;
     font-style: italic;
     flex: 1;
+    text-align: center;
 }
 .photo-meta {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     margin-top: auto;
-    padding-top: 8px;
-    border-top: 1px solid #ececf3;
+    padding-top: 6px;
+    border-top: none;
 }
-.photo-date {
-    font-size: 0.92rem;
-    color: #b0b0c3;
-    font-weight: 500;
-}
-.photo-tag {
-    background: #667eea;
-    color: #fff;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.82rem;
-    font-weight: 500;
-}
-.photo-location {
+.photo-date, .photo-location {
     font-size: 0.85rem;
     color: #b0b0c3;
-    margin-left: 8px;
+    font-weight: 500;
+}
+.photo-date {
+  white-space: nowrap;
+}
+.photo-tag {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-weight: 500;
 }
 
 /* Loading Spinner */
@@ -824,7 +832,7 @@ body {
 }
 
 .upload-area {
-    border: 3px dashed #667eea;
+    border: 9px dashed #000000;
     border-radius: 20px;
     padding: 60px 20px;
     text-align: center;
@@ -1944,7 +1952,7 @@ body {
 .photo-overlay {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(45deg, rgba(102, 126, 234, 0.88), rgba(118, 75, 162, 0.88));
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.88), rgba(102, 126, 234, 0.88));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1959,8 +1967,8 @@ body {
 }
 
 .photo-action {
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: #fff;
     border: none;
@@ -1970,19 +1978,19 @@ body {
     justify-content: center;
     transition: box-shadow 0.2s, background 0.2s, transform 0.2s;
     box-shadow: 0 2px 8px rgba(44, 34, 84, 0.10);
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     z-index: 3;
 }
 .photo-action:hover {
-    background: #667eea;
+    background: #f093fb;
     color: #fff;
-    transform: scale(1.08);
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.18);
+    transform: scale(1.12);
+    box-shadow: 0 6px 20px rgba(240, 147, 251, 0.18);
 }
 .photo-action svg {
-    width: 22px;
-    height: 22px;
-    color: #667eea;
+    width: 18px;
+    height: 18px;
+    color: #f093fb;
     transition: color 0.2s;
 }
 .photo-action:hover svg {
@@ -2055,4 +2063,53 @@ body {
     .modal-arrow-left { left: 8px; }
     .modal-arrow-right { right: 8px; }
     .modal-arrow { width: 40px; height: 40px; font-size: 1.3rem; }
+}
+
+/* Accessibility: Focus Styles */
+.cta-button:focus, .btn-primary:focus, .btn-secondary:focus, .photo-action:focus {
+  outline: 2px solid #764ba2;
+  outline-offset: 2px;
+}
+
+/* Mobile Gallery Grid */
+@media (max-width: 600px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 4px;
+  }
+  .gallery-section {
+    padding: 16px 0 32px 0;
+  }
+}
+
+#current-image {
+    max-width: 100%;
+    max-height: 200px;      /* Adjust this value as needed for your modal */
+    object-fit: contain;    /* Ensures the whole image is visible, not cropped */
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;     /* Optional: rounded corners */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* Optional: subtle shadow */
+    background: #f8f8f8;    /* Optional: light background */
+}
+
+#current-image-container {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+.photo-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.photo-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+  font-size: 0.98em;
 }

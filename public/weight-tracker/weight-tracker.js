@@ -6,8 +6,8 @@ class WeightTracker {
         this.init();
     }
 
-    init() {
-        this.loadWeightHistory();
+    async init() {
+        await this.loadWeightHistory();
         this.setupEventListeners();
         this.loadExercises();
     }
@@ -23,15 +23,34 @@ class WeightTracker {
         });
     }
 
-    handleWeightSubmit(e) {
+    async handleWeightSubmit(e) {
         e.preventDefault();
         
         const currentWeight = parseFloat(document.getElementById('currentWeight').value);
         const height = parseFloat(document.getElementById('height').value);
         const goalWeight = parseFloat(document.getElementById('goalWeight').value);
-        const age = parseInt(document.getElementById('age').value);
 
-        if (!currentWeight || !height || !goalWeight || !age) {
+        // Get age from currentUser's date_of_birth
+        let age = null;
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            try {
+                const user = JSON.parse(currentUser);
+                if (user.date_of_birth) {
+                    const dob = new Date(user.date_of_birth);
+                    const today = new Date();
+                    age = today.getFullYear() - dob.getFullYear();
+                    const m = today.getMonth() - dob.getMonth();
+                    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+                        age--;
+                    }
+                }
+            } catch (e) {
+                age = null;
+            }
+        }
+
+        if (!currentWeight || !height || !goalWeight || age === null) {
             alert('Please fill in all fields');
             return;
         }
@@ -41,8 +60,34 @@ class WeightTracker {
         const goalBMI = this.calculateBMI(goalWeight, height);
         const weightDifference = goalWeight - currentWeight;
 
-        // Save to history
-        this.saveWeightEntry(currentWeight, height, age);
+        // Save to backend
+        const entry = {
+            date: new Date().toISOString().split('T')[0],
+            weight: currentWeight,
+            height: height,
+            age: age,
+            bmi: currentBMI
+        };
+        try {
+            const res = await fetch('/api/weight', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                credentials: 'include',
+                body: JSON.stringify(entry)
+            });
+            if (!res.ok) {
+                throw new Error('Failed to save weight entry');
+            }
+        } catch (err) {
+            alert('Failed to save weight entry. Please try again.');
+            return;
+        }
+
+        // Reload history from backend
+        await this.loadWeightHistory();
 
         // Display results
         this.displayBMIResults(currentBMI, goalBMI, weightDifference);
@@ -89,23 +134,29 @@ class WeightTracker {
         bmiResults.style.display = 'block';
     }
 
-    saveWeightEntry(weight, height, age) {
-        const entry = {
-            date: new Date().toISOString().split('T')[0],
-            weight: weight,
-            height: height,
-            age: age,
-            bmi: this.calculateBMI(weight, height)
-        };
-
-        this.weightHistory.push(entry);
-        localStorage.setItem('weightHistory', JSON.stringify(this.weightHistory));
-    }
-
-    loadWeightHistory() {
-        const saved = localStorage.getItem('weightHistory');
-        if (saved) {
-            this.weightHistory = JSON.parse(saved);
+    async loadWeightHistory() {
+        try {
+            const res = await fetch('/api/weight', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                },
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error('Failed to fetch weight history');
+            const data = await res.json();
+            if (!data.history || !Array.isArray(data.history)) {
+                throw new Error('No weight history found. Please log your weight.');
+            }
+            this.weightHistory = data.history.map(entry => ({
+                date: entry.date.split('T')[0],
+                weight: entry.weight,
+                height: entry.height,
+                age: entry.age,
+                bmi: entry.bmi
+            }));
+        } catch (err) {
+            this.weightHistory = [];
+            alert(err.message || 'Failed to load weight history. Please log in again.');
         }
     }
 
@@ -216,29 +267,28 @@ class WeightTracker {
 
     async loadExercises() {
         try {
-            // Using ExerciseDB API (free, no API key required)
             const response = await fetch('https://exercisedb.p.rapidapi.com/exercises?limit=50', {
                 headers: {
-                    'X-RapidAPI-Key': 'your-api-key-here', // Optional for basic usage
+                    'X-RapidAPI-Key': '2ff47c855amshd24d8991b878e49p1682dfjsn4660081b250d',
                     'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
                 }
             });
-
             if (!response.ok) {
-                // Fallback to local exercise data if API fails
                 this.loadLocalExercises();
                 return;
             }
-
             const data = await response.json();
+            if (!Array.isArray(data) || data.length === 0) {
+                this.loadLocalExercises();
+                return;
+            }
             this.exercises = data.map(exercise => ({
                 name: exercise.name,
-                type: exercise.bodyPart,
+                type: exercise.bodyPart, // bodyPart is the main category
                 equipment: exercise.equipment,
                 target: exercise.target,
                 gifUrl: exercise.gifUrl
             }));
-
             this.displayExercises();
         } catch (error) {
             console.log('Using local exercise data');
@@ -286,21 +336,38 @@ class WeightTracker {
 
     filterExercises(type) {
         this.currentFilter = type;
-        
         // Update filter buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.classList.remove('active');
         });
         document.querySelector(`[data-type="${type}"]`).classList.add('active');
 
-        // Filter exercises
+        // Map filter type to ExerciseDB bodyPart(s)
+        let filteredExercises = [];
+        if (type === 'all') {
+            filteredExercises = this.exercises;
+        } else if (type === 'cardio') {
+            filteredExercises = this.exercises.filter(ex => ex.type && ex.type.toLowerCase() === 'cardio');
+        } else if (type === 'strength') {
+            // Strength: upper arms, lower arms, chest, upper legs, lower legs, back, shoulders
+            const strengthParts = [
+                'upper arms', 'lower arms', 'chest', 'upper legs', 'lower legs', 'back', 'shoulders', 'forearms', 'traps', 'neck'
+            ];
+            filteredExercises = this.exercises.filter(ex => ex.type && strengthParts.includes(ex.type.toLowerCase()));
+        } else if (type === 'flexibility') {
+            // Flexibility: waist, lower back, neck, etc.
+            const flexibilityParts = [
+                'waist', 'lower back', 'neck', 'spine', 'abs', 'adductors', 'abductors', 'calves', 'glutes', 'hamstrings', 'lats', 'pectorals', 'serratus anterior', 'upper back', 'delts', 'levator scapulae'
+            ];
+            filteredExercises = this.exercises.filter(ex => ex.type && flexibilityParts.includes(ex.type.toLowerCase()));
+        }
+
         const grid = document.getElementById('exercisesGrid');
         grid.innerHTML = '';
-
-        const filteredExercises = type === 'all' 
-            ? this.exercises 
-            : this.exercises.filter(exercise => exercise.type === type);
-
+        if (filteredExercises.length === 0) {
+            grid.innerHTML = '<div class="no-exercises">No exercises found for this category.</div>';
+            return;
+        }
         filteredExercises.forEach(exercise => {
             const card = document.createElement('div');
             card.className = 'exercise-card';
