@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Planner & Grocery List</title>
+    <link rel="stylesheet" href="grocery.css">
+    <link rel="stylesheet" href="../navbar/navbar.css">
+</head>
+<body>
+    <div class="container">
+        <div style="margin-bottom: 20px;">
+            <button onclick="window.location.href='../meal-planner/meal.html'" style="background-color: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+                ← Back to Meal Planner
+            </button>
+        </div>
+        <h1>🍽️ Meal Planner & Grocery List</h1>
+        
+        <div class="section">
+            <h2>📅 Meal Planning Integration</h2>
+            <p>Select meal categories from your current meal plan to automatically generate grocery list:</p>
+            <div class="meal-selection">
+                <div class="meal-toggle">
+                    <input type="checkbox" id="breakfast" checked>
+                    <label for="breakfast">🍳 Breakfast</label>
+                </div>
+                <div class="meal-toggle">
+                    <input type="checkbox" id="lunch" checked>
+                    <label for="lunch">🥪 Lunch</label>
+                </div>
+                <div class="meal-toggle">
+                    <input type="checkbox" id="dinner" checked>
+                    <label for="dinner">🍽️ Dinner</label>
+                </div>
+            </div>
+            <button class="generate-btn" onclick="generateGroceryList()">
+                🛒 Generate Grocery List from Meal Plan
+            </button>
+            <p style="margin-top: 15px; font-size: 16px; color: #6c757d;">
+                💡 Tip: First add meals to your meal planner, then generate the grocery list here!
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>🛒 Grocery List</h2>
+            
+            <div class="add-item-section">
+                <input type="text" class="add-item-input" id="newItemInput" placeholder="Enter item name..." onkeypress="handleEnterKey(event)">
+                <input type="number" class="add-item-input" id="newItemQuantity" placeholder="Qty" value="1" min="0.1" step="0.1" style="flex: 0 0 80px;">
+                <select class="add-item-input" id="newItemUnit" style="flex: 0 0 100px;">
+                    <option value="pcs">pcs</option>
+                    <option value="kg">kg</option>
+                    <option value="g">g</option>
+                    <option value="lbs">lbs</option>
+                    <option value="oz">oz</option>
+                    <option value="L">L</option>
+                    <option value="ml">ml</option>
+                    <option value="cups">cups</option>
+                    <option value="tbsp">tbsp</option>
+                    <option value="tsp">tsp</option>
+                    <option value="cans">cans</option>
+                    <option value="bottles">bottles</option>
+                    <option value="bags">bags</option>
+                    <option value="boxes">boxes</option>
+                </select>
+                <button class="add-btn" onclick="addItem()">+ Add Item</button>
+            </div>
+
+            <button class="clear-btn" onclick="clearBoughtItems()">🗑️ Clear Bought Items</button>
+
+            <table class="grocery-table" id="groceryTable">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Quantity & Unit</th>
+                        <th>Status</th>
+                        <th>✅ Mark as Bought</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="groceryTableBody">
+                    <!-- Items will be added here -->
+                </tbody>
+            </table>
+
+            <div id="emptyState" class="empty-state">
+                No items in your grocery list yet. Add some items or generate from your meal plan!
+            </div>
+        </div>
+    </div>
+
+    <script src="grocery.js"></script>
+    <script src="../navbar/navbar.js"></script>
+</body>
+</html>
