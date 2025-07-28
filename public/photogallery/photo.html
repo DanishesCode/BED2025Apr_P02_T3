@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Life Gallery</title>
     <link rel="stylesheet" href="photo.css">
+    <link rel="stylesheet" href="../navbar/navbar.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -86,6 +87,7 @@
         <!-- Move arrows here -->
         <button class="modal-arrow modal-arrow-left" id="modal-arrow-left" aria-label="Previous photo">&#8592;</button>
         <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()" aria-label="Close modal">×</button>
             <img src="" alt="" class="modal-image">
             <div class="modal-info">
                 <h3 class="modal-title"></h3>
@@ -198,5 +200,31 @@
 
 
     <script src="photo.js"></script>
+    <script src="../navbar/navbar.js"></script>
+<script>
+// Heart icon favorite toggle for edit modal (robust null check)
+document.addEventListener('DOMContentLoaded', function() {
+    var editFavoriteCheckbox = document.getElementById('edit-favorite');
+    var heartIcon = document.querySelector('.heart-icon');
+    if (!editFavoriteCheckbox || !heartIcon) return;
+    function updateHeart() {
+        if (editFavoriteCheckbox.checked) {
+            heartIcon.classList.add('active');
+            heartIcon.style.stroke = '#e63946';
+            heartIcon.style.fill = '#e63946';
+        } else {
+            heartIcon.classList.remove('active');
+            heartIcon.style.stroke = 'currentColor';
+            heartIcon.style.fill = 'none';
+        }
+    }
+    editFavoriteCheckbox.addEventListener('change', updateHeart);
+    heartIcon.addEventListener('click', function(e) {
+        editFavoriteCheckbox.checked = !editFavoriteCheckbox.checked;
+        editFavoriteCheckbox.dispatchEvent(new Event('change'));
+    });
+    updateHeart();
+});
+</script>
 </body>
 </html>

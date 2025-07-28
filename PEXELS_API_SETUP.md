@@ -1,51 +1,38 @@
 # 🖼️ Pexels API Setup Guide
 
-## 📋 Quick Setup Instructions
+## 📸 Get Your FREE Pexels API Key
 
 ### 1. Get Your FREE Pexels API Key
 1. Go to [Pexels API](https://www.pexels.com/api/)
-2. Click "Get Started" 
-3. Sign up with your email (it's free!)
-4. Once logged in, you'll see your API key
+2. Sign up for a free account
+3. Get your API key from the dashboard
 
-### 2. Configure Your API Key
-Replace the placeholder in `models/weatherModel.js`:
+### 2. Set Up Environment Variable
+Add your API key to your `.env` file:
 
-```javascript
-// Find this line (around line 8):
-this.pexelsApiKey = 'ENTER_YOUR_PEXELS_API_KEY_HERE';
-
-// Replace with your actual key:
-this.pexelsApiKey = 'YOUR_ACTUAL_PEXELS_API_KEY';
+```env
+PEXELS_API_KEY=your_actual_pexels_api_key_here
 ```
 
-## 🎯 What You'll Get
+### 3. Features
+- ✅ **High Quality**: Professional photography from Pexels
+- ✅ **Free Tier**: 200 requests per hour
+- ✅ **Landscape Images**: Perfect for weather app backgrounds
+- ✅ **Multiple Keywords**: Searches for city, country, landscape, architecture
 
-✅ **Relevant Images**: Real photos of Singapore locations
-✅ **High Quality**: Professional photography from Pexels
-✅ **Free Tier**: 200 requests per hour (plenty for testing)
-✅ **Automatic Fallback**: Curated images if API fails
+### 4. How It Works
+The system searches for images using these keywords:
+1. `City Country` (e.g., "Singapore Singapore")
+2. `City city` (e.g., "London city")
+3. `Country landscape` (e.g., "Japan landscape")
+4. `Country architecture` (e.g., "France architecture")
 
-## 🔄 Current Fallback System
+### 5. Example Usage
+```javascript
+// Automatically fetches beautiful images for any location
+const imageUrl = await weatherModel.getLocationImage("Singapore", "Singapore");
+// Returns: https://images.pexels.com/photos/...
+```
 
-Even without the API key, you'll get:
-- High-quality Singapore images for major locations
-- Smart keyword-based image selection
-- Reliable fallback system
-
-## 📊 API Limits
-
-- **Free Tier**: 200 requests/hour
-- **Rate Limiting**: Built-in delays between requests
-- **Fallback Protection**: Graceful degradation if limits exceeded
-
-## 🛠️ Troubleshooting
-
-**Issue**: Images still not showing
-**Solution**: Check browser console for error messages
-
-**Issue**: API key not working  
-**Solution**: Verify the key is correct and account is active
-
-**Issue**: Rate limit exceeded
-**Solution**: The app will automatically use fallback images
+## 🚀 Ready to Use!
+Once you add your Pexels API key to the `.env` file, the weather app will automatically display beautiful location-specific images! 

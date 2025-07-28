@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Recipe - FlavorPlan</title>
+    <link rel="stylesheet" href="edit-recipe.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Edit Recipe</h1>
+            <p>Update your recipe details</p>
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="goBack()">← Back to Recipes</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="edit-recipe-form">
+                <form id="editRecipeForm">
+                    <input type="hidden" id="mealId" value="">
+                    
+                    <div class="form-group">
+                        <label for="editRecipeName">Recipe Name</label>
+                        <input type="text" id="editRecipeName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editRecipeCategory">Category</label>
+                        <select id="editRecipeCategory" required>
+                            <option value="">Select a category</option>
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="dinner">Dinner</option>
+                            <option value="snack">Snack</option>
+                            <option value="dessert">Dessert</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="editRecipeInstructions">Instructions</label>
+                        <textarea id="editRecipeInstructions" rows="6" required placeholder="Enter step-by-step cooking instructions..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn secondary" onclick="goBack()">
+                            <span>Cancel</span>
+                        </button>
+                        <button type="submit" class="btn success">
+                            <span>Update Recipe</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="edit-recipe.js"></script>
+</body>
+</html>
+
+

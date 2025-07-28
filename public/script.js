@@ -16,6 +16,18 @@ const toolsData = {
     ],
     health: [
         {
+            title: "Meal Planner",
+            description: "Plan your weekly meals and generate grocery lists automatically.",
+            icon: "chat",
+            url: "meal-planner/meal.html"
+        },
+        {
+            title: "Grocery List",
+            description: "Smart grocery lists with units, auto-generated from your meal plans.",
+            icon: "summarizer",
+            url: "grocery-list/grocery.html"
+        },
+        {
             title: "Book Health Appointment",
             description: "Schedule an appointment with your personalized health coach or AI assistant.",
             icon: "chat",
@@ -35,6 +47,12 @@ const toolsData = {
         }
     ],
     learning: [
+        {
+            title: "Topics Learner",
+            description: "Share and discover knowledge through text, images, and videos uploaded by the community.",
+            icon: "chat",
+            url: "TopicsLearner/topics.html"
+        },
         {
             title: "Study Planner",
             description: "Organize your study schedule and track learning progress.",

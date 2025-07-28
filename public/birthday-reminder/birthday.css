@@ -9,6 +9,7 @@ body {
     background-color: #f8f9fa;
     color: #333;
     line-height: 1.6;
+    padding-top: 80px; /* Account for fixed navbar */
 }
 
 .container {
@@ -17,7 +18,7 @@ body {
     padding: 20px;
 }
 
-.header {
+.birthday-header {
     margin-bottom: 30px;
 }
 
