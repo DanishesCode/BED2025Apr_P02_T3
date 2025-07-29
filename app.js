@@ -7,6 +7,8 @@ const cors = require("cors");
 const multer = require("multer");
 const teleBot = require("./teleBot");
 const fs = require('fs');
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger-output.json"); // Import generated spec
 
 
 // Load environment variables FIRST
@@ -329,6 +331,8 @@ app.put("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController
 app.delete("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.deleteGroceryItem);
 app.post("/grocery/generate/:userId", AuthMiddleware.authenticateToken, groceryController.generateFromMealPlan);
 
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // Summarization API route
 app.post('/api/summarize', summarizerController.summarizeText);
 
