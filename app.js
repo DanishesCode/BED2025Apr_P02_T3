@@ -20,35 +20,9 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-// CORS configuration - allow multiple origins
+// CORS configuration - simplified for development
 app.use(cors({
-    origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-        
-        const allowedOrigins = [
-            'http://localhost:3000',
-            'http://localhost:3001',
-            'http://127.0.0.1:5500',
-            'http://localhost:5500',
-            'http://127.0.0.1:5501',
-            'http://localhost:5501',
-            'http://127.0.0.1:5502',
-            'http://localhost:5502',
-            'http://127.0.0.1:5503',
-            'http://localhost:5503',
-            'http://127.0.0.1:5504',
-            'http://localhost:5504',
-            'http://127.0.0.1:3000',
-            'http://127.0.0.1:3001'
-        ];
-        
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: true, // Allow all origins during development
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
