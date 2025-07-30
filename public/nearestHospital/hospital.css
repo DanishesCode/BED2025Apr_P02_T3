@@ -1,0 +1,340 @@
+/* Reset some default */
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background: #f9faff;
+    margin: 20px;
+    color: #222;
+  }
+  
+  .container {
+    margin-top: 60px; /* or whatever your navbar's height is */
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  
+  header svg {
+    width: 28px;
+    height: 28px;
+    fill: #ff4d4f;
+  }
+  
+  header h1 {
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin: 0;
+  }
+  
+  header p {
+    margin: 0 0 20px 38px;
+    color: #666;
+    font-size: 1rem;
+  }
+  
+  .search-area {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 24px;
+  }
+  
+  .search-area input[type="search"] {
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 1rem;
+    max-width:600px;
+    border-radius: 20px;
+    border: 1px solid #bbb;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  
+  .search-area input[type="search"]:focus {
+    border-color: #0088ff;
+  }
+  
+  .search-area button {
+    background-color: #0088ff;
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0 22px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    margin-left:500px;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.3s;
+  }
+  
+  .search-area button:hover {
+    background-color: #006fcc;
+  }
+  
+  .search-area button svg {
+    width: 18px;
+    height: 18px;
+    fill: white;
+  }
+  
+  .main-content {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .hospitals-list {
+    flex: 1 1 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 600px;
+    min-height:400px;
+    max-height: 400px;    /* Set your desired max height */
+    overflow-y: auto;     /* Enable vertical scrolling */
+  }
+  
+  .hospital-card {
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    padding: 15px 20px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+ .hospital-card:hover{
+    cursor: pointer;
+    border: 1px solid #b6a1a1;
+ }
+  
+  .hospital-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .hospital-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  
+  .distance {
+    color: #0066ff;
+    font-weight: 700;
+  }
+  
+  .emergency-badge {
+    background-color: #ff4d4f;
+    color: white;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 6px;
+    width: fit-content;
+  }
+  .type {
+    background-color: blue;
+    color: white;
+    font-size: 0.75rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 6px;
+    width: fit-content;
+  }
+  
+  .rating {
+    color: #f5a623;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-left: 10px;
+    user-select: none;
+  }
+  
+  .hospital-info {
+    color: #888;
+    font-size: 0.9rem;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .hospital-info svg {
+    width: 14px;
+    height: 14px;
+    fill: #888;
+  }
+  
+  .hospital-address {
+    flex: 1;
+  }
+  
+  .services {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  
+  .service-tag {
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #444;
+    cursor: default;
+    user-select: none;
+    border: 1px solid #ccc;
+  }
+  
+  .service-tag.more {
+    background-color: #fff;
+    border: 1px solid #bbb;
+    color: #333;
+  }
+  
+  #map {
+    width: 700px;
+    min-height: 500px;
+    background-color: #ddd;
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: #444;
+    font-weight: 600;
+    font-size: 0.9rem;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  #map span{
+    background-color: white;
+    padding:5px;
+    padding-bottom: 10px;
+    padding-top:10px;
+    margin-left:34vw;
+    border-radius: 20px;
+  }
+  .mapboxgl-popup-close-button {
+    display:none;
+  }
+  .sidebar span {
+    background: #eee;
+    border-radius: 14px;
+    padding: 4px 10px;
+    float: right;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #666;
+    border: 1px solid #ccc;
+  }
+  .travel-type{
+    margin-bottom:20px;
+  }
+  .travel-type button{
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #444;
+    cursor: default;
+    user-select: none;
+    border: 1px solid #ccc;
+  }
+  .travel-type button:hover{
+    cursor:pointer;
+  }
+
+  .notification {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background-color: #333;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    z-index: 9999;
+    max-width: 90%;
+    width: fit-content;
+    pointer-events: none;
+    font-size: 14px;
+  }
+  
+  .notification.success {
+    background-color: #28a745;
+  }
+  
+  .notification.error {
+    background-color: #dc3545;
+  }
+  
+  .notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  
+  .hidden {
+    display: none;
+  }
+  #loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none; /* Hidden by default */
+  }
+  
+  .spinner {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #0074D9;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  
+  /* Responsive */
+  @media (max-width: 740px) {
+    .main-content {
+      flex-direction: column;
+    }
+    .sidebar {
+      width: 100%;
+      order: -1;
+      margin-bottom: 15px;
+    }
+  }
+
+  

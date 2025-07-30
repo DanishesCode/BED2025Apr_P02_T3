@@ -5,9 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tool Browser</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="navbar.css">
 </head>
 <body>
+    <div class="header">
+        <div class="header-left">
+            <button class="menu-button" id="menuButton">
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </button>
+            <div class="logo">Logo Here</div>
+        </div>
+        <div class="header-right">
+            <div class="credit">Credit</div>
+            <div class="profile" id="profileSection">
+                <span id="userName">Guest</span>
+                <div class="profile-icon">👤</div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-item" id="logoutBtn">Logout</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="container">
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -159,6 +180,18 @@
                 </div>
 
                 <!-- Scheduling & Reminders Tools -->
+                <div class="tool-card scheduling-tool" style="display: none;" onclick="openTool('birthday-reminder/birthday.html')">
+                    <div class="tool-icon chat">
+                        <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
+                    </div>
+                    <h3 class="tool-title">Birthday Reminder</h3>
+                    <p class="tool-description">Keep track of important birthdays and get timely reminders.</p>
+                    <button class="tool-button" onclick="event.stopPropagation(); openTool('birthday-reminder/birthday.html')">
+                        Open Tool
+                        <div class="button-icon"></div>
+                    </button>
+                </div>
+
                 <div class="tool-card scheduling-tool" style="display: none;" onclick="openTool('#')">
                     <div class="tool-icon chat">
                         <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
@@ -211,35 +244,82 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
     <script>
-        // Authentication check
+        // Tool navigation function
+        function openTool(url) {
+            if (url === '#') {
+                alert('This tool is coming soon!');
+                return;
+            }
+            window.location.href = url;
+        }
+
+        // Mobile menu toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuButton = document.getElementById('menuButton');
+            
+            if (sidebar && overlay && menuButton) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                menuButton.classList.toggle('active');
+            }
+        }
+
+        // Close sidebar
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuButton = document.getElementById('menuButton');
+            
+            if (sidebar && overlay && menuButton) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                menuButton.classList.remove('active');
+            }
+        }
+
+        // Category switching functionality
         document.addEventListener('DOMContentLoaded', function() {
+            // Authentication check
             const token = localStorage.getItem('authToken');
             const currentUser = localStorage.getItem('currentUser');
             
             if (!token) {
-                                    // Redirect to login if not authenticated
-                    window.location.href = 'login/login.html';
-                    return;
+                // Redirect to login if not authenticated
+                window.location.href = 'http://localhost:3000/login';
+                return;
+            }
+            
+            // Display user info  
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    document.getElementById('userName').textContent = user.name || 'User';
+                } catch (e) {
+                    console.error('Error parsing user data:', e);
                 }
-                
-                // Display user info
-                if (currentUser) {
-                    try {
-                        const user = JSON.parse(currentUser);
-                        document.getElementById('userName').textContent = user.name || 'User';
-                    } catch (e) {
-                        console.error('Error parsing user data:', e);
-                    }
-                }
-                
-                
+            }
+
+            // Setup menu button
+            const menuButton = document.getElementById('menuButton');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            if (menuButton) {
+                menuButton.addEventListener('click', toggleSidebar);
+            }
+            
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', closeSidebar);
+            }
+
+            // Setup logout functionality
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
                 logoutBtn.addEventListener('click', async function() {
-                    console.log('Logout button clicked');
                     try {
-                        console.log('Attempting logout with token:', token);
-                        const response = await fetch('http://127.0.0.1:3000/auth/logout', {
+                        const response = await fetch('http://localhost:3000/auth/logout', {
                             method: 'POST',
                             headers: {
                                 'Authorization': `Bearer ${token}`,
@@ -248,13 +328,10 @@
                             credentials: 'include'
                         });
                         
-                        console.log('Logout response:', response.status);
-                        
                         // Clear localStorage regardless of server response
                         localStorage.removeItem('authToken');
                         localStorage.removeItem('currentUser');
                         
-                        console.log('LocalStorage cleared, redirecting to login');
                         // Redirect to login
                         window.location.href = 'login/login.html';
                     } catch (error) {
@@ -262,18 +339,15 @@
                         // Still clear localStorage and redirect
                         localStorage.removeItem('authToken');
                         localStorage.removeItem('currentUser');
-                        console.log('Error occurred, still redirecting to login');
                         window.location.href = 'login/login.html';
-                }
-            });
-            
+                    }
+                });
+            }
+
             // Profile dropdown toggle
             const profileSection = document.querySelector('.profile');
-            console.log('Profile section found:', profileSection);
-            
             if (profileSection) {
                 profileSection.addEventListener('click', function() {
-                    console.log('Profile clicked, toggling dropdown');
                     document.getElementById('profileDropdown').classList.toggle('show');
                 });
             }
@@ -284,8 +358,43 @@
                     document.getElementById('profileDropdown').classList.remove('show');
                 }
             });
+
+            // Category switching
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const category = item.dataset.category;
+                    
+                    // Remove active class from all items
+                    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Hide all tools
+                    document.querySelectorAll('.tool-card').forEach(card => {
+                        card.style.display = 'none';
+                    });
+                    
+                    // Show tools for selected category
+                    document.querySelectorAll(`.${category}-tool`).forEach(card => {
+                        card.style.display = 'block';
+                    });
+                    
+                    // Update title
+                    const categoryNames = {
+                        health: 'Health & Wellness',
+                        ai: 'AI Assistance', 
+                        learning: 'Learning & Engagement',
+                        scheduling: 'Scheduling & Reminders',
+                        utilities: 'Utilities'
+                    };
+                    document.getElementById('categoryTitle').textContent = categoryNames[category];
+
+                    // Close sidebar on mobile after selection
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                });
+            });
         });
     </script>
-    <script src="navbar.js"></script>
 </body>
 </html>
