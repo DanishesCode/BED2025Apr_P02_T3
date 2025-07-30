@@ -4,15 +4,41 @@ const WeightController = {
     async addWeightEntry(req, res) {
         try {
             const userId = req.user.userId;
-            const { weight, height, age, bmi, date } = req.body;
+            const { weight, height, bmi, date } = req.body;
             
             // Check for required fields
-            if (!weight || !height || !age || !bmi || !date) {
+            if (!weight || !height || !bmi || !date) {
                 return res.status(400).json({ 
                     success: false, 
-                    message: 'All fields (weight, height, age, bmi, date) are required.',
+                    message: 'All fields (weight, height, bmi, date) are required.',
                     error: 'MISSING_REQUIRED_FIELDS'
                 });
+            }
+
+            // Get user's date of birth to calculate age
+            const sql = require('mssql');
+            const dbConfig = require('../dbConfig');
+            const pool = await sql.connect(dbConfig);
+            
+            const userResult = await pool.request()
+                .input('userId', sql.Int, userId)
+                .query('SELECT date_of_birth FROM Users WHERE userId = @userId');
+            
+            if (userResult.recordset.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'User not found.',
+                    error: 'USER_NOT_FOUND'
+                });
+            }
+
+            // Calculate age from date of birth
+            const dob = new Date(userResult.recordset[0].date_of_birth);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age--;
             }
 
             // Validate numeric values
@@ -29,14 +55,6 @@ const WeightController = {
                     success: false,
                     message: 'Height must be a valid positive number between 1 and 300 cm.',
                     error: 'INVALID_HEIGHT'
-                });
-            }
-
-            if (isNaN(age) || age <= 0 || age > 150) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Age must be a valid positive number between 1 and 150.',
-                    error: 'INVALID_AGE'
                 });
             }
 
@@ -59,8 +77,8 @@ const WeightController = {
 
             // Check if date is not in the future
             const inputDate = new Date(date);
-            const today = new Date();
-            if (inputDate > today) {
+            const todayCheck = new Date();
+            if (inputDate > todayCheck) {
                 return res.status(400).json({
                     success: false,
                     message: 'Date cannot be in the future.',
@@ -73,8 +91,8 @@ const WeightController = {
             if (result.success) {
                 res.status(201).json({ 
                     success: true,
-                    message: 'Weight entry added successfully',
-                    data: result.data || {}
+                    message: result.message || 'Weight entry saved successfully',
+                    data: { age: age }
                 });
             } else {
                 res.status(400).json({ 
