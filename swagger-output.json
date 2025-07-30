@@ -37,6 +37,7 @@
         "responses": {
           "200": {
             "description": "OK"
+            
           }
         }
       }
@@ -270,6 +271,9 @@
           "400": {
             "description": "Bad Request"
           },
+          "409": {
+            "description": "Conflict"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -311,6 +315,9 @@
           },
           "500": {
             "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Service Unavailable"
           }
         }
       }
@@ -1043,6 +1050,9 @@
           "200": {
             "description": "OK"
           },
+          "401": {
+            "description": "Unauthorized"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -1074,6 +1084,9 @@
           "400": {
             "description": "Bad Request"
           },
+          "401": {
+            "description": "Unauthorized"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -1086,6 +1099,9 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
           },
           "500": {
             "description": "Internal Server Error"
@@ -1107,6 +1123,9 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
           },
           "404": {
             "description": "Not Found"
@@ -1148,6 +1167,9 @@
           "400": {
             "description": "Bad Request"
           },
+          "401": {
+            "description": "Unauthorized"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -1166,6 +1188,9 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
           },
           "500": {
             "description": "Internal Server Error"
@@ -1782,9 +1807,6 @@
                 "height": {
                   "example": "any"
                 },
-                "age": {
-                  "example": "any"
-                },
                 "bmi": {
                   "example": "any"
                 },
@@ -1808,6 +1830,12 @@
           "403": {
             "description": "Forbidden"
           },
+          "404": {
+            "description": "Not Found"
+          },
+          "409": {
+            "description": "Conflict"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -1826,6 +1854,9 @@
           "200": {
             "description": "OK"
           },
+          "400": {
+            "description": "Bad Request"
+          },
           "401": {
             "description": "Unauthorized"
           },
@@ -1834,6 +1865,9 @@
           },
           "500": {
             "description": "Internal Server Error"
+          },
+          "503": {
+            "description": "Service Unavailable"
           }
         }
       }
