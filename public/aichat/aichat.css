@@ -419,3 +419,161 @@ body {
         margin-left: 20px;
     }
 }
+
+/* Three-dots menu for chat item */
+.chat-item-title-wrapper {
+    position: relative;
+}
+.chat-item-menu {
+    display: none;
+    color: #868e96;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px 6px;
+    transition: background 0.2s, color 0.2s;
+}
+.chat-item:hover .chat-item-menu {
+    display: inline;
+    background: #dee2e6;
+    color: #343a40;
+}
+.chat-item-menu:active {
+    background: #adb5bd;
+}
+
+/* Dropdown menu for chat item */
+.chat-item-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 24px;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    z-index: 10;
+    min-width: 120px;
+}
+.dropdown-option {
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s, color 0.2s;
+}
+.dropdown-option:hover {
+    background: #f1f3f5;
+}
+.dropdown-option.delete-option {
+    color: #fa5252;
+}
+.dropdown-option.delete-option:hover {
+    background: #fff0f0;
+    color: #c92a2a;
+}
+.chat-rename-input {
+    font-size: 14px;
+    padding: 2px 6px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    margin-right: 4px;
+    outline: none;
+}
+
+/* Custom Confirmation Dialog */
+.confirm-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.confirm-dialog.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.confirm-content {
+    background: white;
+    border-radius: 12px;
+    padding: 32px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.confirm-dialog.show .confirm-content {
+    transform: scale(1);
+}
+
+.confirm-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background: #fff5f5;
+    color: #dc2626;
+}
+
+.confirm-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 12px;
+}
+
+.confirm-message {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.confirm-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.confirm-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.confirm-btn.cancel {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.confirm-btn.cancel:hover {
+    background: #e5e7eb;
+}
+
+.confirm-btn.delete {
+    background: #dc2626;
+    color: white;
+}
+
+.confirm-btn.delete:hover {
+    background: #b91c1c;
+}
