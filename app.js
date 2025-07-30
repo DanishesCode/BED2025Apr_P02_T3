@@ -267,14 +267,47 @@ try{
     console.log(error);
 }
 
-// Error handling middleware
+// Global error handling middleware
 app.use((error, req, res, next) => {
     console.error("=== SERVER ERROR ===");
     console.error(error);
+    
+    // Handle different types of errors
+    if (error.name === 'ValidationError') {
+        return res.status(400).json({
+            success: false,
+            message: "Validation error",
+            error: error.message,
+            timestamp: new Date().toISOString(),
+            path: req.originalUrl
+        });
+    }
+    
+    if (error.name === 'DatabaseError') {
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message,
+            timestamp: new Date().toISOString(),
+            path: req.originalUrl
+        });
+    }
+    
+    if (error.name === 'APIError') {
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message,
+            timestamp: new Date().toISOString(),
+            path: req.originalUrl
+        });
+    }
+    
+    // Default error response
     res.status(500).json({ 
         success: false, 
-        message: "Server error", 
-        error: error.message 
+        message: "Internal server error", 
+        error: process.env.NODE_ENV === 'development' ? error.message : 'An unexpected error occurred',
+        timestamp: new Date().toISOString(),
+        path: req.originalUrl
     });
 });
 

@@ -29,7 +29,6 @@ const handleError = (res, error, message = 'Operation failed') => {
     return sendResponse(res, 500, false, message, error.message);
 };
 
-
 const uploadFile = (req, res, next) => {
     upload(req, res, (err) => {
         if (err) {
@@ -62,6 +61,11 @@ const topicController = {
     getTopicById: async (req, res) => {
         try {
             const { id } = req.params;
+            
+            if (!id || isNaN(parseInt(id))) {
+                return sendResponse(res, 400, false, 'Invalid topic ID');
+            }
+            
             const topic = await topicModel.getTopicById(id);
             
             if (!topic) {
@@ -74,19 +78,28 @@ const topicController = {
         }
     },
 
-
     // Create new topic (Cloudinary for image/video)
     createTopic: async (req, res) => {
         try {
-            const userId = req.user.userId;
-            const { title, category, contentType, description, tags } = req.body;
-            if (!title || !contentType) {
-                return sendResponse(res, 400, false, 'Title and content type are required');
+            const userId = req.user?.userId;
+            if (!userId) {
+                return sendResponse(res, 401, false, 'Authentication required');
             }
+            
+            const { title, category, contentType, description, tags } = req.body;
+            
+            if (!title || !title.trim()) {
+                return sendResponse(res, 400, false, 'Title is required');
+            }
+            
+            if (!contentType) {
+                return sendResponse(res, 400, false, 'Content type is required');
+            }
+            
             let content = '';
             if (contentType === 'text') {
                 content = req.body.textContent;
-                if (!content) {
+                if (!content || !content.trim()) {
                     return sendResponse(res, 400, false, 'Text content is required for text type');
                 }
             } else {
@@ -108,15 +121,17 @@ const topicController = {
                 const result = await uploadPromise();
                 content = result.secure_url;
             }
+            
             const topicData = {
                 userId,
-                title,
+                title: title.trim(),
                 content,
                 content_type: contentType,
                 category: category || 'general',
                 description: description || null,
                 tags: tags ? tags.split(',').map(tag => tag.trim()) : []
             };
+            
             const topicId = await topicModel.createTopic(topicData);
             return sendResponse(res, 201, true, 'Topic created successfully', { id: topicId });
         } catch (error) {
@@ -124,22 +139,33 @@ const topicController = {
         }
     },
 
-
     // Update topic (Cloudinary for image/video)
     updateTopic: async (req, res) => {
         try {
             const { id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user?.userId;
+            
+            if (!userId) {
+                return sendResponse(res, 401, false, 'Authentication required');
+            }
+            
+            if (!id || isNaN(parseInt(id))) {
+                return sendResponse(res, 400, false, 'Invalid topic ID');
+            }
+            
             const { title, category, description, tags } = req.body;
             const existingTopic = await topicModel.getTopicById(id);
+            
             if (!existingTopic) {
                 return sendResponse(res, 404, false, 'Topic not found');
             }
+            
             if (existingTopic.userId !== userId) {
                 return sendResponse(res, 403, false, 'You can only update your own topics');
             }
+            
             const updateData = {};
-            if (title) updateData.title = title;
+            if (title) updateData.title = title.trim();
             if (category) updateData.category = category;
             if (description !== undefined) updateData.description = description;
             if (tags !== undefined) updateData.tags = tags.split(',').map(tag => tag.trim());
@@ -174,19 +200,30 @@ const topicController = {
         }
     },
 
-
     // Delete topic (no local file deletion, Cloudinary cleanup optional)
     deleteTopic: async (req, res) => {
         try {
             const { id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user?.userId;
+            
+            if (!userId) {
+                return sendResponse(res, 401, false, 'Authentication required');
+            }
+            
+            if (!id || isNaN(parseInt(id))) {
+                return sendResponse(res, 400, false, 'Invalid topic ID');
+            }
+            
             const existingTopic = await topicModel.getTopicById(id);
+            
             if (!existingTopic) {
                 return sendResponse(res, 404, false, 'Topic not found');
             }
+            
             if (existingTopic.userId !== userId) {
                 return sendResponse(res, 403, false, 'You can only delete your own topics');
             }
+            
             // Optionally: delete from Cloudinary using public_id (not implemented here)
             await topicModel.deleteTopic(id);
             return sendResponse(res, 200, true, 'Topic deleted successfully');
@@ -198,7 +235,11 @@ const topicController = {
     // Get user's topics
     getUserTopics: async (req, res) => {
         try {
-            const userId = req.user.userId;
+            const userId = req.user?.userId;
+            if (!userId) {
+                return sendResponse(res, 401, false, 'Authentication required');
+            }
+            
             const { limit = 20, offset = 0 } = req.query;
             
             const topics = await topicModel.getTopicsByUserId(userId, limit, offset);
@@ -214,6 +255,10 @@ const topicController = {
             const { category } = req.params;
             const { limit = 20, offset = 0 } = req.query;
             
+            if (!category || !category.trim()) {
+                return sendResponse(res, 400, false, 'Category parameter is required');
+            }
+            
             const topics = await topicModel.getTopicsByCategory(category, limit, offset);
             return sendResponse(res, 200, true, 'Topics retrieved successfully', topics);
         } catch (error) {
@@ -225,7 +270,15 @@ const topicController = {
     toggleLike: async (req, res) => {
         try {
             const { id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user?.userId;
+            
+            if (!userId) {
+                return sendResponse(res, 401, false, 'Authentication required');
+            }
+            
+            if (!id || isNaN(parseInt(id))) {
+                return sendResponse(res, 400, false, 'Invalid topic ID');
+            }
             
             const result = await topicModel.toggleLike(id, userId);
             return sendResponse(res, 200, true, 
@@ -241,8 +294,16 @@ const topicController = {
     addComment: async (req, res) => {
         try {
             const { id } = req.params;
-            const userId = req.user.userId;
+            const userId = req.user?.userId;
             const { comment } = req.body;
+            
+            if (!userId) {
+                return sendResponse(res, 401, false, 'Authentication required');
+            }
+            
+            if (!id || isNaN(parseInt(id))) {
+                return sendResponse(res, 400, false, 'Invalid topic ID');
+            }
             
             if (!comment || comment.trim() === '') {
                 return sendResponse(res, 400, false, 'Comment cannot be empty');
@@ -259,6 +320,11 @@ const topicController = {
     getComments: async (req, res) => {
         try {
             const { id } = req.params;
+            
+            if (!id || isNaN(parseInt(id))) {
+                return sendResponse(res, 400, false, 'Invalid topic ID');
+            }
+            
             const comments = await topicModel.getComments(id);
             return sendResponse(res, 200, true, 'Comments retrieved successfully', comments);
         } catch (error) {

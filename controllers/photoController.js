@@ -71,6 +71,10 @@ const photoController = {
         return sendError(res, 400, "No image file uploaded");
       }
 
+      if (!title || !title.trim()) {
+        return sendError(res, 400, "Title is required");
+      }
+
       console.log("imgbb API key:", imgbbApiKey);
       console.log("Uploading file from buffer, size:", file.size);
 
@@ -93,7 +97,6 @@ const photoController = {
       if (!result.success) {
         return sendError(res, 500, "Failed to save photo to database", result.error);
       }
-
 
       const responseResult = sendSuccess(res, 201, "Photo uploaded successfully", { id: result.id, imageUrl: photoData.imageUrl });
       return responseResult;
@@ -158,10 +161,14 @@ const photoController = {
         return sendError(res, 401, "Authentication required");
       }
       
+      if (typeof isFavorite !== 'boolean') {
+        return sendError(res, 400, "isFavorite must be a boolean value");
+      }
+      
       const result = await photoModel.updateFavoriteStatus(id, isFavorite, userId);
       
       if (!result.success) {
-        return sendError(res, 500, result.message);
+        return sendError(res, 404, result.message);
       }
 
       return sendSuccess(res, 200, "Favorite status updated successfully");
@@ -178,8 +185,6 @@ const photoController = {
       const { title, description, location, date, category, isFavorite } = req.body;
       const file = req.file;
       const userId = req.user?.userId;
-      
-
       
       if (!userId) {
         return sendError(res, 401, "Authentication required");
@@ -207,7 +212,7 @@ const photoController = {
       const result = await photoModel.updatePhoto(id, photoData, userId);
       
       if (!result.success) {
-        return sendError(res, 500, result.message);
+        return sendError(res, 404, result.message);
       }
 
       return sendSuccess(res, 200, "Photo updated successfully", photoData);
@@ -229,7 +234,7 @@ const photoController = {
       const result = await photoModel.deletePhoto(id, userId);
       
       if (!result.success) {
-        return sendError(res, 500, result.message);
+        return sendError(res, 404, result.message);
       }
 
       return sendSuccess(res, 200, "Photo deleted successfully");
