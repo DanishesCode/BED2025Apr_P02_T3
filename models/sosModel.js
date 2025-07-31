@@ -159,10 +159,11 @@ async function sendTeleMessage(data){
     const name = data.name;
     let message = `🚨ALERT🚨 ${name} HAS PRESSED THE EMERGENCY SOS! HER LOCATION: ${address}`;
     const success = await teleBot.sendMessage(chatId, message);
+    console.log(success);
     return success;
   } catch (error) {
     console.error("Model error in sendMessageToTelegram:", error.message);
-    throw error;
+    return error;
   }
 }
 

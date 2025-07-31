@@ -5,9 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tool Browser</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="navbar.css">
 </head>
 <body>
+    <div class="header">
+        <div class="header-left">
+            <button class="menu-button" id="menuButton">
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </button>
+            <img class="logo" src="assets/logo.png" alt="EaseForLife Logo">
+        </div>
+        <div class="header-right">
+            <div class="credit">Credit</div>
+            <div class="profile" id="profileSection">
+                <span id="userName">Guest</span>
+                <div class="profile-icon">👤</div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="dropdown-item" id="logoutBtn">Logout</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="container">
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -15,23 +36,23 @@
             <div class="sidebar-section">
                 <div class="sidebar-title">Tools</div>
                 <div class="sidebar-item" data-category="health">
-                    <div class="sidebar-icon"></div>
+                    <img class="icon" src="assets/heart.svg" alt="">
                     Health & Wellness
                 </div>
                 <div class="sidebar-item active" data-category="ai">
-                    <div class="sidebar-icon"></div>
+                    <img class="icon" src="assets/ai.svg" alt="">
                     AI Assistance
                 </div>
                 <div class="sidebar-item" data-category="learning">
-                    <div class="sidebar-icon"></div>
+                    <img class="icon" src="assets/lightbulb.svg" alt="">
                     Learning & Engagement
                 </div>
                 <div class="sidebar-item" data-category="scheduling">
-                    <div class="sidebar-icon"></div>
+                    <img class="icon" src="assets/calendar.svg" alt="">
                     Scheduling & Reminders
                 </div>
                 <div class="sidebar-item" data-category="utilities">
-                    <div class="sidebar-icon"></div>
+                    <img class="icon" src="assets/tool-box.svg" alt="">
                     Utilities
                 </div>
             </div>
@@ -73,6 +94,30 @@
                 </div>
 
                 <!-- Health & Wellness Tools -->
+                <div class="tool-card health-tool" style="display: none;" onclick="openTool('meal-planner/meal.html')">
+                    <div class="tool-icon chat">
+                        <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
+                    </div>
+                    <h3 class="tool-title">Meal Planner</h3>
+                    <p class="tool-description">Plan your weekly meals and generate grocery lists automatically.</p>
+                    <button class="tool-button" onclick="event.stopPropagation(); openTool('meal-planner/meal.html')">
+                        Open Tool
+                        <div class="button-icon"></div>
+                    </button>
+                </div>
+
+                <div class="tool-card health-tool" style="display: none;" onclick="openTool('grocery-list/grocery.html')">
+                    <div class="tool-icon summarizer">
+                        <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
+                    </div>
+                    <h3 class="tool-title">Grocery List</h3>
+                    <p class="tool-description">Smart grocery lists with units, auto-generated from your meal plans.</p>
+                    <button class="tool-button" onclick="event.stopPropagation(); openTool('grocery-list/grocery.html')">
+                        Open Tool
+                        <div class="button-icon"></div>
+                    </button>
+                </div>
+
                 <div class="tool-card health-tool" style="display: none;" onclick="openTool('#')">
                     <div class="tool-icon chat">
                         <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.3); border-radius: 4px;"></div>
@@ -171,6 +216,7 @@
                         <div class="button-icon"></div>
                     </button>
                 </div>
+                
 
                 <div class="tool-card utilities-tool" style="display: none;" onclick="openTool('#')">
                     <div class="tool-icon summarizer">
@@ -187,7 +233,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
     <script>
         // Authentication check
         document.addEventListener('DOMContentLoaded', function() {
@@ -262,6 +307,6 @@
             });
         });
     </script>
-    <script src="navbar.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

@@ -92,8 +92,9 @@ async function sendTelegramMessage(req, res) {
     }
 
     const success = await sos.sendTeleMessage(req.body);
-
+    console.log(success);
     if (success) {
+      console.log('y')
       res.status(200).json({ message: "Message sent successfully" });
     } else {
       res.status(500).json({ error: "Failed to send message" });

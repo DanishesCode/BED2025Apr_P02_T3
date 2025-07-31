@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nearest Hospitals In Singapore</title>
+  <link rel="stylesheet" href="hospital.css" />
+  <link rel="stylesheet" href ="../navbar.css">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.13.0/mapbox-gl.css" rel="stylesheet" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.13.0/mapbox-gl.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+      </svg>
+      <h1>Nearest Hospitals In Singapore</h1>
+    </header>
+    <p>Find the closest hospital or medical facility near you</p>
+
+    <div class="search-area">
+      <input type="search" placeholder="Search hospitals by name or specialty.." />
+      <button>
+        <img class = "findImg" src = "img/pointer.png" style = "width: 24px; height: 24px;" >
+        Filter Nearest To Me
+      </button>
+    </div>
+    <div class= "travel-type">
+        <button via ="walking">Walking</button>
+        <button via ="driving">Driving</button>
+        <button via ="cycling">Cycle</button>
+    </div>
+
+    <div class="main-content">
+        
+      <div class="hospitals-list">
+        <div class="hospital-card" distance = "0" cloned = "false" selected = "0" name = "" services = "" emergency = "" ownership = "" latitude = "" longtitude = "">
+          <div class="hospital-header">
+            <div>
+              <div class="hospital-name">National University Hospital</div>
+              <div class="emergency-badge">24/7 Emergency</div>
+              <div class = "type">Public</div>
+            </div>
+            <div class="distance">ETA: 20min Dist: 30km</div>
+          </div>
+          <div class="rating">⭐ 4</div>
+          <div class="hospital-info">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zM12 11.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+            </svg>
+            <div class="hospital-address">11 Jln Tan Tock Seng, Singapore 308433</div>
+          </div>
+          <div class="hospital-info">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6.62 10.79a15.09 15.09 0 0 0 6.59 6.59l1.86-1.85a1 1 0 0 1 1.11-.21c1.21.49 2.53.76 3.88.76a1 1 0 0 1 1 1v3.48a1 1 0 0 1-1 1C9.94 21 3 14.06 3 5a1 1 0 0 1 1-1h3.48a1 1 0 0 1 1 1c0 1.35.27 2.67.76 3.88a1 1 0 0 1-.21 1.11l-1.41 1.8z"/>
+            </svg>
+            <div class = "telephone">+65 6256 6011</div>
+          </div>
+
+          <div class="services">
+            <div class="service-tag">Emergency medicine</div>
+          </div>
+        </div>
+        </div>
+        <div class = "mapContainer">
+            <div id = "map">
+                <span>## Hospitals found</span>
+            </div>
+          </div>
+      </div>
+      
+
+    </div>
+  </div>
+  <div id="notification" class="notification hidden">
+    <span id="notification-text">This is a notification message</span>
+  </div>
+  <div id="loading-screen">
+    <div class="spinner"></div>
+  </div>  
+  <script src = "hospital.js"></script>
+  <script src = "../navbar.js"></script>
+</body>
+</html>

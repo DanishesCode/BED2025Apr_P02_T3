@@ -7,6 +7,8 @@ const cors = require("cors");
 const multer = require("multer");
 const teleBot = require("./teleBot");
 const fs = require('fs');
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger-output.json"); // Import generated spec
 
 
 // Load environment variables FIRST
@@ -21,19 +23,12 @@ const app = express();
 const port = process.env.PORT || 3000;
 // Custom CORS middleware MUST be first to ensure headers are set for all requests
 app.use(cors({
-    origin: function(origin, callback) {
-        const allowedOrigins = [
-            'http://localhost:5500',
-            'http://127.0.0.1:5500',
-            'http://localhost:3000'
-        ];
-        // Allow requests with no origin (like mobile apps, curl, or Postman)
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: [
+        'http://localhost:5500',
+        'http://127.0.0.1:5500',
+        'http://localhost:5504',
+        'http://127.0.0.1:5504'
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -42,8 +37,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Ensure all OPTIONS requests are handled for CORS preflight
-app.options('*', cors());
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -82,9 +75,16 @@ const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
 const birthdayController = require('./controllers/birthdayController');
 const weatherApiController = require('./controllers/weatherApiController');
+const hospitalController = require("./controllers/hospitalController");
 const { validateAdd, validateUpdate } = require('./middlewares/validateBirthday');
+const mealController = require("./controllers/mealController");
+const mealPlanController = require('./controllers/mealplanController');
+const suggestionController = require('./controllers/mealsuggestionController');
+const groceryController = require('./controllers/groceryController');
+const {  validateMeal, validateMealUpdate, validateMealId, validateUserId } = require('./middlewares/mealValidation');
 const topicController = require('./controllers/topicController');
 const weightController = require('./controllers/weightController');
+const summarizerController = require('./controllers/summarizerController'); // at the top with other controllers
 // Routes for pages
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -136,8 +136,8 @@ app.get("/sos/settings", (req, res) => {
 });
 
 // Trivia routes (DANISH)
-app.get("/trivia/questions/:categoryName", triviaController.getQuestionsByCategory);
-app.get("/trivia/options/:questionText", triviaController.getOptionsByQuestion);
+app.get("/trivia/questions/:categoryName",AuthMiddleware.authenticateToken, triviaController.getQuestionsByCategory);
+app.get("/trivia/options/:questionText",AuthMiddleware.authenticateToken, triviaController.getOptionsByQuestion);
 
 // User authentication routes
 app.post(
@@ -174,20 +174,33 @@ app.put(
 
 
 //ROUTES FOR SOS(Danish)
-app.get("/caretaker/getrecord/:id",sosController.retrieveRecord);
-app.post("/caretaker/convertaddress",sosController.convertLocation);
-app.post('/caretaker/send-message', sosController.sendTelegramMessage);
-app.post("/caretaker/create/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.createRecord);
-app.put("/caretaker/update/:id",sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
-app.delete("/caretaker/delete/:id", sosController.deleteRecord);
+app.get("/caretaker/getrecord/:id",AuthMiddleware.authenticateToken,sosController.retrieveRecord);
+app.post("/caretaker/convertaddress",AuthMiddleware.authenticateToken,sosController.convertLocation);
+app.post('/caretaker/send-message', AuthMiddleware.authenticateToken,sosController.sendTelegramMessage);
+app.post("/caretaker/create/:id",AuthMiddleware.authenticateToken,sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.createRecord);
+app.put("/caretaker/update/:id",AuthMiddleware.authenticateToken,sosMiddleware.validateCaretakerId,sosMiddleware.validateCaretaker,sosController.updateRecord);
+app.delete("/caretaker/delete/:id", AuthMiddleware.authenticateToken,sosController.deleteRecord);
 
 
 //RUN TELEBOT(Danish)
 teleBot.startBot();
 
 
-app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+app.post("/chat/", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
 
+// Retrive Chats and Messages
+app.get("/chat/:id", AuthMiddleware.authenticateToken, aichatController.retrieveChats);
+app.get("/chat/messages/:chatId", AuthMiddleware.authenticateToken, aichatController.retrieveMessages);
+
+// Save Messages
+app.post("/chat/messages", AuthMiddleware.authenticateToken, aichatController.saveMessage);
+
+// Add route for creating new chat
+app.post("/chat/new", AuthMiddleware.authenticateToken, aichatController.createChat);
+app.post("/chat/:id", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+app.post("/chat", AuthMiddleware.authenticateToken, aichatController.getAIResponse);
+app.put("/chat/:id", AuthMiddleware.authenticateToken, aichatController.renameChat);
+app.delete("/chat/:id", AuthMiddleware.authenticateToken, aichatController.deleteChat);
 
 // Birthday routes
 app.get("/birthdays", birthdayController.getAllBirthdays);
@@ -260,12 +273,68 @@ app.get("/api/topics/:id/comments", topicController.getComments);
 app.post('/api/weight', AuthMiddleware.authenticateToken, weightController.addWeightEntry);
 app.get('/api/weight', AuthMiddleware.authenticateToken, weightController.getWeightHistory);
 
+//Routes for nearest hospital(danish)
+app.post("/hospital/getroute",AuthMiddleware.authenticateToken,hospitalController.getRouteData);
+app.get("/hospital/getall",AuthMiddleware.authenticateToken,hospitalController.getHopsitals);
+
 //start telebot
-try{
+/*try{
     teleBot.startBot();
 }catch(error){
     console.log(error);
 }
+*/
+//Meal Recipe routes
+app.use(express.static(path.join(__dirname, "public")));
+app.get("/meals/:userId", 
+    AuthMiddleware.authenticateToken,
+    mealController.getAllMeals
+);
+app.get("/meals/:userId/:mealId", 
+    AuthMiddleware.authenticateToken,
+    mealController.getMealById
+);
+app.post("/meals", 
+    AuthMiddleware.authenticateToken,
+    mealController.addMeal
+);
+app.post("/meals/import-spoonacular", 
+    AuthMiddleware.authenticateToken,
+    mealController.importSpoonacularRecipe
+);
+app.put("/meals/:mealId", 
+    AuthMiddleware.authenticateToken,
+    mealController.updateMeal
+);
+app.delete("/meals/:mealId", 
+    AuthMiddleware.authenticateToken,
+    mealController.deleteMeal
+);
+// Meal Plan routes
+app.get("/mealplans/:userId", AuthMiddleware.authenticateToken, mealPlanController.getAllMealPlans);
+app.get("/mealplans/:userId/:planId", AuthMiddleware.authenticateToken, mealPlanController.getMealPlanById);
+app.post("/mealplans", AuthMiddleware.authenticateToken, mealPlanController.addMealPlan);
+app.put("/mealplans/:planId", AuthMiddleware.authenticateToken, mealPlanController.updateMealPlan);
+app.delete("/mealplans/:planId", AuthMiddleware.authenticateToken, mealPlanController.deleteMealPlan);
+
+// Recipe Suggestion Routes (Spoonacular API)
+app.get("/suggestions", suggestionController.getSuggestions);
+app.get("/suggestions/random", suggestionController.getRandomRecipes);
+app.get("/suggestions/:recipeId", suggestionController.getRecipeDetails);
+app.post("/suggestions/add", suggestionController.addSuggestedRecipe);
+
+// Grocery List routes
+app.get("/grocery/user/:userId", AuthMiddleware.authenticateToken, groceryController.getAllGroceryItems);
+app.get("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.getGroceryItemById);
+app.post("/grocery", AuthMiddleware.authenticateToken, groceryController.addGroceryItem);
+app.put("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.updateGroceryItem);
+app.delete("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.deleteGroceryItem);
+app.post("/grocery/generate/:userId", AuthMiddleware.authenticateToken, groceryController.generateFromMealPlan);
+
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// Summarization API route
+app.post('/api/summarize', summarizerController.summarizeText);
 
 // Global error handling middleware
 app.use((error, req, res, next) => {
@@ -316,6 +385,11 @@ app.listen(port, async () => {
     try {
         await sql.connect(dbConfig);
         console.log("Database connected");
+        
+        // Start automatic birthday wish system
+        birthdayController.startAutomaticBirthdayWishes(); // Enabled for testing
+        console.log("Automatic birthday wish system started");
+        
     } catch (err) {
         console.error("DB connection error:", err);
         process.exit(1);

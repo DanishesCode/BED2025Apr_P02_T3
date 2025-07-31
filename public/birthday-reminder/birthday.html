@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Birthday Tracker</title>
   <link rel="stylesheet" href="birthday.css">
+  <link rel="stylesheet" href="../navbar/navbar.css">
 </head>
 <body>
   <div class="container">
-    <div class="header">
+    <div class="birthday-header">
       <div class="date-header" id="current-date">SUNDAY, JULY 06, 2025</div>
       <h1 class="main-title">Today's Birthdays</h1>
     </div>
@@ -28,16 +29,8 @@
       <button class="add-birthday-btn" onclick="window.location.href='edit-birthday.html'">+ Add Birthday</button>
     </div>
   </div>
-  <div id="sms-form" style="display:none; text-align: center; margin-top: 20px; position: relative;">
-    <button class="sms-close-btn" onclick="document.getElementById('sms-form').style.display='none'">&times;</button>
-    <div>
-      <strong>Recipient:</strong> <span id="sms-recipient-name"></span>
-    </div>
-    <input type="text" id="sms-phone" placeholder="Enter phone number (e.g., +1234567890)" />
-    <button id="send-sms-button">Send SMS Reminder</button>  
-  </div>
-  </div>
   <script src="birthday.js"></script>
+  <script src="../navbar/navbar.js"></script>
   <script>
     // Authentication check
     document.addEventListener('DOMContentLoaded', function() {

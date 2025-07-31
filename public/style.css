@@ -81,9 +81,8 @@ body {
 }
 
 .logo {
-    font-size: 24px;
-    font-weight: 600;
-    color: #4f46e5;
+    width: 140px;
+    height: auto;
 }
 
 .header-right {
@@ -244,15 +243,10 @@ body {
     color: #7c3aed;
 }
 
-.sidebar-icon {
+.icon {
     width: 20px;
     height: 20px;
-    background: #6b7280;
     border-radius: 4px;
-}
-
-.sidebar-item.active .sidebar-icon {
-    background: #7c3aed;
 }
 
 .main-content {
@@ -326,6 +320,10 @@ body {
 
     .profile {
         font-size: 14px;
+    }
+    .logo {
+        width: 110px;
+        height: auto;
     }
 }
 

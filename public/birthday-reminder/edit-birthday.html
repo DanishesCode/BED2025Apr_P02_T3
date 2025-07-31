@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Edit Birthday</title>
   <link rel="stylesheet" href="edit-birthday.css"/>
+  <link rel="stylesheet" href="../navbar/navbar.css"/>
 </head>
 <body>
   <main class="edit-form-container">
@@ -17,6 +18,7 @@
       <input type="date" id="birth_date" required />
 
       <input type="text" id="relationship" placeholder="Relationship" />
+      <input type="tel" id="phone" placeholder="Phone Number (for automatic birthday wishes)" />
       <textarea id="notes" placeholder="Notes"></textarea>
 
       <div class="btn-group form-buttons">
@@ -27,6 +29,7 @@
   </main>
 
   <script src="edit-birthday.js"></script>
+  <script src="../navbar/navbar.js"></script>
   <script>
     // Authentication check
     document.addEventListener('DOMContentLoaded', function() {

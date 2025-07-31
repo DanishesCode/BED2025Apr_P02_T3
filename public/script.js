@@ -16,6 +16,18 @@ const toolsData = {
     ],
     health: [
         {
+            title: "Meal Planner",
+            description: "Plan your weekly meals and generate grocery lists automatically.",
+            icon: "chat",
+            url: "meal-planner/meal.html"
+        },
+        {
+            title: "Grocery List",
+            description: "Smart grocery lists with units, auto-generated from your meal plans.",
+            icon: "summarizer",
+            url: "grocery-list/grocery.html"
+        },
+        {
             title: "Book Health Appointment",
             description: "Schedule an appointment with your personalized health coach or AI assistant.",
             icon: "chat",
@@ -112,10 +124,16 @@ const toolsData = {
             url: "weather/weather.html"
         },
         {
-            title: "SOS system",
+            title: "SOS System",
             description: "Alert your caretaker via telegram with a button.",
             icon: "chat",
             url: "sos/main.html"
+        },
+        {
+            title: "Find Hospitals Near You",
+            description: "Get routes,distance and estimated time of arrival to hospitals near you in Singapore.",
+            icon: "chat",
+            url: "nearestHospital/hospital.html"
         }
     ]
 };
