@@ -81,9 +81,8 @@ body {
 }
 
 .logo {
-    font-size: 24px;
-    font-weight: 600;
-    color: #4f46e5;
+    width: 140px;
+    height: auto;
 }
 
 .header-right {
@@ -321,6 +320,10 @@ body {
 
     .profile {
         font-size: 14px;
+    }
+    .logo {
+        width: 110px;
+        height: auto;
     }
 }
 

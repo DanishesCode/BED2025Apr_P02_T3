@@ -15,7 +15,7 @@ const headerHTML = `
                     <span></span>
                 </div>
             </button>
-            <div class="logo">Logo Here</div>
+            <img class="logo" src="../assets/logo.png" alt="EaseForLife Logo">
         </div>
         <div class="header-right">
             <div class="credit">Credit</div>

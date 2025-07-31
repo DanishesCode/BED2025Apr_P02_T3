@@ -434,8 +434,6 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         voiceBtn.classList.remove('recording');
         voiceBtn.style.background = '';
         voiceBtn.style.color = '';
-        // Do NOT send the message automatically
-        // User can edit or click send manually
     };
 
     recognition.onresult = function(event) {

@@ -100,56 +100,6 @@ body {
     overflow: hidden;
 }
 
-.header {
-    background: white;
-    border-bottom: 1px solid #e9ecef;
-    padding: 16px 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    z-index: 100;
-}
-
-.logo {
-    font-size: 24px;
-    font-weight: bold;
-    color: #4c6ef5;
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-}
-
-.credit {
-    color: #6c757d;
-    font-size: 16px;
-}
-
-.profile {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.profile-name {
-    font-size: 16px;
-    color: #333;
-}
-
-.profile-avatar {
-    width: 32px;
-    height: 32px;
-    background: #4c6ef5;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
-}
 
 .chat-container {
     flex: 1;
