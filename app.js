@@ -203,12 +203,12 @@ app.put("/chat/:id", AuthMiddleware.authenticateToken, aichatController.renameCh
 app.delete("/chat/:id", AuthMiddleware.authenticateToken, aichatController.deleteChat);
 
 // Birthday routes
-app.get("/birthdays", birthdayController.getAllBirthdays);
-app.get("/birthdays/dashboard", birthdayController.getBirthdaysForDashboard);
-app.get("/birthdays/:id", birthdayController.getBirthdayById);
-app.post("/birthdays", validateAdd, birthdayController.addBirthday);
-app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
-app.delete("/birthdays/:id", birthdayController.deleteBirthday);
+app.get("/birthdays", AuthMiddleware.authenticateToken, birthdayController.getAllBirthdays);
+app.get("/birthdays/dashboard", AuthMiddleware.authenticateToken, birthdayController.getBirthdaysForDashboard);
+app.get("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.getBirthdayById);
+app.post("/birthdays", AuthMiddleware.authenticateToken, validateAdd, birthdayController.addBirthday);
+app.put("/birthdays/:id", AuthMiddleware.authenticateToken, validateUpdate, birthdayController.updateBirthday);
+app.delete("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.deleteBirthday);
 
 // Photo Gallery API Routes (grouped together)
 app.get("/photos", AuthMiddleware.authenticateToken, photoController.getAllPhotos);
