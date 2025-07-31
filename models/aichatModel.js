@@ -171,10 +171,69 @@ async function createChat(userId, title = 'New Chat') {
   }
 }
 
+async function renameChat(chatId, userId, newTitle) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    const query = `
+      UPDATE Chats
+      SET title = @newTitle
+      WHERE id = @chatId AND userId = @userId;
+    `;
+    const request = connection.request();
+    request.input("chatId", sql.Int, chatId);
+    request.input("userId", sql.Int, userId);
+    request.input("newTitle", sql.NVarChar, newTitle);
+    const result = await request.query(query);
+    return result.rowsAffected[0] > 0; // true if updated
+  } catch (error) {
+    console.error("Database error (renameChat):", error);
+    throw error;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+}
+
+async function deleteChat(chatId, userId) {
+  let connection;
+  try {
+    connection = await sql.connect(dbConfig);
+    // First, delete messages for this chat (to maintain referential integrity)
+    await connection.request()
+      .input("chatId", sql.Int, chatId)
+      .query("DELETE FROM Messages WHERE chat_id = @chatId;");
+    // Then, delete the chat itself
+    const result = await connection.request()
+      .input("chatId", sql.Int, chatId)
+      .input("userId", sql.Int, userId)
+      .query("DELETE FROM Chats WHERE id = @chatId AND userId = @userId;");
+    return result.rowsAffected[0] > 0;
+  } catch (error) {
+    console.error("Database error (deleteChat):", error);
+    throw error;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error("Error closing connection:", err);
+      }
+    }
+  }
+}
+
 module.exports = {
     getGeminiResponse,
     retrieveChats,
     retrieveMessages,
     saveMessage,
-    createChat
+    createChat,
+    renameChat,
+    deleteChat
   };

@@ -6,7 +6,6 @@
 -- Ensure the script runs in EaseForLifeDB database
 USE EaseForLifeDb;
 
-
 CREATE TABLE Users (
     userId INT IDENTITY(1,1) PRIMARY KEY,
     name NVARCHAR(100) NOT NULL,
@@ -34,11 +33,8 @@ CREATE TABLE WeightHistory (
     height FLOAT NOT NULL,
     age INT NOT NULL,
     bmi FLOAT NOT NULL,
-    FOREIGN KEY (userId) REFERENCES Users(userId)
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
-
-
-
 
 -- [Linn] - [Chat and Messages table to store chats and messages between user and AI] - [Last Modified Date: 2025-07-09]
 -- Chats table
@@ -317,7 +313,8 @@ CREATE TABLE Birthdays (
     lastName VARCHAR(50),
     birthDate DATE NOT NULL,
     relationship VARCHAR(50),                    
-    notes TEXT,                                   
+    notes TEXT,
+    phone VARCHAR(20), -- Phone number to send birthday wishes to
     FOREIGN KEY (userId) REFERENCES Users(userId)
 );
 -- Sample data for Birthdays table
@@ -341,6 +338,187 @@ CREATE TABLE Caretaker (
 );
 INSERT INTO Users (name, email, password, date_of_birth)
 VALUES ('Emily Wong', 'emily@example.com', 'hashed_pw_123', '1992-06-15');
+
+
+-- [Danish] - [added hospitals adatabase] - [17/7/2025]
+CREATE TABLE Hospitals (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name VARCHAR(100),
+    address VARCHAR(255),
+    latitude DECIMAL(9,6),
+    longitude DECIMAL(9,6),
+    ownership VARCHAR(20),
+    emergency_services BIT,
+    services TEXT,
+    rating DECIMAL(2,1),
+    telephone VARCHAR(20)
+);
+
+INSERT INTO Hospitals (name, address, latitude, longitude, ownership, emergency_services, services, rating, telephone)
+VALUES
+-- Public Acute & Specialist Hospitals
+('Singapore General Hospital', 'Outram Road, Singapore 169608', 1.279300, 103.834400, 'Public', 1,
+ 'Acute care, emergency, specialist services, national centers, surgery, cardiology, oncology, orthopedics, plastic surgery, liver transplant, ICU, operating theatres, radiology, pharmacy, health screening, ambulance service',
+ 4.5, '6321 4377'),
+
+('Tan Tock Seng Hospital', '11 Jalan Tan Tock Seng, Singapore 308433', 1.321900, 103.846200, 'Public', 1,
+ 'General acute, trauma, infectious diseases, geriatrics, emergency, isolation ward, internal medicine, outpatient services, diagnostics, rehabilitation',
+ 4.3, '6256 6011'),
+
+('National University Hospital', '5 Lower Kent Ridge Road, Singapore 119074', 1.293100, 103.783400, 'Public', 1,
+ 'General acute, surgical, oncology, cardiology, pediatrics, cancer treatment, heart centre, specialist clinics, operating theatres, ICU, imaging services',
+ 4.4, '6779 5555'),
+
+('Changi General Hospital', '2 Simei Street 3, Singapore 529889', 1.341800, 103.953400, 'Public', 1,
+ 'General acute, emergency, geriatrics, rehabilitation, diagnostics, surgery, outpatient clinics',
+ 4.2, '6850 3333'),
+
+('Khoo Teck Puat Hospital', '90 Yishun Central, Singapore 768828', 1.424500, 103.838800, 'Public', 1,
+ 'Acute care, emergency, internal medicine, surgery, diagnostics, outpatient services, physiotherapy',
+ 4.3, '6555 8000'),
+
+('Sengkang General Hospital', '110 Sengkang East Way, Singapore 544886', 1.393800, 103.897700, 'Public', 1,
+ 'Acute care, surgical, internal medicine, rehabilitation, specialist clinics, imaging',
+ 4.1, '6930 6000'),
+
+('Ng Teng Fong General Hospital', '1 Jurong East Street 21, Singapore 609606', 1.333300, 103.743000, 'Public', 1,
+ 'Acute care, emergency, multispecialty, surgery, outpatient clinics, diagnostics',
+ 4.2, '6716 2000'),
+
+('KK Women''s and Children''s Hospital', '100 Bukit Timah Road, Singapore 229899', 1.313800, 103.845200, 'Public', 1,
+ 'Obstetrics, gynecology, pediatrics, neonatology, adolescent medicine, fertility, emergency for women and children',
+ 4.5, '6225 5554'),
+
+('Alexandra Hospital', '378 Alexandra Road, Singapore 159964', 1.288700, 103.803000, 'Public', 1,
+ 'Urgent care, internal medicine, community care, geriatric services, rehabilitation',
+ 4.0, '6908 2222'),
+
+('Woodlands Health Campus', '2 Woodlands Drive 17, Singapore 737754', 1.442300, 103.796900, 'Public', 1,
+ 'Emergency, general medicine, rehabilitation, specialist outpatient services, diagnostics',
+ 4.1, '6363 8000'),
+
+-- Public Psychiatric Hospital
+('Institute of Mental Health', '10 Buangkok View, Singapore 539747', 1.382200, 103.879800, 'Public', 0,
+ 'Psychiatric care, inpatient and outpatient mental health, geriatrics, addiction treatment, counselling',
+ 4.0, '6389 2000'),
+
+-- Private Hospitals
+('Mount Elizabeth Hospital (Orchard)', '3 Mount Elizabeth, Singapore 228510', 1.305400, 103.835600, 'Private', 1,
+ 'Cardiology, oncology, surgery, transplant, emergency, specialist clinics, diagnostics, imaging',
+ 4.6, '6737 2666'),
+
+('Mount Elizabeth Novena Hospital', '38 Irrawaddy Road, Singapore 329563', 1.321900, 103.844200, 'Private', 1,
+ 'Specialist services, surgical care, diagnostics, cardiology, gastroenterology, neurology, orthopedics',
+ 4.5, '6898 6898'),
+
+('Gleneagles Hospital', '6A Napier Road, Singapore 258500', 1.305200, 103.822100, 'Private', 1,
+ 'Cardiology, gastroenterology, oncology, surgery, diagnostics, emergency, imaging',
+ 4.4, '6473 7222'),
+
+('Raffles Hospital', '585 North Bridge Road, Singapore 188770', 1.302700, 103.860800, 'Private', 1,
+ 'General surgery, emergency, diagnostics, specialist services, executive health screening',
+ 4.3, '6311 1111'),
+
+('Parkway East Hospital', '321 Joo Chiat Place, Singapore 427990', 1.313500, 103.905800, 'Private', 1,
+ 'General medicine, orthopedics, emergency, surgery, diagnostics, ENT, health screening',
+ 4.2, '6344 7588'),
+
+('Farrer Park Hospital', '1 Farrer Park Station Road, Singapore 217562', 1.312300, 103.854500, 'Private', 1,
+ 'Multispecialty, surgical, imaging, emergency, specialist outpatient clinics, medical aesthetics',
+ 4.3, '6363 1818'),
+
+('Thomson Medical Centre', '339 Thomson Road, Singapore 307677', 1.324400, 103.842400, 'Private', 1,
+ 'Obstetrics, pediatrics, general medicine, urgent care, fertility centre, specialist services',
+ 4.4, '6250 2222'),
+
+('Mount Alvernia Hospital', '820 Thomson Road, Singapore 574623', 1.344100, 103.839600, 'Not-for-Profit', 1,
+ 'General medicine, pediatrics, maternity, urgent care centre, diagnostics, outpatient clinics',
+ 4.5, '6347 6688'),
+
+('Crawfurd Hospital', '339 Changi Road, Singapore 419821', 1.318500, 103.909700, 'Private', 0,
+ 'Day surgery, wellness, rehabilitation, diagnostics, preventive health, specialist consultation',
+ 4.0, '6344 2333');
+
+-- [Dev] - [Topics Learner table for user-generated content] - [2025-07-17]
+CREATE TABLE Topics (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    userId INT NOT NULL,
+    title NVARCHAR(255) NOT NULL,
+    content NTEXT NOT NULL,
+    content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('text', 'image', 'video')),
+    category VARCHAR(50) NOT NULL DEFAULT 'general',
+    description NTEXT,
+    tags NTEXT, -- JSON array of tags
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    updated_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_Topics_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
+);
+-- Dev Topic Learner
+CREATE TABLE TopicLikes (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    topicId INT NOT NULL,
+    userId INT NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_TopicLikes_Topics FOREIGN KEY (topicId) REFERENCES Topics(id) ON DELETE CASCADE,
+    CONSTRAINT FK_TopicLikes_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE NO ACTION,
+    CONSTRAINT UQ_TopicLikes UNIQUE (topicId, userId)
+);
+
+-- Dev Topic Learner
+CREATE TABLE TopicComments (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    topicId INT NOT NULL,
+    userId INT NOT NULL,
+    comment NVARCHAR(1000) NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_TopicComments_Topics FOREIGN KEY (topicId) REFERENCES Topics(id) ON DELETE CASCADE,
+    CONSTRAINT FK_TopicComments_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE NO ACTION
+);
+
+-- Sample data for Topics table
+INSERT INTO Topics (userId, title, content, content_type, category, description, tags) VALUES
+(1, 'Introduction to JavaScript Promises', 'JavaScript Promises are a powerful way to handle asynchronous operations. They provide a clean alternative to callback functions and help avoid callback hell. A Promise represents a value that may be available now, in the future, or never.', 'text', 'technology', 'A comprehensive guide to understanding and using JavaScript Promises', '["javascript", "promises", "async", "programming"]'),
+(2, 'Healthy Morning Routine', 'Starting your day with a healthy routine can significantly improve your productivity and well-being. Here are some key practices: 1. Wake up early and get sunlight exposure, 2. Drink water immediately, 3. Exercise or stretch, 4. Eat a nutritious breakfast, 5. Practice mindfulness or meditation.', 'text', 'health', 'A guide to building a healthy and productive morning routine', '["health", "morning", "routine", "wellness"]'),
+(3, 'React Best Practices', 'When developing React applications, following best practices ensures maintainable and performant code. Key practices include: using functional components with hooks, proper state management, avoiding prop drilling, and implementing proper error boundaries.', 'text', 'technology', 'Essential best practices for React development', '["react", "best-practices", "frontend", "development"]'),
+(1, 'Beautiful Sunset Photo', '/uploads/topics/sunset_2025_001.jpg', 'image', 'photography', 'A stunning sunset captured during my vacation in Bali', '["sunset", "photography", "bali", "nature"]'),
+(2, 'Cooking Tutorial Video', '/uploads/topics/pasta_recipe_2025_002.mp4', 'video', 'cooking', 'Step-by-step guide to making authentic Italian pasta', '["cooking", "pasta", "italian", "tutorial"]'),
+(3, 'Mountain Hiking Adventure', '/uploads/topics/mountain_hike_2025_003.jpg', 'image', 'travel', 'Epic mountain hiking experience with breathtaking views', '["hiking", "mountain", "adventure", "nature"]');
+
+-- [Assistant] - [Topic Likes table for tracking user likes] - [2025-07-17]
+-- Add like_count column to Topics table
+ALTER TABLE Topics ADD like_count INT DEFAULT 0;
+
+-- Create TopicLikes table
+CREATE TABLE TopicLikes (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    topicId INT NOT NULL,
+    userId INT NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_TopicLikes_Topics FOREIGN KEY (topicId) REFERENCES Topics(id) ON DELETE CASCADE,
+    CONSTRAINT FK_TopicLikes_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
+    CONSTRAINT UQ_TopicLikes UNIQUE (topicId, userId) -- Prevent duplicate likes
+);
+
+-- Sample data for TopicLikes table
+INSERT INTO TopicLikes (topicId, userId) VALUES
+(1, 2), -- User 2 likes topic 1
+(1, 3), -- User 3 likes topic 1
+(2, 1), -- User 1 likes topic 2
+(2, 3), -- User 3 likes topic 2
+(3, 1), -- User 1 likes topic 3
+(4, 2), -- User 2 likes topic 4
+(5, 1), -- User 1 likes topic 5
+(5, 3), -- User 3 likes topic 5
+(6, 1), -- User 1 likes topic 6
+(6, 2); -- User 2 likes topic 6
+
+-- Update like counts in Topics table
+UPDATE Topics SET like_count = 2 WHERE id = 1;
+UPDATE Topics SET like_count = 2 WHERE id = 2;
+UPDATE Topics SET like_count = 1 WHERE id = 3;
+UPDATE Topics SET like_count = 1 WHERE id = 4;
+UPDATE Topics SET like_count = 2 WHERE id = 5;
+UPDATE Topics SET like_count = 2 WHERE id = 6;
 
 -- [Tze Wei] - [Meal and Meal Plan Tables] - [Last Modified Date: 2025-07-20]
 CREATE TABLE Meals (
@@ -385,3 +563,4 @@ CREATE TABLE GroceryItems (
 ALTER TABLE GroceryItems 
 ADD CONSTRAINT FK_GroceryItems_Users 
 FOREIGN KEY (user_Id) REFERENCES Users(userId);
+

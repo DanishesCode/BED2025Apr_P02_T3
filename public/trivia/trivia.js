@@ -11,6 +11,14 @@ const ansButton = document.querySelectorAll(".option");
 const nextButton = document.querySelectorAll(".next-button")
 const apiBaseUrl = "http://localhost:3000";
 
+function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+
 async function fetchQuestions(category){
   function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
@@ -20,7 +28,9 @@ async function fetchQuestions(category){
     return array;
   }
     try{
-        const response = await fetch(`${apiBaseUrl}/trivia/questions/${category}`)
+        const response = await fetch(`${apiBaseUrl}/trivia/questions/${category}`,{
+          headers: getAuthHeaders()
+        });
         if (!response.ok) {
             // Handle HTTP errors (e.g., 404, 500)
             // Attempt to read error body if available, otherwise use status text
@@ -64,7 +74,9 @@ async function refreshAnswers(list){
 async function getAnswer(question){
 
   try{
-    const response = await fetch(`${apiBaseUrl}/trivia/options/${encodeURIComponent(question)}`);
+    const response = await fetch(`${apiBaseUrl}/trivia/options/${encodeURIComponent(question)}`,{
+      headers: getAuthHeaders()
+    });
     if (!response.ok) {
       // Handle HTTP errors (e.g., 404, 500)
       // Attempt to read error body if available, otherwise use status text

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weight Tracker - EaseForLife</title>
     <link rel="stylesheet" href="weight-tracker.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -19,23 +20,25 @@
                 <h2>Log Your Weight</h2>
                 <form id="weightForm">
                     <div class="form-group">
+                        <label for="weightDate">Date:</label>
+                        <input type="date" id="weightDate" required>
+                    </div>
+                    <div class="form-group">
                         <label for="currentWeight">Current Weight (kg):</label>
-                        <input type="number" id="currentWeight" step="0.1" required>
+                        <input type="number" id="currentWeight" step="0.1" min="1" max="1000" required>
                     </div>
                     <div class="form-group">
                         <label for="height">Height (cm):</label>
-                        <input type="number" id="height" step="0.1" required>
+                        <input type="number" id="height" step="0.1" min="50" max="300" required>
                     </div>
                     <div class="form-group">
                         <label for="goalWeight">Goal Weight (kg):</label>
-                        <input type="number" id="goalWeight" step="0.1" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="age">Age:</label>
-                        <input type="number" id="age" min="13" max="120" required>
+                        <input type="number" id="goalWeight" step="0.1" min="1" max="1000" required>
                     </div>
                     <button type="submit" class="btn-primary">Log Weight & Calculate BMI</button>
                 </form>
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+                <div id="successMessage" class="success-message" style="display: none;"></div>
             </div>
 
             <!-- BMI Results Section -->
@@ -55,14 +58,8 @@
             <!-- Progress Chart -->
             <div class="card progress-chart">
                 <h2>Weight Progress</h2>
-                <canvas id="weightChart" width="400" height="200"></canvas>
-                <div class="chart-legend">
-                    <span class="legend-item">
-                        <span class="legend-color current"></span> Current Weight
-                    </span>
-                    <span class="legend-item">
-                        <span class="legend-color goal"></span> Goal Weight
-                    </span>
+                <div class="chart-container">
+                    <canvas id="weightChart"></canvas>
                 </div>
             </div>
 

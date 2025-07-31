@@ -1,4 +1,12 @@
 const apiBaseUrl = "http://localhost:3000";
+function getAuthHeaders() {
+  const token = localStorage.getItem('authToken');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+
 
 function showNotification(message, type) {
     const notification = document.getElementById("notification");
@@ -26,7 +34,9 @@ function showNotification(message, type) {
 
 async function retrieveData(id){
     try{
-        const response = await fetch(`${apiBaseUrl}/caretaker/getrecord/${id}`)
+        const response = await fetch(`${apiBaseUrl}/caretaker/getrecord/${id}`,{
+          headers: getAuthHeaders()
+        });
         if (!response.ok) {
             // Handle HTTP errors (e.g., 404, 500)
             // Attempt to read error body if available, otherwise use status text
@@ -58,6 +68,7 @@ async function createData(id,data){
           method: "POST", // Specify the HTTP method
           headers: {
             "Content-Type": "application/json", // Tell the API we are sending JSON
+            ...getAuthHeaders()
           },
           body: JSON.stringify(data), // Send the data as a JSON string in the request body
         });
@@ -94,7 +105,8 @@ async function updateRecord(id,newRecord){
     const response = await fetch(`${apiBaseUrl}/caretaker/update/${id}`, {
         method: "PUT",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json", // Tell the API we are sending JSON
+          ...getAuthHeaders()
         },
         body: JSON.stringify(newRecord),
       });
@@ -120,6 +132,7 @@ async function deleteRecord(id){
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          ...getAuthHeaders()
         },
       });
       if(response.status === 204 || response.status === 200){

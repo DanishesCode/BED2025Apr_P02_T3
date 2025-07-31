@@ -48,6 +48,12 @@ const toolsData = {
     ],
     learning: [
         {
+            title: "Topics Learner",
+            description: "Share and discover knowledge through text, images, and videos uploaded by the community.",
+            icon: "chat",
+            url: "TopicsLearner/topics.html"
+        },
+        {
             title: "Study Planner",
             description: "Organize your study schedule and track learning progress.",
             icon: "chat",
@@ -118,10 +124,16 @@ const toolsData = {
             url: "weather/weather.html"
         },
         {
-            title: "SOS system",
+            title: "SOS System",
             description: "Alert your caretaker via telegram with a button.",
             icon: "chat",
             url: "sos/main.html"
+        },
+        {
+            title: "Find Hospitals Near You",
+            description: "Get routes,distance and estimated time of arrival to hospitals near you in Singapore.",
+            icon: "chat",
+            url: "nearestHospital/hospital.html"
         }
     ]
 };
