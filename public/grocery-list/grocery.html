@@ -44,6 +44,19 @@
         <div class="section">
             <h2>🛒 Grocery List</h2>
             
+            <!-- Day Filter Section -->
+            <div class="filter-section" style="margin-bottom: 20px; padding: 15px; border: 1px solid #e9ecef; border-radius: 8px; background-color: #f8f9fa;">
+                <h3 style="margin: 0 0 10px 0; font-size: 16px; color: #495057;">📅 Filter by Day:</h3>
+                <div class="day-filter" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="day-filter-btn active" data-day="all" onclick="filterByDay('all')">All Days</button>
+                    <button class="day-filter-btn" data-day="monday" onclick="filterByDay('monday')">Mon</button>
+                    <button class="day-filter-btn" data-day="tuesday" onclick="filterByDay('tuesday')">Tue</button>
+                    <button class="day-filter-btn" data-day="wednesday" onclick="filterByDay('wednesday')">Wed</button>
+                    <button class="day-filter-btn" data-day="thursday" onclick="filterByDay('thursday')">Thu</button>
+                    <button class="day-filter-btn" data-day="friday" onclick="filterByDay('friday')">Fri</button>
+                </div>
+            </div>
+            
             <div class="add-item-section">
                 <input type="text" class="add-item-input" id="newItemInput" placeholder="Enter item name..." onkeypress="handleEnterKey(event)">
                 <input type="number" class="add-item-input" id="newItemQuantity" placeholder="Qty" value="1" min="0.1" step="0.1" style="flex: 0 0 80px;">
@@ -63,6 +76,13 @@
                     <option value="bags">bags</option>
                     <option value="boxes">boxes</option>
                 </select>
+                <select class="add-item-input" id="newItemDay" style="flex: 0 0 110px;">
+                    <option value="monday">Monday</option>
+                    <option value="tuesday">Tuesday</option>
+                    <option value="wednesday">Wednesday</option>
+                    <option value="thursday">Thursday</option>
+                    <option value="friday">Friday</option>
+                </select>
                 <button class="add-btn" onclick="addItem()">+ Add Item</button>
             </div>
 
@@ -73,6 +93,7 @@
                     <tr>
                         <th>Item Name</th>
                         <th>Quantity & Unit</th>
+                        <th>Day</th>
                         <th>Status</th>
                         <th>✅ Mark as Bought</th>
                         <th>Actions</th>

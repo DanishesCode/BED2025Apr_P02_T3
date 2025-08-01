@@ -149,7 +149,8 @@ async function generateGroceryList() {
                 mealId: meal.MealID,
                 category: meal.Category || 'breakfast',
                 name: meal.MealName,
-                servings: 4 // Default servings
+                servings: 4, // Default servings
+                dayOfWeek: meal.DayOfWeek ? meal.DayOfWeek.toLowerCase() : 'monday'
             });
         });
     }
@@ -164,7 +165,8 @@ async function generateGroceryList() {
                 mealId: meal.MealID,
                 category: meal.Category || 'lunch',
                 name: meal.MealName,
-                servings: 4
+                servings: 4,
+                dayOfWeek: meal.DayOfWeek ? meal.DayOfWeek.toLowerCase() : 'monday'
             });
         });
     }
@@ -179,7 +181,8 @@ async function generateGroceryList() {
                 mealId: meal.MealID,
                 category: meal.Category || 'dinner',
                 name: meal.MealName,
-                servings: 4
+                servings: 4,
+                dayOfWeek: meal.DayOfWeek ? meal.DayOfWeek.toLowerCase() : 'monday'
             });
         });
     }
@@ -236,9 +239,18 @@ async function generateGroceryList() {
 async function addItem() {
     const nameInput = document.getElementById('newItemInput');
     const quantityInput = document.getElementById('newItemQuantity');
+    const unitSelect = document.getElementById('newItemUnit');
+    const daySelect = document.getElementById('newItemDay');
     
     const name = nameInput.value.trim();
-    const quantity = parseInt(quantityInput.value) || 1;
+    const quantity = parseFloat(quantityInput.value) || 1;
+    const unit = unitSelect.value;
+    const day = daySelect.value;
+
+    console.log('Adding item with day:', day);
+    console.log('Day select element:', daySelect);
+    console.log('Day select value:', daySelect.value);
+    console.log('Will store in notes:', `Day: ${day}`);
 
     if (name) {
         try {
@@ -248,17 +260,19 @@ async function addItem() {
                 body: JSON.stringify({
                     item_name: name,
                     quantity: quantity,
-                    unit: 'pcs',
+                    unit: unit,
                     bought: false,
                     user_id: UserID,
                     price: 0.00,
-                    notes: 'Added manually'
+                    notes: `Day: ${day}`
                 })
             });
 
             if (response.ok) {
                 nameInput.value = '';
                 quantityInput.value = '1';
+                unitSelect.value = 'pcs';
+                daySelect.value = 'monday';
                 await loadGroceryItems();
                 updateGroceryTable();
             } else {
@@ -444,21 +458,34 @@ function updateGroceryTable() {
     const tableBody = document.getElementById('groceryTableBody');
     const emptyState = document.getElementById('emptyState');
     
-    if (groceryItems.length === 0) {
+    // Get filtered items
+    const filteredItems = getFilteredGroceryItems();
+    
+    if (filteredItems.length === 0) {
         tableBody.innerHTML = '';
         emptyState.style.display = 'block';
+        if (currentDayFilter !== 'all') {
+            emptyState.textContent = `No items for ${currentDayFilter.charAt(0).toUpperCase() + currentDayFilter.slice(1)}. Try selecting a different day or add some items!`;
+        } else {
+            emptyState.textContent = 'No items in your grocery list yet. Add some items or generate from your meal plan!';
+        }
         return;
     }
 
     emptyState.style.display = 'none';
     
-    tableBody.innerHTML = groceryItems.map(item => `
+    tableBody.innerHTML = filteredItems.map(item => `
         <tr class="${item.status === 'bought' ? 'bought' : ''}">
             <td>${item.name}</td>
             <td>${item.quantity} ${item.unit}</td>
             <td>
+                <span class="day-badge" style="background-color: #007bff; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                    ${extractDayFromNotes(item.notes).charAt(0).toUpperCase() + extractDayFromNotes(item.notes).slice(1)}
+                </span>
+            </td>
+            <td>
                 <span class="status-badge status-${item.status}">
-                    ${item.status === 'pending' ? '⏳ Pending' : '✅ Bought'}
+                    ${item.status === 'bought' ? '✅ Bought' : '⏳ Pending'}
                 </span>
             </td>
             <td>
@@ -471,4 +498,75 @@ function updateGroceryTable() {
             </td>
         </tr>
     `).join('');
+}
+
+// Global variable to track current filter
+let currentDayFilter = 'all';
+
+// Function to extract day from notes
+function extractDayFromNotes(notes) {
+    console.log('Extracting day from notes:', notes);
+    if (!notes) {
+        console.log('No notes found, returning default: monday');
+        return 'monday'; // default
+    }
+    
+    // Check for the new format "Day: dayname" (with possible comma and additional text)
+    const dayMatch = notes.match(/Day: (\w+)/i);
+    if (dayMatch) {
+        const extractedDay = dayMatch[1].toLowerCase();
+        console.log('Found day in new format:', extractedDay);
+        return extractedDay;
+    }
+    
+    // If no day format found, check if it's an old item
+    console.log('No day format found, returning default: monday');
+    return 'monday'; // default for legacy items
+}
+
+// Function to filter grocery items by day
+function filterByDay(day) {
+    console.log('=== FILTER BUTTON CLICKED ===');
+    console.log('Filtering by day:', day);
+    currentDayFilter = day;
+    
+    // Update active button
+    document.querySelectorAll('.day-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    const activeButton = document.querySelector(`[data-day="${day}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+        console.log('Active button updated for:', day);
+    } else {
+        console.log('ERROR: Could not find button for day:', day);
+    }
+    
+    // Filter and update table
+    updateGroceryTable();
+    console.log('=== END FILTER BUTTON CLICKED ===');
+}
+
+// Function to get filtered grocery items
+function getFilteredGroceryItems() {
+    console.log('=== FILTERING DEBUG ===');
+    console.log('Current filter:', currentDayFilter);
+    console.log('Total items:', groceryItems.length);
+    
+    if (currentDayFilter === 'all') {
+        console.log('Showing all items');
+        return groceryItems;
+    }
+    
+    const filtered = groceryItems.filter(item => {
+        const itemDay = extractDayFromNotes(item.notes);
+        const matches = itemDay === currentDayFilter;
+        console.log(`Item: ${item.item_name}, Notes: "${item.notes}", Extracted day: "${itemDay}", Filter: "${currentDayFilter}", Matches: ${matches}`);
+        return matches;
+    });
+    
+    console.log('Filtered items count:', filtered.length);
+    console.log('=== END FILTERING DEBUG ===');
+    return filtered;
 }

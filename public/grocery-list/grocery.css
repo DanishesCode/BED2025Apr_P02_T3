@@ -90,20 +90,69 @@ h2 {
     background-color: #219a52;
 }
 
+/* Day Filter */
+.day-filter-btn {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 70px;
+}
+
+.day-filter-btn:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+.day-filter-btn.active {
+    background-color: #007bff;
+    box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+}
+
+.day-filter-btn.active:hover {
+    background-color: #0056b3;
+}
+
 /* Grocery List */
 .add-item-section {
     display: flex;
-    gap: 15px;
+    gap: 10px;
     margin-bottom: 25px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .add-item-input {
-    flex: 1;
     padding: 12px;
     font-size: 20px;
     border: 2px solid #ced4da;
     border-radius: 6px;
+}
+
+/* Specific widths for different input types */
+#newItemInput {
+    flex: 2;
+    min-width: 200px;
+}
+
+#newItemQuantity {
+    flex: 0 0 80px;
+    min-width: 80px;
+}
+
+#newItemUnit {
+    flex: 0 0 100px;
+    min-width: 100px;
+}
+
+#newItemDay {
+    flex: 0 0 110px;
+    min-width: 110px;
 }
 
 .add-btn {
@@ -116,6 +165,7 @@ h2 {
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s;
+    flex: 0 0 auto;
 }
 
 .add-btn:hover {
@@ -221,6 +271,26 @@ h2 {
     .add-item-section {
         flex-direction: column;
         align-items: stretch;
+        gap: 10px;
+    }
+    
+    .add-item-input {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    #newItemInput,
+    #newItemQuantity,
+    #newItemUnit,
+    #newItemDay {
+        flex: none;
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .add-btn {
+        width: 100%;
+        margin-top: 5px;
     }
     
     .grocery-table {
@@ -230,5 +300,29 @@ h2 {
     .grocery-table th,
     .grocery-table td {
         padding: 12px;
+    }
+}
+
+/* Medium screens - tablets */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .add-item-section {
+        gap: 8px;
+    }
+    
+    #newItemInput {
+        min-width: 150px;
+        flex: 1;
+    }
+    
+    #newItemQuantity {
+        flex: 0 0 70px;
+    }
+    
+    #newItemUnit {
+        flex: 0 0 90px;
+    }
+    
+    #newItemDay {
+        flex: 0 0 100px;
     }
 }

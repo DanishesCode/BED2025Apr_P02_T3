@@ -1,6 +1,6 @@
 const groceryModel = require('../models/groceryModel');
 const mealsModel = require('../models/mealsModel');
-const { getRecipeDetails } = require('../spoonacularService');
+const { getRecipeDetails } = require('../models/mealsModel');
 
 // Get all grocery items for a user
 async function getAllGroceryItems(req, res) {
@@ -65,13 +65,15 @@ async function generateFromMealPlan(req, res) {
       return res.status(400).json({ error: 'Invalid userId' });
     }
 
-    const { selectedMeals } = req.body; // Array of { mealId, category, servings }
+    const { selectedMeals } = req.body; // Array of { mealId, category, servings, dayOfWeek }
     
     if (!selectedMeals || selectedMeals.length === 0) {
       return res.status(400).json({ error: 'No meals selected' });
     }
 
-    const consolidatedIngredients = new Map();
+    console.log(`[BACKEND] Auto-assigning days based on meal plan schedule`);
+
+    const consolidatedIngredients = new Map(); // Key will be "ingredientName_day"
 
     // Process each selected meal
     for (const meal of selectedMeals) {
@@ -87,6 +89,11 @@ async function generateFromMealPlan(req, res) {
           console.log(`Meal with ID ${meal.mealId} not found, skipping...`);
           continue;
         }
+
+        // The meal object already contains the scheduled day from the frontend
+        // This comes from the meal plan where we know which day it was scheduled for
+        const assignedDay = meal.dayOfWeek || 'monday'; // Use the day from meal plan
+        console.log(`[BACKEND] Using scheduled day from meal plan: ${assignedDay}`);
 
         let ingredients = [];
 
@@ -141,10 +148,10 @@ async function generateFromMealPlan(req, res) {
         
         // Add ingredients to consolidated list
         ingredients.forEach(ingredient => {
-          const key = ingredient.name.toLowerCase().trim();
+          const key = `${ingredient.name.toLowerCase().trim()}_${assignedDay}`;
           const adjustedAmount = (ingredient.amount || 1) * servingsMultiplier;
           
-          console.log(`[BACKEND] Processing ingredient: ${ingredient.name}, Amount: ${ingredient.amount}, Adjusted: ${adjustedAmount}`);
+          console.log(`[BACKEND] Processing ingredient: ${ingredient.name}, Amount: ${ingredient.amount}, Adjusted: ${adjustedAmount}, Day: ${assignedDay}`);
           
           if (consolidatedIngredients.has(key)) {
             const existing = consolidatedIngredients.get(key);
@@ -154,9 +161,10 @@ async function generateFromMealPlan(req, res) {
             consolidatedIngredients.set(key, {
               name: ingredient.name,
               amount: adjustedAmount,
-              unit: ingredient.unit || 'unit'
+              unit: ingredient.unit || 'unit',
+              assignedDay: assignedDay
             });
-            console.log(`[BACKEND] Added new ingredient: ${key}, Amount: ${adjustedAmount}`);
+            console.log(`[BACKEND] Added new ingredient: ${key}, Amount: ${adjustedAmount}, Day: ${assignedDay}`);
           }
         });
 
@@ -177,7 +185,7 @@ async function generateFromMealPlan(req, res) {
       user_id: userId,
       date_added: new Date(),
       price: 0.00,
-      notes: `Generated from meal plan using ${selectedMeals.length} meal(s)`
+      notes: `Day: ${ingredient.assignedDay}, Generated from meal plan using ${selectedMeals.length} meal(s)`
     }));
 
     // Add items to database

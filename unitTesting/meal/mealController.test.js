@@ -1,10 +1,10 @@
 const mealController = require("../../controllers/mealController");
 const mealsModel = require("../../models/mealsModel");
-const { getRecipeDetails } = require("../../spoonacularService");
+const { getRecipeDetails } = require("../../models/mealsModel");
 
 // Mock the dependencies
 jest.mock("../../models/mealsModel");
-jest.mock("../../spoonacularService");
+jest.mock("../../models/mealsModel");
 
 describe("mealController", () => {
   beforeEach(() => {

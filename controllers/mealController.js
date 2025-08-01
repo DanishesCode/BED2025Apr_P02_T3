@@ -1,5 +1,4 @@
 const mealsModel = require('../models/mealsModel');
-const { getRecipeDetails } = require('../spoonacularService');
 
 // GET /meals/:userId
 async function getAllMeals(req, res) {
@@ -63,7 +62,7 @@ async function addMeal(req, res) {
     if (SpoonacularID) {
       try {
         console.log(`Fetching Spoonacular details for recipe ${SpoonacularID}`);
-        const spoonacularResponse = await getRecipeDetails(SpoonacularID);
+        const spoonacularResponse = await mealsModel.getRecipeDetails(SpoonacularID);
         
         if (spoonacularResponse.success && spoonacularResponse.recipe) {
           const recipe = spoonacularResponse.recipe;
@@ -168,7 +167,7 @@ async function importSpoonacularRecipe(req, res) {
     console.log(`Importing Spoonacular recipe ${SpoonacularID} for user ${UserID}`);
     
     // Fetch recipe details from Spoonacular
-    const spoonacularResponse = await getRecipeDetails(SpoonacularID);
+    const spoonacularResponse = await mealsModel.getRecipeDetails(SpoonacularID);
     
     if (!spoonacularResponse.success) {
       return res.status(400).json({ 
