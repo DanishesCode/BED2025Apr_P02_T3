@@ -307,13 +307,12 @@ function getOrdinalSuffix(num) {
 
 // Schedule automatic birthday wishes to run daily at 9:00 AM
 function startAutomaticBirthdayWishes() {
-  console.log('🚀 Starting automatic birthday wish system...');
   
   // Calculate milliseconds until next 9:00 AM
   function getMillisecondsUntilNineAM() {
     const now = new Date();
     const next9AM = new Date();
-    next9AM.setHours(19, 53, 0, 0); // 9:00 AM
+    next9AM.setHours(9, 0, 0, 0); // 9:00 AM
     
     // If it's already past 9 AM today, schedule for tomorrow
     if (now.getTime() > next9AM.getTime()) {
@@ -334,7 +333,6 @@ function startAutomaticBirthdayWishes() {
     console.log('🎂 Automatic birthday wishes scheduled to run daily at 9:00 AM');
   }, getMillisecondsUntilNineAM());
   
-  console.log('⏰ Next birthday check scheduled for 9:00 AM');
 }
 
 function getDateDisplay(daysUntil) {

@@ -225,10 +225,18 @@ describe("groceryController", () => {
         notes: "Organic whole milk"
       };
 
+      const mockExistingItem = {
+        item_id: 1,
+        item_name: "Milk",
+        quantity: 2,
+        unit: "liter"
+      };
+
+      groceryModel.getGroceryItemById.mockResolvedValue(mockExistingItem);
       groceryModel.updateGroceryItem.mockResolvedValue({ success: true });
 
       const req = {
-        params: { id: "1" },
+        params: { id: 1 }, // Note: middleware converts string to number
         body: mockUpdateData
       };
       const res = {
@@ -238,6 +246,7 @@ describe("groceryController", () => {
 
       await groceryController.updateGroceryItem(req, res);
 
+      expect(groceryModel.getGroceryItemById).toHaveBeenCalledWith(1);
       expect(groceryModel.updateGroceryItem).toHaveBeenCalledWith(1, mockUpdateData);
       expect(res.json).toHaveBeenCalledWith({ message: 'Item updated successfully' });
     });
@@ -248,11 +257,18 @@ describe("groceryController", () => {
         quantity: 2
       };
 
-      const errorMessage = "Update failed";
+      const mockExistingItem = {
+        item_id: 1,
+        item_name: "Original Item",
+        quantity: 1
+      };
+
+      const errorMessage = "Database error";
+      groceryModel.getGroceryItemById.mockResolvedValue(mockExistingItem);
       groceryModel.updateGroceryItem.mockRejectedValue(new Error(errorMessage));
 
       const req = {
-        params: { id: "1" },
+        params: { id: 1 }, // Note: middleware converts string to number
         body: mockUpdateData
       };
       const res = {
@@ -266,6 +282,34 @@ describe("groceryController", () => {
       expect(res.json).toHaveBeenCalledWith({ 
         error: 'Failed to update item', 
         details: errorMessage 
+      });
+    });
+
+    it("should return 404 when trying to update non-existing item", async () => {
+      const mockUpdateData = {
+        item_name: "Updated Item",
+        quantity: 2
+      };
+
+      groceryModel.getGroceryItemById.mockResolvedValue(null);
+
+      const req = {
+        params: { id: 999 },
+        body: mockUpdateData
+      };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      };
+
+      await groceryController.updateGroceryItem(req, res);
+
+      expect(groceryModel.getGroceryItemById).toHaveBeenCalledWith(999);
+      expect(groceryModel.updateGroceryItem).not.toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ 
+        error: 'Item not found',
+        details: 'The grocery item you are trying to update does not exist'
       });
     });
   });

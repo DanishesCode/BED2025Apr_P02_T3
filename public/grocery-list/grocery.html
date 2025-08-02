@@ -58,9 +58,9 @@
             </div>
             
             <div class="add-item-section">
-                <input type="text" class="add-item-input" id="newItemInput" placeholder="Enter item name..." onkeypress="handleEnterKey(event)">
-                <input type="number" class="add-item-input" id="newItemQuantity" placeholder="Qty" value="1" min="0.1" step="0.1" style="flex: 0 0 80px;">
-                <select class="add-item-input" id="newItemUnit" style="flex: 0 0 100px;">
+                <input type="text" class="add-item-input" id="newItemInput" placeholder="Enter item name..." onkeypress="handleEnterKey(event)" maxlength="100" required>
+                <input type="number" class="add-item-input" id="newItemQuantity" placeholder="Qty" value="1" min="0.1" max="9999" step="0.1" style="flex: 0 0 80px;" required>
+                <select class="add-item-input" id="newItemUnit" style="flex: 0 0 100px;" required>
                     <option value="pcs">pcs</option>
                     <option value="kg">kg</option>
                     <option value="g">g</option>
@@ -76,7 +76,7 @@
                     <option value="bags">bags</option>
                     <option value="boxes">boxes</option>
                 </select>
-                <select class="add-item-input" id="newItemDay" style="flex: 0 0 110px;">
+                <select class="add-item-input" id="newItemDay" style="flex: 0 0 110px;" required>
                     <option value="monday">Monday</option>
                     <option value="tuesday">Tuesday</option>
                     <option value="wednesday">Wednesday</option>
@@ -84,6 +84,11 @@
                     <option value="friday">Friday</option>
                 </select>
                 <button class="add-btn" onclick="addItem()">+ Add Item</button>
+            </div>
+            
+            <!-- Validation Error Messages -->
+            <div id="validationErrors" class="validation-errors" style="display: none; margin-top: 10px; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px; color: #721c24;">
+                <ul id="errorList" style="margin: 0; padding-left: 20px;"></ul>
             </div>
 
             <button class="clear-btn" onclick="clearBoughtItems()">🗑️ Clear Bought Items</button>

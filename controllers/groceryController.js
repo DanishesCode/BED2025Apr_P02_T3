@@ -28,21 +28,53 @@ async function getGroceryItemById(req, res) {
 // Add a new grocery item
 async function addGroceryItem(req, res) {
   try {
-    await groceryModel.addGroceryItem(req.body);
-    res.status(201).json({ message: 'Item added successfully' });
+    // Input validation is handled by middleware
+    const result = await groceryModel.addGroceryItem(req.body);
+    res.status(201).json({ 
+      message: 'Item added successfully',
+      itemId: result.insertId 
+    });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to add item', details: err.message });
+    console.error('Error adding grocery item:', err);
+    
+    // Handle specific database errors
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ 
+        error: 'Duplicate item', 
+        details: 'This item already exists in your grocery list' 
+      });
+    }
+    
+    res.status(500).json({ 
+      error: 'Failed to add item', 
+      details: err.message 
+    });
   }
 }
 
 // Update a grocery item
 async function updateGroceryItem(req, res) {
   try {
-    const itemId = parseInt(req.params.id);
+    // Input validation is handled by middleware
+    const itemId = req.params.id;
+    
+    // Check if item exists first
+    const existingItem = await groceryModel.getGroceryItemById(itemId);
+    if (!existingItem) {
+      return res.status(404).json({ 
+        error: 'Item not found',
+        details: 'The grocery item you are trying to update does not exist'
+      });
+    }
+    
     await groceryModel.updateGroceryItem(itemId, req.body);
     res.json({ message: 'Item updated successfully' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to update item', details: err.message });
+    console.error('Error updating grocery item:', err);
+    res.status(500).json({ 
+      error: 'Failed to update item', 
+      details: err.message 
+    });
   }
 }
 
