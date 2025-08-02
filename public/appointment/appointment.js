@@ -185,6 +185,9 @@ function fetchAppointments() {
 
 function renderAppointments(appointments) {
     const sidebar = document.querySelector('.appointments-sidebar');
+    const mobileAppointments = document.getElementById('mobile-appointments-list');
+    
+    // Render desktop sidebar appointments
     let html = '<h3>Appointments</h3><div class="mini-calendar">';
     if (appointments.length === 0) {
         html += '<p>No appointments yet.</p>';
@@ -205,6 +208,28 @@ function renderAppointments(appointments) {
     }
     html += '</div>';
     sidebar.innerHTML = html;
+    
+    // Render mobile appointments
+    let mobileHtml = '';
+    if (appointments.length === 0) {
+        mobileHtml = '<p style="text-align: center; color: #666; padding: 20px;">No appointments yet.</p>';
+    } else {
+        appointments.forEach(app => {
+            const consultationType = app.consultationType === 'H' ? '👨‍⚕️ Health Coach (Human)' : '🤖 AI Assistant (Bot)';
+            mobileHtml += `
+                <div class="mobile-appointment-item">
+                    <div class="mobile-appointment-date">${app.appointmentDate}</div>
+                    <div class="mobile-appointment-time">${app.appointmentTime}</div>
+                    <div class="mobile-appointment-type">${consultationType}</div>
+                    <div class="mobile-appointment-actions">
+                        <button class="mobile-edit-btn" onclick="startEditAppointment(${app.id}, '${app.appointmentDate}', '${app.appointmentTime}', '${app.consultationType}')">Edit</button>
+                        <button class="mobile-delete-btn" onclick="deleteAppointment(${app.id})">Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    mobileAppointments.innerHTML = mobileHtml;
 }
 
 function createAppointment(date, time, consultationType) {

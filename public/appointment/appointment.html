@@ -17,47 +17,37 @@
         </div>
     </div>
     <div class="container">
-        <aside class="sidebar">
-            <div class="sidebar-section">
-                <h2>Health &amp; Wellness</h2>
-                <ul>
-                    <li><span class="icon">&#128170;</span> Personalized Health Coaching</li>
-                    <li><span class="icon">&#127828;</span> Nutrition and meal plan</li>
-                    <li><span class="icon">&#128161;</span> Tips</li>
-                    <li><span class="icon">&#128712;</span> xxx xxxxx xxx</li>
-                </ul>
-            </div>
-            <div class="sidebar-section">
-                <h2>Smart Assistance</h2>
-                <ul>
-                    <li><span class="icon">&#129302;</span> AI Chat</li>
-                    <li><span class="icon">&#128221;</span> Summarizer</li>
-                </ul>
-            </div>
-        </aside>
+
         <main class="main-content">
             <div class="appointment-section">
-                <h3>Choose a Date</h3>
-                <div class="date-picker">
-                    <!-- Placeholder for calendar widget -->
-                    <div class="calendar">
-                        <div class="calendar-header">
-                            <select id="month-select"></select>
-                            <select id="year-select"></select>
+                <div class="datetime-container">
+                    <div class="date-section">
+                        <h3>Choose a Date</h3>
+                        <div class="date-picker">
+                            <!-- Placeholder for calendar widget -->
+                            <div class="calendar">
+                                <div class="calendar-header">
+                                    <select id="month-select"></select>
+                                    <select id="year-select"></select>
+                                </div>
+                                <table class="calendar-table">
+                                    <thead>
+                                        <tr><th>M</th><th>Tu</th><th>W</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th></tr>
+                                    </thead>
+                                    <tbody id="calendar-body">
+                                        <!-- Calendar days will be rendered here by JS -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <table class="calendar-table">
-                            <thead>
-                                <tr><th>M</th><th>Tu</th><th>W</th><th>Th</th><th>Fr</th><th>Sa</th><th>Su</th></tr>
-                            </thead>
-                            <tbody id="calendar-body">
-                                <!-- Calendar days will be rendered here by JS -->
-                            </tbody>
-                        </table>
                     </div>
-                </div>
-                <h3>Pick a time</h3>
-                <div class="time-picker" id="time-picker">
-                    <!-- Time slots will be rendered here by JS -->
+                    
+                    <div class="time-section">
+                        <h3>Pick a time</h3>
+                        <div class="time-picker" id="time-picker">
+                            <!-- Time slots will be rendered here by JS -->
+                        </div>
+                    </div>
                 </div>
                 
                 <h3>Choose Consultation Type</h3>
@@ -92,6 +82,14 @@
                 <div class="action-buttons">
                     <button class="back-btn">Back</button>
                     <button class="continue-btn">Continue</button>
+                </div>
+                
+                <!-- Mobile Appointments Section -->
+                <div class="mobile-appointments">
+                    <h3>Your Appointments</h3>
+                    <div id="mobile-appointments-list">
+                        <!-- Appointments will be loaded here by JavaScript -->
+                    </div>
                 </div>
             </div>
         </main>

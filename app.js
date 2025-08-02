@@ -73,6 +73,7 @@ const ValidationMiddleware = require("./middlewares/validationMiddleware");
 const validatePhoto = require("./middlewares/PhotoValidation");
 const sosMiddleware = require("./middlewares/sosValidation.js");
 const aichatController = require("./controllers/aichatController");
+const appointmentController = require('./controllers/appointmentController');
 const birthdayController = require('./controllers/birthdayController');
 const weatherApiController = require('./controllers/weatherApiController');
 const hospitalController = require("./controllers/hospitalController");
@@ -277,6 +278,12 @@ app.get('/api/weight', AuthMiddleware.authenticateToken, weightController.getWei
 
 // Exercise API routes
 app.get('/api/exercises', exerciseController.getExercises);
+
+// Appointment API routes
+app.post('/api/appointments', AuthMiddleware.authenticateToken, appointmentController.create);
+app.get('/api/appointments', AuthMiddleware.authenticateToken, appointmentController.list);
+app.put('/api/appointments/:id', AuthMiddleware.authenticateToken, appointmentController.update);
+app.delete('/api/appointments/:id', AuthMiddleware.authenticateToken, appointmentController.delete);
 
 //Routes for nearest hospital(danish)
 app.post("/hospital/getroute",AuthMiddleware.authenticateToken,hospitalController.getRouteData);

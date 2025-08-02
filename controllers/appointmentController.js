@@ -46,11 +46,11 @@ const AppointmentController = {
             }
 
             // Validate consultation type
-            const validTypes = ['general', 'specialist', 'emergency', 'follow-up', 'checkup'];
+            const validTypes = ['coach', 'ai'];
             if (!validTypes.includes(consultationType.toLowerCase())) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Consultation type must be one of: general, specialist, emergency, follow-up, checkup.',
+                    message: 'Consultation type must be either "coach" or "ai".',
                     error: 'INVALID_CONSULTATION_TYPE'
                 });
             }
@@ -153,11 +153,11 @@ const AppointmentController = {
             }
 
             // Validate consultation type
-            const validTypes = ['general', 'specialist', 'emergency', 'follow-up', 'checkup'];
+            const validTypes = ['coach', 'ai'];
             if (!validTypes.includes(consultationType.toLowerCase())) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Consultation type must be one of: general, specialist, emergency, follow-up, checkup.',
+                    message: 'Consultation type must be either "coach" or "ai".',
                     error: 'INVALID_CONSULTATION_TYPE'
                 });
             }
