@@ -528,7 +528,7 @@ UPDATE Topics SET like_count = 2 WHERE id = 6;
 -- [Tze Wei] - [Meal and Meal Plan Tables] - [Last Modified Date: 2025-07-20]
 CREATE TABLE Meals (
     MealID INT PRIMARY KEY IDENTITY(1,1),
-    UserID INT FOREIGN KEY REFERENCES Users(userId),
+    UserID INT,
     MealName NVARCHAR(100) NOT NULL,
     Category NVARCHAR(50),
     Instructions NVARCHAR(MAX),
@@ -536,7 +536,8 @@ CREATE TABLE Meals (
     Ingredients NVARCHAR(MAX) NULL,
     Servings INT DEFAULT 4,
     ReadyInMinutes INT NULL,
-    ImageUrl NVARCHAR(500) NULL
+    ImageUrl NVARCHAR(500) NULL,
+    CONSTRAINT FK_Meals_UserID FOREIGN KEY (UserID) REFERENCES Users(userId)
 );
 CREATE TABLE MealPlan (
   PlanID INT IDENTITY(1,1) PRIMARY KEY,
