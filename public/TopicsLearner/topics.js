@@ -358,6 +358,7 @@ function initializeUploadForm() {
                 textInput.style.display = 'block';
                 fileInput.style.display = 'none';
                 uploadArea.style.display = 'none';
+                if (fileInput) fileInput.value = '';
             } else {
                 textInput.style.display = 'none';
                 fileInput.style.display = 'block';
@@ -366,8 +367,13 @@ function initializeUploadForm() {
         });
     }
     if (uploadArea) setupDragAndDrop(uploadArea);
-    if (elements.uploadForm) elements.uploadForm.addEventListener('submit', handleFormSubmit);
-    // File input preview
+
+    // Always remove before adding to prevent duplicates
+    if (elements.uploadForm) {
+        elements.uploadForm.removeEventListener('submit', handleFormSubmit);
+        elements.uploadForm.addEventListener('submit', handleFormSubmit);
+    }
+
     if (fileInput) fileInput.addEventListener('change', handleFileSelect);
 }
 function setupDragAndDrop(area) {

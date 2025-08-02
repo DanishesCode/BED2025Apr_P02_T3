@@ -488,37 +488,8 @@ INSERT INTO Topics (userId, title, content, content_type, category, description,
 -- Add like_count column to Topics table
 ALTER TABLE Topics ADD like_count INT DEFAULT 0;
 
--- Create TopicLikes table
-CREATE TABLE TopicLikes (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    topicId INT NOT NULL,
-    userId INT NOT NULL,
-    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
-    CONSTRAINT FK_TopicLikes_Topics FOREIGN KEY (topicId) REFERENCES Topics(id) ON DELETE CASCADE,
-    CONSTRAINT FK_TopicLikes_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE,
-    CONSTRAINT UQ_TopicLikes UNIQUE (topicId, userId) -- Prevent duplicate likes
-);
 
--- Sample data for TopicLikes table
-INSERT INTO TopicLikes (topicId, userId) VALUES
-(1, 2), -- User 2 likes topic 1
-(1, 3), -- User 3 likes topic 1
-(2, 1), -- User 1 likes topic 2
-(2, 3), -- User 3 likes topic 2
-(3, 1), -- User 1 likes topic 3
-(4, 2), -- User 2 likes topic 4
-(5, 1), -- User 1 likes topic 5
-(5, 3), -- User 3 likes topic 5
-(6, 1), -- User 1 likes topic 6
-(6, 2); -- User 2 likes topic 6
 
--- Update like counts in Topics table
-UPDATE Topics SET like_count = 2 WHERE id = 1;
-UPDATE Topics SET like_count = 2 WHERE id = 2;
-UPDATE Topics SET like_count = 1 WHERE id = 3;
-UPDATE Topics SET like_count = 1 WHERE id = 4;
-UPDATE Topics SET like_count = 2 WHERE id = 5;
-UPDATE Topics SET like_count = 2 WHERE id = 6;
 
 -- [Tze Wei] - [Meal and Meal Plan Tables] - [Last Modified Date: 2025-07-20]
 CREATE TABLE Meals (
