@@ -36,7 +36,7 @@ async function getRouteData(profile, start, end) {
   try {
     if (!apiKey) {
       throw new Error("API key is missing!");
-    }
+    } 
 
     // Compose URL for Mapbox Directions API
     const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/${start[0]},${start[1]};${end[0]},${end[1]}?geometries=geojson&access_token=${apiKey}`;

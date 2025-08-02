@@ -3,7 +3,7 @@ const {
   searchRecipes: spoonacularSearchRecipes, 
   getRecipeDetails: spoonacularGetRecipeDetails, 
   getRandomRecipes: spoonacularGetRandomRecipes 
-} = require('../spoonacularService');
+} = require('../models/mealsModel');
 
 // Get recipe suggestions based on search criteria
 const getSuggestions = async (req, res) => {

@@ -1,10 +1,17 @@
 const birthdayModel = require('../models/birthdayModel');
 const userModel = require('../models/userModel');
 const twilio = require('twilio');
-const accountSid = process.env.TWILIO_SID;
-const authToken = process.env.TWILIO_TOKEN;
-const twilioNumber = process.env.TWILIO_PHONE;
-const twilioClient = twilio(accountSid, authToken);
+
+// Twilio configuration - will be read at runtime
+function getTwilioClient() {
+  const accountSid = process.env.TWILIO_SID;
+  const authToken = process.env.TWILIO_TOKEN;
+  return twilio(accountSid, authToken);
+}
+
+function getTwilioNumber() {
+  return process.env.TWILIO_PHONE;
+}
 async function getAllBirthdays(req, res) {
   try {
     let userId = req.user.userId;
@@ -150,7 +157,7 @@ async function getBirthdaysForDashboard(req, res) {
     const currentYear = todayDate.getFullYear();
 
     allBirthdays.forEach(b => {
-      const birthDate = new Date(b.birthDate);
+      const birthDate = parseBirthDate(b.birthDate);
       const birthMonth = birthDate.getMonth() + 1;
       const birthDay = birthDate.getDate();
 
@@ -194,6 +201,26 @@ async function getBirthdaysForDashboard(req, res) {
   }
 }
 
+// Helper function to parse date string reliably (avoids timezone issues)
+function parseBirthDate(dateInput) {
+  // If it's already a Date object, return it directly
+  if (dateInput instanceof Date) {
+    return dateInput;
+  }
+  
+  // If it's a string, parse it
+  if (typeof dateInput === 'string') {
+    const parts = dateInput.split('-');
+    const year = parseInt(parts[0]);
+    const month = parseInt(parts[1]) - 1; // Month is 0-indexed
+    const day = parseInt(parts[2]);
+    return new Date(year, month, day);
+  }
+  
+  // If it's neither, try to convert to Date
+  return new Date(dateInput);
+}
+
 function getInitials(firstName, lastName) {
   const fi = firstName ? firstName[0].toUpperCase() : '';
   const li = lastName ? lastName[0].toUpperCase() : '';
@@ -216,7 +243,7 @@ async function checkAndSendAutomaticBirthdayWishes() {
     
     // Check each birthday to see if it's today
     for (const birthday of allBirthdays) {
-      const birthDate = new Date(birthday.birthDate);
+      const birthDate = parseBirthDate(birthday.birthDate);
       const birthMonth = birthDate.getMonth() + 1;
       const birthDateNum = birthDate.getDate();
       
@@ -231,9 +258,12 @@ async function checkAndSendAutomaticBirthdayWishes() {
         
         // Create personalized birthday message
         const firstName = birthday.firstName;
-        const message = `🎉 Happy ${age}${getOrdinalSuffix(age)} Birthday, ${firstName}! 🎂\n\nWishing you a wonderful day filled with happiness and joy! 🌟\n\nHave an amazing year ahead! 🎈`;
+        const message = `🎉 Happy ${getOrdinalSuffix(age)} Birthday, ${firstName}! 🎂\n\nWishing you a wonderful day filled with happiness and joy! 🌟\n\nHave an amazing year ahead! 🎈`;
         
         try {
+          const twilioClient = getTwilioClient();
+          const twilioNumber = getTwilioNumber();
+          
           await twilioClient.messages.create({
             body: message,
             from: twilioNumber,
@@ -277,13 +307,12 @@ function getOrdinalSuffix(num) {
 
 // Schedule automatic birthday wishes to run daily at 9:00 AM
 function startAutomaticBirthdayWishes() {
-  console.log('🚀 Starting automatic birthday wish system...');
   
   // Calculate milliseconds until next 9:00 AM
   function getMillisecondsUntilNineAM() {
     const now = new Date();
     const next9AM = new Date();
-    next9AM.setHours(19, 53, 0, 0); // 9:00 AM
+    next9AM.setHours(9, 0, 0, 0); // 9:00 AM
     
     // If it's already past 9 AM today, schedule for tomorrow
     if (now.getTime() > next9AM.getTime()) {
@@ -304,7 +333,6 @@ function startAutomaticBirthdayWishes() {
     console.log('🎂 Automatic birthday wishes scheduled to run daily at 9:00 AM');
   }, getMillisecondsUntilNineAM());
   
-  console.log('⏰ Next birthday check scheduled for 9:00 AM');
 }
 
 function getDateDisplay(daysUntil) {
