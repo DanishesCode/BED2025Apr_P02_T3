@@ -8,7 +8,7 @@ const sendError = (res, status, message, error = null) => {
   return res.status(status).json(response);
 };
 
-// Helper function for success responses
+
 const sendSuccess = (res, status, message, data = null) => {
   const response = { success: true, message };
   if (data) response.data = data;
@@ -70,10 +70,10 @@ module.exports = {
         return sendError(res, 500, "Malformed weather data received", error);
       }
 
-      // Format location as "Country, City"
+
       const formattedLocation = `${location_data.country}, ${location_data.name}`;
 
-      // Get location image if available
+      
       let imageUrl = null;
       try {
         imageUrl = await weatherModel.getLocationImage(location_data.name, location_data.country);

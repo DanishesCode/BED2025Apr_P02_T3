@@ -42,14 +42,16 @@ async function getPhotosByUserId(userId) {
 
 // Get all photos
 async function getAllPhotos() {
+  let pool;
   try {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request()
-      .query('SELECT * FROM Photos ORDER BY uploadedAt DESC');
+    pool = await sql.connect(dbConfig);
+    const result = await pool.request().query('SELECT * FROM Photos ORDER BY uploadedAt DESC');
     return { success: true, data: result.recordset };
   } catch (error) {
     console.error("getAllPhotos error:", error);
     return { success: false, error: error.message };
+  } finally {
+    if (pool) await pool.close();
   }
 }
 
