@@ -84,6 +84,7 @@ const groceryController = require('./controllers/groceryController');
 const {  validateMeal, validateMealUpdate, validateMealId, validateUserId } = require('./middlewares/mealValidation');
 const topicController = require('./controllers/topicController');
 const weightController = require('./controllers/weightController');
+const exerciseController = require('./controllers/exerciseController');
 const { validateGroceryItem, validateUpdateGroceryItem, validateItemId, validateUserId: validateGroceryUserId } = require('./middlewares/groceryValidation');
 const summarizerController = require('./controllers/summarizerController'); // at the top with other controllers
 // Routes for pages
@@ -273,6 +274,9 @@ app.get("/api/topics/:id/comments", topicController.getComments);
 // Weight API routes
 app.post('/api/weight', AuthMiddleware.authenticateToken, weightController.addWeightEntry);
 app.get('/api/weight', AuthMiddleware.authenticateToken, weightController.getWeightHistory);
+
+// Exercise API routes
+app.get('/api/exercises', exerciseController.getExercises);
 
 //Routes for nearest hospital(danish)
 app.post("/hospital/getroute",AuthMiddleware.authenticateToken,hospitalController.getRouteData);

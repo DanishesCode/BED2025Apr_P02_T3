@@ -520,51 +520,129 @@ class WeightTracker {
 
     async loadExercises() {
         try {
-            const response = await fetch('https://exercisedb.p.rapidapi.com/exercises?limit=50', {
-                headers: {
-                    'X-RapidAPI-Key': '2ff47c855amshd24d8991b878e49p1682dfjsn4660081b250d',
-                    'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
-                }
-            });
+            const response = await fetch(`${this.apiBaseUrl}/api/exercises`);
+            
             if (!response.ok) {
+                console.log('Failed to fetch exercises from backend, using local exercises');
                 this.loadLocalExercises();
                 return;
             }
+            
             const data = await response.json();
-            if (!Array.isArray(data) || data.length === 0) {
+            
+            if (!data.success || !Array.isArray(data.exercises) || data.exercises.length === 0) {
+                console.log('Invalid exercise data received, using local exercises');
                 this.loadLocalExercises();
                 return;
             }
-            this.exercises = data.map(exercise => ({
+
+            this.exercises = data.exercises.map(exercise => ({
                 name: exercise.name,
-                type: exercise.bodyPart, // bodyPart is the main category
+                type: exercise.type, // bodyPart is the main category
                 equipment: exercise.equipment,
                 target: exercise.target,
-                gifUrl: exercise.gifUrl
+                gifUrl: exercise.gifUrl,
+                instructions: exercise.instructions || []
             }));
+            
+            console.log(`Loaded ${this.exercises.length} exercises from ${data.source}`);
             this.displayExercises();
         } catch (error) {
-            console.log('Using local exercise data');
+            console.error('Error loading exercises:', error);
+            console.log('Using local exercise data as fallback');
             this.loadLocalExercises();
         }
     }
 
     loadLocalExercises() {
-        // Local exercise data as fallback
+        // Enhanced local exercise data as fallback
         this.exercises = [
-            { name: 'Walking', type: 'cardio', equipment: 'None', target: 'Full body' },
-            { name: 'Jogging', type: 'cardio', equipment: 'None', target: 'Full body' },
-            { name: 'Cycling', type: 'cardio', equipment: 'Bicycle', target: 'Legs' },
-            { name: 'Swimming', type: 'cardio', equipment: 'Pool', target: 'Full body' },
-            { name: 'Push-ups', type: 'strength', equipment: 'None', target: 'Chest, Arms' },
-            { name: 'Squats', type: 'strength', equipment: 'None', target: 'Legs' },
-            { name: 'Planks', type: 'strength', equipment: 'None', target: 'Core' },
-            { name: 'Lunges', type: 'strength', equipment: 'None', target: 'Legs' },
-            { name: 'Yoga', type: 'flexibility', equipment: 'Mat', target: 'Full body' },
-            { name: 'Stretching', type: 'flexibility', equipment: 'None', target: 'Full body' },
-            { name: 'Pilates', type: 'flexibility', equipment: 'Mat', target: 'Core' },
-            { name: 'Tai Chi', type: 'flexibility', equipment: 'None', target: 'Full body' }
+            { 
+                name: 'Walking', 
+                type: 'cardio', 
+                equipment: 'None', 
+                target: 'Full body',
+                instructions: ['Start with a comfortable pace', 'Maintain good posture', 'Gradually increase duration']
+            },
+            { 
+                name: 'Jogging', 
+                type: 'cardio', 
+                equipment: 'None', 
+                target: 'Full body',
+                instructions: ['Warm up with light walking', 'Maintain steady breathing', 'Cool down gradually']
+            },
+            { 
+                name: 'Cycling', 
+                type: 'cardio', 
+                equipment: 'Bicycle', 
+                target: 'Legs',
+                instructions: ['Adjust seat height properly', 'Start with easy resistance', 'Keep knees aligned']
+            },
+            { 
+                name: 'Swimming', 
+                type: 'cardio', 
+                equipment: 'Pool', 
+                target: 'Full body',
+                instructions: ['Start with basic strokes', 'Focus on breathing technique', 'Build endurance gradually']
+            },
+            { 
+                name: 'Push-ups', 
+                type: 'strength', 
+                equipment: 'None', 
+                target: 'Chest, Arms',
+                instructions: ['Keep body in straight line', 'Lower chest to ground', 'Push up explosively']
+            },
+            { 
+                name: 'Squats', 
+                type: 'strength', 
+                equipment: 'None', 
+                target: 'Legs',
+                instructions: ['Keep feet shoulder-width apart', 'Lower until thighs parallel', 'Drive through heels to stand']
+            },
+            { 
+                name: 'Planks', 
+                type: 'strength', 
+                equipment: 'None', 
+                target: 'Core',
+                instructions: ['Keep body in straight line', 'Engage core muscles', 'Breathe normally']
+            },
+            { 
+                name: 'Lunges', 
+                type: 'strength', 
+                equipment: 'None', 
+                target: 'Legs',
+                instructions: ['Step forward with one leg', 'Lower back knee toward ground', 'Push back to starting position']
+            },
+            { 
+                name: 'Yoga', 
+                type: 'flexibility', 
+                equipment: 'Mat', 
+                target: 'Full body',
+                instructions: ['Focus on breathing', 'Move slowly between poses', 'Listen to your body']
+            },
+            { 
+                name: 'Stretching', 
+                type: 'flexibility', 
+                equipment: 'None', 
+                target: 'Full body',
+                instructions: ['Hold each stretch 15-30 seconds', 'Never stretch to pain', 'Breathe deeply']
+            },
+            { 
+                name: 'Pilates', 
+                type: 'flexibility', 
+                equipment: 'Mat', 
+                target: 'Core',
+                instructions: ['Focus on controlled movements', 'Engage core throughout', 'Maintain proper alignment']
+            },
+            { 
+                name: 'Tai Chi', 
+                type: 'flexibility', 
+                equipment: 'None', 
+                target: 'Full body',
+                instructions: ['Move slowly and smoothly', 'Focus on balance', 'Coordinate breathing with movement']
+            }
         ];
+        console.log(`Loaded ${this.exercises.length} local exercises as fallback`);
         this.displayExercises();
     }
 
@@ -575,11 +653,27 @@ class WeightTracker {
         this.exercises.forEach(exercise => {
             const card = document.createElement('div');
             card.className = 'exercise-card';
+            
+            // Build instructions HTML if available
+            let instructionsHtml = '';
+            if (exercise.instructions && exercise.instructions.length > 0) {
+                instructionsHtml = `
+                    <div class="exercise-instructions">
+                        <strong>Instructions:</strong>
+                        <ul>
+                            ${exercise.instructions.map(instruction => `<li>${instruction}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
             card.innerHTML = `
                 <h3>${exercise.name}</h3>
                 <p><strong>Target:</strong> ${exercise.target}</p>
                 <p><strong>Equipment:</strong> ${exercise.equipment}</p>
                 <span class="exercise-type ${exercise.type}">${exercise.type}</span>
+                ${instructionsHtml}
+                ${exercise.gifUrl ? `<div class="exercise-gif"><img src="${exercise.gifUrl}" alt="${exercise.name}" loading="lazy"></div>` : ''}
             `;
             grid.appendChild(card);
         });
