@@ -10,18 +10,23 @@ function getUserID() {
       const user = JSON.parse(currentUser);
       console.log('Parsed user object:', user);
       // Try different possible property names for userID
-      const userId = user.userId || user.id || user.user_id || user.UserID ;
-      console.log('Using UserID:', userId);
-      console.log('UserID type:', typeof userId);
-      return userId;
+      const userId = user.userId || user.id || user.user_id || user.UserID;
+      
+      if (userId) {
+        console.log('Using UserID:', userId);
+        console.log('UserID type:', typeof userId);
+        return userId;
+      }
     } catch (e) {
       console.error('Error parsing user data:', e);
-      console.log('Fallback to UserID: 1');
-      return 1;
     }
   }
-  console.log('No currentUser, fallback to UserID: 1');
-  return 1; // Default fallback
+  
+  console.log('No valid user found in localStorage, redirecting to login');
+  alert('Session expired. Please log in again.');
+  localStorage.clear();
+  window.location.href = '/login/login.html';
+  return null;
 }
 
 // Helper function to get auth headers
@@ -449,11 +454,11 @@ function showSuccessMessage(message) {
 // Test function to add sample grocery items
 async function addTestItems() {
     const testItems = [
-        { name: 'Milk', quantity: 1, unit: 'liter' },
-        { name: 'Bread', quantity: 2, unit: 'loaves' },
-        { name: 'Eggs', quantity: 12, unit: 'pieces' },
-        { name: 'Apples', quantity: 6, unit: 'pieces' },
-        { name: 'Chicken breast', quantity: 500, unit: 'grams' }
+        { name: 'Milk', quantity: 1, unit: 'L' },
+        { name: 'Bread', quantity: 2, unit: 'pcs' },
+        { name: 'Eggs', quantity: 12, unit: 'pcs' },
+        { name: 'Apples', quantity: 6, unit: 'pcs' },
+        { name: 'Chicken breast', quantity: 500, unit: 'g' }
     ];
 
     for (const item of testItems) {
@@ -538,25 +543,58 @@ async function toggleItemStatus(id) {
             const dbItemData = dbItem.find(dbI => dbI.item_name === item.name);
             
             if (dbItemData) {
+                // Normalize the unit to valid values
+                const validUnits = ['pcs', 'kg', 'g', 'lbs', 'oz', 'L', 'ml', 'cups', 'tbsp', 'tsp', 'cans', 'bottles', 'bags', 'boxes'];
+                let normalizedUnit = item.unit || dbItemData.unit || 'pcs';
+                
+                // Map common unit names to valid ones
+                const unitMapping = {
+                    'pieces': 'pcs',
+                    'piece': 'pcs',
+                    'grams': 'g',
+                    'gram': 'g',
+                    'liter': 'L',
+                    'liters': 'L',
+                    'loaves': 'pcs',
+                    'loaf': 'pcs'
+                };
+                
+                if (unitMapping[normalizedUnit]) {
+                    normalizedUnit = unitMapping[normalizedUnit];
+                } else if (!validUnits.includes(normalizedUnit)) {
+                    normalizedUnit = 'pcs'; // Default fallback
+                }
+
+                const updateData = {
+                    item_name: item.name,
+                    quantity: parseFloat(item.quantity) || parseFloat(dbItemData.quantity) || 1,
+                    unit: normalizedUnit,
+                    bought: newStatus,
+                    price: parseFloat(item.price) || parseFloat(dbItemData.price) || 0,
+                    notes: item.notes || dbItemData.notes || ''
+                };
+
+                console.log('Sending update data:', updateData);
+
                 const response = await fetch(`${BASE_URL}/grocery/item/${dbItemData.item_id}`, {
                     method: 'PUT',
                     headers: getAuthHeaders(),
-                    body: JSON.stringify({
-                        item_name: item.name,
-                        quantity: item.quantity,
-                        bought: newStatus,
-                        price: item.price || 0,
-                        notes: item.notes || ''
-                    })
+                    body: JSON.stringify(updateData)
                 });
 
                 if (response.ok) {
                     item.status = newStatus ? 'bought' : 'pending';
                     updateGroceryTable();
+                } else {
+                    // Log the error response for debugging
+                    const errorData = await response.json();
+                    console.error('Update failed:', errorData);
+                    alert('Failed to update item status. Please try again.');
                 }
             }
         } catch (error) {
             console.error('Error updating item status:', error);
+            alert('Error updating item status. Please check your connection.');
         }
     }
 }
