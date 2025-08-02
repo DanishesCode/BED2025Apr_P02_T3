@@ -5,6 +5,11 @@
 
 -- Ensure the script runs in EaseForLifeDB database
 USE EaseForLifeDb;
+-- Disable foreign key constraints
+EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT ALL"
+
+-- Drop all tables
+EXEC sp_MSforeachtable "DROP TABLE ?"
 
 CREATE TABLE Users (
     userId INT IDENTITY(1,1) PRIMARY KEY,
