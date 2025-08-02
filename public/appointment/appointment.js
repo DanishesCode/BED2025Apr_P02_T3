@@ -172,6 +172,68 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('.back-btn').addEventListener('click', function () {
         window.history.back();
     });
+
+    // Test SMS functionality using existing phone input
+    document.getElementById('test-sms-btn').addEventListener('click', async function() {
+        const countryCode = document.getElementById('country-code-select').value;
+        const phoneNumber = document.getElementById('phone-input').value.trim();
+        const resultDiv = document.getElementById('sms-test-result');
+        const button = this;
+        
+        // Clear previous results
+        resultDiv.innerHTML = '';
+        
+        if (!phoneNumber) {
+            resultDiv.innerHTML = '<span style="color: red;">Please enter a phone number first</span>';
+            return;
+        }
+        
+        // Format full phone number
+        const fullPhoneNumber = countryCode + phoneNumber.replace(/^0+/, ''); // Remove leading zeros
+        
+        // Validate phone number format
+        const phoneRegex = /^\+[1-9]\d{1,14}$/;
+        if (!phoneRegex.test(fullPhoneNumber)) {
+            resultDiv.innerHTML = '<span style="color: red;">Please enter a valid phone number</span>';
+            return;
+        }
+        
+        // Disable button and show loading
+        button.disabled = true;
+        button.textContent = 'Testing...';
+        resultDiv.innerHTML = '<span style="color: blue;">📱 Sending test SMS...</span>';
+        
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/appointments/test-sms`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                credentials: 'include',
+                body: JSON.stringify({
+                    phoneNumber: fullPhoneNumber
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                resultDiv.innerHTML = '<span style="color: green;">✅ Test SMS sent successfully!</span>';
+            } else {
+                if (data.message && data.message.includes('quota')) {
+                    resultDiv.innerHTML = '<span style="color: orange;">⚠️ SMS quota limit reached. Free service allows 1 SMS per day per phone number. Your appointment SMS will still work when you book!</span>';
+                } else {
+                    resultDiv.innerHTML = `<span style="color: red;">❌ Failed: ${data.message}</span>`;
+                }
+            }
+            
+        } catch (error) {
+            console.error('Test SMS error:', error);
+            resultDiv.innerHTML = '<span style="color: red;">❌ Error sending test SMS. Please try again.</span>';
+        } finally {
+            // Re-enable button
+            button.disabled = false;
+            button.textContent = 'Test SMS';
+        }
+    });
 });
 
 function fetchAppointments() {
@@ -216,12 +278,20 @@ function renderAppointments(appointments) {
         html += '<ul style="list-style:none;padding:0;">';
         appointments.forEach(app => {
             const consultationType = app.consultationType === 'H' ? '👨‍⚕️ Health Coach (Human)' : '🤖 AI Assistant (Bot)';
-            html += `<li style="margin-bottom:15px;padding:10px;background:#f9fafb;border-radius:8px;border-left:3px solid #a78bfa;">
-                <div style="font-weight:600;margin-bottom:5px;">${app.appointmentDate} ${app.appointmentTime}</div>
-                <div style="font-size:0.9rem;color:#6b7280;margin-bottom:8px;">${consultationType}</div>
-                <div style="display:flex;gap:8px;">
-                    <button onclick="deleteAppointment(${app.id})" style="color:red;border:none;background:none;cursor:pointer;font-size:0.8rem;">Delete</button>
-                    <button onclick="startEditAppointment(${app.id}, '${app.appointmentDate}', '${app.appointmentTime}', '${app.consultationType}')" style="color:#2563eb;border:none;background:none;cursor:pointer;font-size:0.8rem;">Edit</button>
+            html += `<li style="margin-bottom:20px;padding:15px;background:#f9fafb;border-radius:10px;border-left:4px solid #a78bfa;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+                <div style="font-weight:600;margin-bottom:8px;font-size:1rem;color:#1f2937;">${app.appointmentDate} ${app.appointmentTime}</div>
+                <div style="font-size:0.9rem;color:#6b7280;margin-bottom:12px;line-height:1.4;">${consultationType}</div>
+                ${app.googleMeetLink ? `<div style="margin-bottom:12px;">
+                    <button onclick="openGoogleMeet('${app.googleMeetLink}')" style="background:#4285f4;color:white;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;margin-right:8px;margin-bottom:6px;">
+                        📹 Join Video Call
+                    </button>
+                    <button onclick="copyMeetLink('${app.googleMeetLink}')" style="background:#34a853;color:white;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;margin-bottom:6px;">
+                        📋 Copy Link
+                    </button>
+                </div>` : ''}
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <button onclick="deleteAppointment(${app.id})" style="color:#ef4444;border:none;background:rgba(239,68,68,0.1);cursor:pointer;font-size:0.8rem;padding:6px 12px;border-radius:6px;transition:all 0.2s;">Delete</button>
+                    <button onclick="startEditAppointment(${app.id}, '${app.appointmentDate}', '${app.appointmentTime}', '${app.consultationType}')" style="color:#2563eb;border:none;background:rgba(37,99,235,0.1);cursor:pointer;font-size:0.8rem;padding:6px 12px;border-radius:6px;transition:all 0.2s;">Edit</button>
                 </div>
             </li>`;
         });
@@ -242,6 +312,10 @@ function renderAppointments(appointments) {
                     <div class="mobile-appointment-date">${app.appointmentDate}</div>
                     <div class="mobile-appointment-time">${app.appointmentTime}</div>
                     <div class="mobile-appointment-type">${consultationType}</div>
+                    ${app.googleMeetLink ? `<div class="mobile-appointment-meeting">
+                        <button class="mobile-join-btn" onclick="openGoogleMeet('${app.googleMeetLink}')">📹 Join Video Call</button>
+                        <button class="mobile-copy-btn" onclick="copyMeetLink('${app.googleMeetLink}')">📋 Copy Link</button>
+                    </div>` : ''}
                     <div class="mobile-appointment-actions">
                         <button class="mobile-edit-btn" onclick="startEditAppointment(${app.id}, '${app.appointmentDate}', '${app.appointmentTime}', '${app.consultationType}')">Edit</button>
                         <button class="mobile-delete-btn" onclick="deleteAppointment(${app.id})">Delete</button>
@@ -276,7 +350,7 @@ function createAppointment(date, time, consultationType, phoneNumber) {
             let message = 'Appointment created successfully!';
             
             if (data.appointment && data.appointment.googleMeetLink) {
-                message += `\n\n🔗 Google Meet Link: ${data.appointment.googleMeetLink}`;
+                message += `\n\n🔗 Video Meeting Link: ${data.appointment.googleMeetLink}`;
             }
             
             if (data.notificationSent) {
@@ -449,4 +523,44 @@ function updateAppointment(id, date, time, consultationType) {
 
 // Expose functions for inline onclick
 window.deleteAppointment = deleteAppointment;
-window.startEditAppointment = startEditAppointment; 
+window.startEditAppointment = startEditAppointment;
+
+// Google Meet functions
+function openGoogleMeet(meetLink) {
+    if (meetLink) {
+        window.open(meetLink, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+    } else {
+        alert('Video meeting link not available for this appointment.');
+    }
+}
+
+function copyMeetLink(meetLink) {
+    if (meetLink) {
+        navigator.clipboard.writeText(meetLink).then(() => {
+            // Show success message
+            const originalBtnText = event.target.innerHTML;
+            event.target.innerHTML = '✅ Copied!';
+            event.target.style.background = '#34a853';
+            
+            setTimeout(() => {
+                event.target.innerHTML = originalBtnText;
+                event.target.style.background = '#34a853';
+            }, 2000);
+        }).catch(() => {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = meetLink;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Video meeting link copied to clipboard!');
+        });
+    } else {
+        alert('No video meeting link available to copy.');
+    }
+}
+
+// Expose Google Meet functions globally
+window.openGoogleMeet = openGoogleMeet;
+window.copyMeetLink = copyMeetLink; 

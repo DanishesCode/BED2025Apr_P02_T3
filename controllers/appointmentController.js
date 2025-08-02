@@ -1,4 +1,5 @@
 const AppointmentModel = require('../models/appointmentModel');
+const notificationService = require('../services/appointmentNotificationService');
 
 const AppointmentController = {
     async create(req, res) {
@@ -70,28 +71,34 @@ const AppointmentController = {
             const result = await AppointmentModel.createAppointment(userId, date, time, consultationType, phoneNumber);
             
             if (result.success) {
-                // Generate Google Meet link for the appointment
-                const googleMeetLink = `https://meet.google.com/new`;
-                
                 let responseData = { 
                     success: true, 
                     message: 'Appointment created successfully',
-                    appointment: {
-                        ...result.appointment,
-                        googleMeetLink: googleMeetLink
-                    }
+                    appointment: result.appointment
                 };
 
-                // Send notification if phone number is provided
-                if (phoneNumber) {
+                // Send confirmation SMS if phone number is provided
+                if (phoneNumber && result.appointment) {
                     try {
-                        // You can add WhatsApp/SMS notification here
-                        responseData.notification = 'Notification will be sent to your phone';
-                        responseData.notificationSent = false; // Set to true when actually implemented
+                        const notificationResult = await notificationService.sendAppointmentConfirmation(
+                            phoneNumber, 
+                            result.appointment
+                        );
+                        
+                        if (notificationResult.success) {
+                            responseData.notificationSent = true;
+                            responseData.notification = '📱 Confirmation SMS sent to your phone!';
+                        } else {
+                            responseData.notificationSent = false;
+                            responseData.notification = 'Appointment created but SMS failed to send';
+                        }
                     } catch (notificationError) {
                         console.error('Notification error:', notificationError);
-                        responseData.notification = 'Appointment created but notification failed';
+                        responseData.notificationSent = false;
+                        responseData.notification = 'Appointment created but SMS notification failed';
                     }
+                } else {
+                    responseData.notification = 'Appointment created successfully';
                 }
 
                 res.status(201).json(responseData);
@@ -326,6 +333,55 @@ const AppointmentController = {
             res.status(500).json({ 
                 success: false, 
                 message: 'Internal server error. Please try again later.',
+                error: 'INTERNAL_SERVER_ERROR'
+            });
+        }
+    },
+
+    // Test SMS notification endpoint
+    async testSMS(req, res) {
+        try {
+            const { phoneNumber } = req.body;
+            
+            if (!phoneNumber) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Phone number is required.',
+                    error: 'MISSING_PHONE_NUMBER'
+                });
+            }
+
+            // Validate phone number format
+            const phoneRegex = /^\+[1-9]\d{1,14}$/;
+            if (!phoneRegex.test(phoneNumber)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Please provide a valid phone number with country code.',
+                    error: 'INVALID_PHONE_NUMBER'
+                });
+            }
+
+            const result = await notificationService.sendTestMessage(phoneNumber);
+            
+            if (result.success) {
+                res.json({
+                    success: true,
+                    message: 'Test SMS sent successfully!',
+                    messageId: result.messageId
+                });
+            } else {
+                res.status(400).json({
+                    success: false,
+                    message: 'Failed to send test SMS: ' + result.error,
+                    error: 'SMS_SEND_FAILED'
+                });
+            }
+
+        } catch (error) {
+            console.error('Test SMS error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Internal server error.',
                 error: 'INTERNAL_SERVER_ERROR'
             });
         }
