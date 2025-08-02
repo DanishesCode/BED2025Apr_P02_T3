@@ -78,6 +78,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    document.querySelector(".logo").addEventListener("click",function(){
+        window.location.href = "../index.html";
+    })
+    document.querySelector(".credit").addEventListener("click",function(){
+        window.location.href = "../credits/credit.html";
+    })
     // Hamburger toggle (for future use)
     const menuButton = document.getElementById("menuButton");
     menuButton.addEventListener("click", () => {
