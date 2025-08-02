@@ -141,11 +141,32 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchAppointments();
 
     document.querySelector('.continue-btn').addEventListener('click', function () {
+        const phoneInput = document.getElementById('phone-input');
+        const countryCodeSelect = document.getElementById('country-code-select');
+        const phoneNumber = phoneInput ? phoneInput.value.trim() : '';
+        const countryCode = countryCodeSelect ? countryCodeSelect.value : '+65';
+        
         if (!selectedDate || !selectedTime || !selectedConsultationType) {
             alert('Please select a date, time, and consultation type.');
             return;
         }
-        createAppointment(selectedDate, selectedTime, selectedConsultationType);
+        
+        if (!phoneNumber) {
+            alert('Please enter your phone number for notifications.');
+            return;
+        }
+        
+        // Combine country code with phone number
+        const fullPhoneNumber = countryCode + phoneNumber;
+        
+        // Validate phone number format (basic validation for international numbers)
+        const phoneRegex = /^\+[1-9]\d{1,14}$/;
+        if (!phoneRegex.test(fullPhoneNumber)) {
+            alert('Please enter a valid phone number (numbers only, no spaces or dashes).');
+            return;
+        }
+        
+        createAppointment(selectedDate, selectedTime, selectedConsultationType, fullPhoneNumber);
     });
 
     document.querySelector('.back-btn').addEventListener('click', function () {
@@ -232,12 +253,12 @@ function renderAppointments(appointments) {
     mobileAppointments.innerHTML = mobileHtml;
 }
 
-function createAppointment(date, time, consultationType) {
+function createAppointment(date, time, consultationType, phoneNumber) {
     fetch(`${API_BASE_URL}/api/appointments`, {
         method: 'POST',
         headers: getAuthHeaders(),
         credentials: 'include',
-        body: JSON.stringify({ date, time, consultationType })
+        body: JSON.stringify({ date, time, consultationType, phoneNumber })
     })
     .then(res => {
         if (!res.ok) {
@@ -252,11 +273,34 @@ function createAppointment(date, time, consultationType) {
     })
     .then(data => {
         if (data && data.success) {
-            alert('Appointment created successfully!');
+            let message = 'Appointment created successfully!';
+            
+            if (data.appointment && data.appointment.googleMeetLink) {
+                message += `\n\n🔗 Google Meet Link: ${data.appointment.googleMeetLink}`;
+            }
+            
+            if (data.notificationSent) {
+                message += '\n\n📱 Notification sent to your phone!';
+            } else if (data.notification) {
+                message += `\n\n📱 ${data.notification}`;
+            }
+            
+            alert(message);
             fetchAppointments();
+            
             // Clear selections
             document.querySelectorAll('.calendar-table td.selected').forEach(sel => sel.classList.remove('selected'));
             document.querySelectorAll('.time-btn.selected').forEach(sel => sel.classList.remove('selected'));
+            document.querySelectorAll('.consultation-option.selected').forEach(sel => sel.classList.remove('selected'));
+            
+            // Clear phone input if it exists
+            const phoneInput = document.getElementById('phone-input');
+            if (phoneInput) phoneInput.value = '';
+            
+            // Reset variables
+            selectedDate = null;
+            selectedTime = null;
+            selectedConsultationType = null;
         } else {
             alert('Failed to create appointment: ' + (data?.message || 'Unknown error'));
         }

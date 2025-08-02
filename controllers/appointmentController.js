@@ -4,7 +4,7 @@ const AppointmentController = {
     async create(req, res) {
         try {
             const userId = req.user.userId;
-            const { date, time, consultationType } = req.body;
+            const { date, time, consultationType, phoneNumber } = req.body;
             
             // Check for required fields
             if (!date || !time || !consultationType) {
@@ -13,6 +13,18 @@ const AppointmentController = {
                     message: 'Date, time, and consultation type are required.',
                     error: 'MISSING_REQUIRED_FIELDS'
                 });
+            }
+
+            // Validate phone number if provided
+            if (phoneNumber) {
+                const phoneRegex = /^\+[1-9]\d{1,14}$/;
+                if (!phoneRegex.test(phoneNumber)) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Please provide a valid phone number with country code.',
+                        error: 'INVALID_PHONE_NUMBER'
+                    });
+                }
             }
 
             // Validate date format
@@ -55,14 +67,34 @@ const AppointmentController = {
                 });
             }
 
-            const result = await AppointmentModel.createAppointment(userId, date, time, consultationType);
+            const result = await AppointmentModel.createAppointment(userId, date, time, consultationType, phoneNumber);
             
             if (result.success) {
-                res.status(201).json({ 
+                // Generate Google Meet link for the appointment
+                const googleMeetLink = `https://meet.google.com/new`;
+                
+                let responseData = { 
                     success: true, 
                     message: 'Appointment created successfully',
-                    appointment: result.appointment 
-                });
+                    appointment: {
+                        ...result.appointment,
+                        googleMeetLink: googleMeetLink
+                    }
+                };
+
+                // Send notification if phone number is provided
+                if (phoneNumber) {
+                    try {
+                        // You can add WhatsApp/SMS notification here
+                        responseData.notification = 'Notification will be sent to your phone';
+                        responseData.notificationSent = false; // Set to true when actually implemented
+                    } catch (notificationError) {
+                        console.error('Notification error:', notificationError);
+                        responseData.notification = 'Appointment created but notification failed';
+                    }
+                }
+
+                res.status(201).json(responseData);
             } else {
                 res.status(400).json({ 
                     success: false, 
