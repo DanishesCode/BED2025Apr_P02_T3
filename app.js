@@ -84,7 +84,7 @@ const groceryController = require('./controllers/groceryController');
 const {  validateMeal, validateMealUpdate, validateMealId, validateUserId } = require('./middlewares/mealValidation');
 const topicController = require('./controllers/topicController');
 const weightController = require('./controllers/weightController');
-const { validateGroceryItem, validateUpdateGroceryItem, validateItemId, validateUserId } = require('./middlewares/groceryValidation');
+const { validateGroceryItem, validateUpdateGroceryItem, validateItemId, validateUserId: validateGroceryUserId } = require('./middlewares/groceryValidation');
 const summarizerController = require('./controllers/summarizerController'); // at the top with other controllers
 // Routes for pages
 app.get("/", (req, res) => {
@@ -326,12 +326,12 @@ app.post("/suggestions/add", suggestionController.addSuggestedRecipe);
 
 
 
-app.get("/grocery/user/:userId", AuthMiddleware.authenticateToken, validateUserId, groceryController.getAllGroceryItems);
+app.get("/grocery/user/:userId", AuthMiddleware.authenticateToken, validateGroceryUserId, groceryController.getAllGroceryItems);
 app.get("/grocery/item/:id", AuthMiddleware.authenticateToken, validateItemId, groceryController.getGroceryItemById);
 app.post("/grocery", AuthMiddleware.authenticateToken, validateGroceryItem, groceryController.addGroceryItem);
 app.put("/grocery/item/:id", AuthMiddleware.authenticateToken, validateItemId, validateUpdateGroceryItem, groceryController.updateGroceryItem);
 app.delete("/grocery/item/:id", AuthMiddleware.authenticateToken, validateItemId, groceryController.deleteGroceryItem);
-app.post("/grocery/generate/:userId", AuthMiddleware.authenticateToken, validateUserId, groceryController.generateFromMealPlan);
+app.post("/grocery/generate/:userId", AuthMiddleware.authenticateToken, validateGroceryUserId, groceryController.generateFromMealPlan);
 
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
