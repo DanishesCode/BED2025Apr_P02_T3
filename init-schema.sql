@@ -533,7 +533,6 @@ CREATE TABLE Meals (
     ReadyInMinutes INT NULL,
     ImageUrl NVARCHAR(500) NULL
 );
-Meal Plan Table:
 CREATE TABLE MealPlan (
   PlanID INT IDENTITY(1,1) PRIMARY KEY,
   UserID INT NOT NULL,
