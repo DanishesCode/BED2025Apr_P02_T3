@@ -285,6 +285,9 @@ function renderToolCards(category) {
         toolsGrid.appendChild(card);
     });
 }
+document.querySelector(".credit").addEventListener("click",function(){
+    window.location.href = "credits/credit.html";
+})
 
 // Search tools
 function searchTools(query) {

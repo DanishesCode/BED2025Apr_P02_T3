@@ -70,6 +70,7 @@
 .logo {
     width: 140px;
     height: auto;
+    cursor:pointer;
 }
 
 .header-right {
@@ -81,6 +82,7 @@
 .credit {
     color: #6b7280;
     font-size: 16px;
+    cursor:pointer;
 }
 
 .profile {
