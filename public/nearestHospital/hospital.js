@@ -75,7 +75,7 @@ function getAuthHeaders() {
       }).setText('You');
   
       const youEl = document.createElement('img');
-      youEl.src = "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f9cd.png";
+      youEl.src = "img/youMarker.png";
       youEl.style.width = '2vw';
       youEl.style.height = '2vw';
   
@@ -102,7 +102,7 @@ function getAuthHeaders() {
         allPopups.push(hospPopup);
   
         const hospEl = document.createElement('img');
-        hospEl.src = "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f3e5.png"; // 🏥 icon
+        hospEl.src = "img/hospital.png"; // 🏥 icon
         hospEl.style.width = '2vw';
         hospEl.style.height = '2vw';
   
