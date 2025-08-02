@@ -84,6 +84,7 @@ const groceryController = require('./controllers/groceryController');
 const {  validateMeal, validateMealUpdate, validateMealId, validateUserId } = require('./middlewares/mealValidation');
 const topicController = require('./controllers/topicController');
 const weightController = require('./controllers/weightController');
+const { validateGroceryItem, validateUpdateGroceryItem, validateItemId, validateUserId } = require('./middlewares/groceryValidation');
 const summarizerController = require('./controllers/summarizerController'); // at the top with other controllers
 // Routes for pages
 app.get("/", (req, res) => {
@@ -203,12 +204,12 @@ app.put("/chat/:id", AuthMiddleware.authenticateToken, aichatController.renameCh
 app.delete("/chat/:id", AuthMiddleware.authenticateToken, aichatController.deleteChat);
 
 // Birthday routes
-app.get("/birthdays", birthdayController.getAllBirthdays);
-app.get("/birthdays/dashboard", birthdayController.getBirthdaysForDashboard);
-app.get("/birthdays/:id", birthdayController.getBirthdayById);
-app.post("/birthdays", validateAdd, birthdayController.addBirthday);
-app.put("/birthdays/:id", validateUpdate, birthdayController.updateBirthday);
-app.delete("/birthdays/:id", birthdayController.deleteBirthday);
+app.get("/birthdays", AuthMiddleware.authenticateToken, birthdayController.getAllBirthdays);
+app.get("/birthdays/dashboard", AuthMiddleware.authenticateToken, birthdayController.getBirthdaysForDashboard);
+app.get("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.getBirthdayById);
+app.post("/birthdays", AuthMiddleware.authenticateToken, validateAdd, birthdayController.addBirthday);
+app.put("/birthdays/:id", AuthMiddleware.authenticateToken, validateUpdate, birthdayController.updateBirthday);
+app.delete("/birthdays/:id", AuthMiddleware.authenticateToken, birthdayController.deleteBirthday);
 
 // Photo Gallery API Routes (grouped together)
 app.get("/photos", AuthMiddleware.authenticateToken, photoController.getAllPhotos);
@@ -323,13 +324,14 @@ app.get("/suggestions/random", suggestionController.getRandomRecipes);
 app.get("/suggestions/:recipeId", suggestionController.getRecipeDetails);
 app.post("/suggestions/add", suggestionController.addSuggestedRecipe);
 
-// Grocery List routes
-app.get("/grocery/user/:userId", AuthMiddleware.authenticateToken, groceryController.getAllGroceryItems);
-app.get("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.getGroceryItemById);
-app.post("/grocery", AuthMiddleware.authenticateToken, groceryController.addGroceryItem);
-app.put("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.updateGroceryItem);
-app.delete("/grocery/item/:id", AuthMiddleware.authenticateToken, groceryController.deleteGroceryItem);
-app.post("/grocery/generate/:userId", AuthMiddleware.authenticateToken, groceryController.generateFromMealPlan);
+
+
+app.get("/grocery/user/:userId", AuthMiddleware.authenticateToken, validateUserId, groceryController.getAllGroceryItems);
+app.get("/grocery/item/:id", AuthMiddleware.authenticateToken, validateItemId, groceryController.getGroceryItemById);
+app.post("/grocery", AuthMiddleware.authenticateToken, validateGroceryItem, groceryController.addGroceryItem);
+app.put("/grocery/item/:id", AuthMiddleware.authenticateToken, validateItemId, validateUpdateGroceryItem, groceryController.updateGroceryItem);
+app.delete("/grocery/item/:id", AuthMiddleware.authenticateToken, validateItemId, groceryController.deleteGroceryItem);
+app.post("/grocery/generate/:userId", AuthMiddleware.authenticateToken, validateUserId, groceryController.generateFromMealPlan);
 
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -342,9 +344,7 @@ app.listen(port, async () => {
         await sql.connect(dbConfig);
         console.log("Database connected");
         
-        // Start automatic birthday wish system
         birthdayController.startAutomaticBirthdayWishes(); // Enabled for testing
-        console.log("Automatic birthday wish system started");
         
     } catch (err) {
         console.error("DB connection error:", err);

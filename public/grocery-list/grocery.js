@@ -54,7 +54,40 @@ document.addEventListener('DOMContentLoaded', async function() {
     await loadMeals();
     await loadMealPlan();
     updateGroceryTable();
+    
+    // Add real-time validation to inputs
+    setupRealTimeValidation();
 });
+
+// Setup real-time validation
+function setupRealTimeValidation() {
+    const nameInput = document.getElementById('newItemInput');
+    const quantityInput = document.getElementById('newItemQuantity');
+    
+    // Real-time validation for item name
+    nameInput.addEventListener('input', function() {
+        const name = this.value;
+        this.setCustomValidity('');
+        
+        if (name.length > 100) {
+            this.setCustomValidity('Item name must be 100 characters or less');
+        } else if (name && !/^[a-zA-Z0-9\s\-'.,()&]*$/.test(name)) {
+            this.setCustomValidity('Item name contains invalid characters');
+        }
+    });
+    
+    // Real-time validation for quantity
+    quantityInput.addEventListener('input', function() {
+        const quantity = parseFloat(this.value);
+        this.setCustomValidity('');
+        
+        if (isNaN(quantity) || quantity <= 0) {
+            this.setCustomValidity('Quantity must be a positive number');
+        } else if (quantity > 9999) {
+            this.setCustomValidity('Quantity cannot exceed 9999');
+        }
+    });
+}
 
 // Load grocery items from database
 async function loadGroceryItems() {
@@ -149,7 +182,8 @@ async function generateGroceryList() {
                 mealId: meal.MealID,
                 category: meal.Category || 'breakfast',
                 name: meal.MealName,
-                servings: 4 // Default servings
+                servings: 4, // Default servings
+                dayOfWeek: meal.DayOfWeek ? meal.DayOfWeek.toLowerCase() : 'monday'
             });
         });
     }
@@ -164,7 +198,8 @@ async function generateGroceryList() {
                 mealId: meal.MealID,
                 category: meal.Category || 'lunch',
                 name: meal.MealName,
-                servings: 4
+                servings: 4,
+                dayOfWeek: meal.DayOfWeek ? meal.DayOfWeek.toLowerCase() : 'monday'
             });
         });
     }
@@ -179,7 +214,8 @@ async function generateGroceryList() {
                 mealId: meal.MealID,
                 category: meal.Category || 'dinner',
                 name: meal.MealName,
-                servings: 4
+                servings: 4,
+                dayOfWeek: meal.DayOfWeek ? meal.DayOfWeek.toLowerCase() : 'monday'
             });
         });
     }
@@ -233,42 +269,181 @@ async function generateGroceryList() {
     }
 }
 
+// Validation functions
+function validateGroceryItem(name, quantity, unit, day) {
+    const errors = [];
+    
+    // Validate item name
+    if (!name || typeof name !== 'string') {
+        errors.push('Item name is required');
+    } else {
+        const trimmedName = name.trim();
+        if (trimmedName.length < 1) {
+            errors.push('Item name cannot be empty');
+        } else if (trimmedName.length > 100) {
+            errors.push('Item name must be 100 characters or less');
+        } else if (!/^[a-zA-Z0-9\s\-'.,()&]+$/.test(trimmedName)) {
+            errors.push('Item name contains invalid characters');
+        }
+    }
+    
+    // Validate quantity
+    if (!quantity && quantity !== 0) {
+        errors.push('Quantity is required');
+    } else if (isNaN(quantity) || quantity <= 0) {
+        errors.push('Quantity must be a positive number');
+    } else if (quantity > 9999) {
+        errors.push('Quantity cannot exceed 9999');
+    }
+    
+    // Validate unit
+    const validUnits = ['pcs', 'kg', 'g', 'lbs', 'oz', 'L', 'ml', 'cups', 'tbsp', 'tsp', 'cans', 'bottles', 'bags', 'boxes'];
+    if (!unit || !validUnits.includes(unit)) {
+        errors.push('Please select a valid unit');
+    }
+    
+    // Validate day
+    const validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+    if (!day || !validDays.includes(day.toLowerCase())) {
+        errors.push('Please select a valid day');
+    }
+    
+    return errors;
+}
+
+function sanitizeInput(input) {
+    if (typeof input !== 'string') return input;
+    return input.trim()
+        .replace(/[<>'"&]/g, '') // Remove potentially dangerous characters
+        .replace(/\s+/g, ' '); // Replace multiple spaces with single space
+}
+
+function displayValidationErrors(errors) {
+    const errorContainer = document.getElementById('validationErrors');
+    const errorList = document.getElementById('errorList');
+    
+    if (errors.length > 0) {
+        errorList.innerHTML = errors.map(error => `<li>${error}</li>`).join('');
+        errorContainer.style.display = 'block';
+        setTimeout(() => {
+            errorContainer.style.display = 'none';
+        }, 5000); // Hide after 5 seconds
+    } else {
+        errorContainer.style.display = 'none';
+    }
+}
+
+function checkDuplicateItem(name, day) {
+    const sanitizedName = sanitizeInput(name).toLowerCase();
+    return groceryItems.some(item => {
+        const itemDay = item.notes ? item.notes.replace('Day: ', '').toLowerCase() : '';
+        const itemName = item.name.toLowerCase();
+        return itemName === sanitizedName && itemDay === day.toLowerCase() && item.status !== 'bought';
+    });
+}
+
 async function addItem() {
     const nameInput = document.getElementById('newItemInput');
     const quantityInput = document.getElementById('newItemQuantity');
+    const unitSelect = document.getElementById('newItemUnit');
+    const daySelect = document.getElementById('newItemDay');
     
-    const name = nameInput.value.trim();
-    const quantity = parseInt(quantityInput.value) || 1;
+    const name = nameInput.value;
+    const quantity = parseFloat(quantityInput.value);
+    const unit = unitSelect.value;
+    const day = daySelect.value;
 
-    if (name) {
-        try {
-            const response = await fetch(`${BASE_URL}/grocery`, {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    item_name: name,
-                    quantity: quantity,
-                    unit: 'pcs',
-                    bought: false,
-                    user_id: UserID,
-                    price: 0.00,
-                    notes: 'Added manually'
-                })
-            });
-
-            if (response.ok) {
-                nameInput.value = '';
-                quantityInput.value = '1';
-                await loadGroceryItems();
-                updateGroceryTable();
-            } else {
-                alert('Failed to add item');
-            }
-        } catch (error) {
-            console.error('Error adding item:', error);
-            alert('Error adding item. Please try again.');
-        }
+    // Validate input
+    const validationErrors = validateGroceryItem(name, quantity, unit, day);
+    
+    if (validationErrors.length > 0) {
+        displayValidationErrors(validationErrors);
+        return;
     }
+
+    // Sanitize input
+    const sanitizedName = sanitizeInput(name);
+
+    // Check for duplicates
+    if (checkDuplicateItem(sanitizedName, day)) {
+        displayValidationErrors(['This item already exists for the selected day. Please check your list or choose a different day.']);
+        return;
+    }
+
+    console.log('Adding item with day:', day);
+    console.log('Day select element:', daySelect);
+    console.log('Day select value:', daySelect.value);
+    console.log('Will store in notes:', `Day: ${day}`);
+
+    try {
+        const response = await fetch(`${BASE_URL}/grocery`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                item_name: sanitizedName,
+                quantity: quantity,
+                unit: unit,
+                bought: false,
+                user_id: UserID,
+                price: 0.00,
+                notes: `Day: ${day}`
+            })
+        });
+
+        if (response.ok) {
+            // Clear form
+            nameInput.value = '';
+            quantityInput.value = '1';
+            unitSelect.value = 'pcs';
+            daySelect.value = 'monday';
+            
+            // Hide any error messages
+            displayValidationErrors([]);
+            
+            // Reload data
+            await loadGroceryItems();
+            updateGroceryTable();
+            
+            // Show success message
+            showSuccessMessage('Item added successfully!');
+        } else {
+            const errorData = await response.json();
+            displayValidationErrors([errorData.error || 'Failed to add item']);
+        }
+    } catch (error) {
+        console.error('Error adding item:', error);
+        displayValidationErrors(['Error adding item. Please try again.']);
+    }
+}
+
+// Success message function
+function showSuccessMessage(message) {
+    const existingMessage = document.getElementById('successMessage');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    const successDiv = document.createElement('div');
+    successDiv.id = 'successMessage';
+    successDiv.style.cssText = `
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 5px;
+        color: #155724;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+    `;
+    successDiv.textContent = message;
+    
+    document.body.appendChild(successDiv);
+    
+    setTimeout(() => {
+        successDiv.remove();
+    }, 3000);
 }
 
 // Test function to add sample grocery items
@@ -444,21 +619,34 @@ function updateGroceryTable() {
     const tableBody = document.getElementById('groceryTableBody');
     const emptyState = document.getElementById('emptyState');
     
-    if (groceryItems.length === 0) {
+    // Get filtered items
+    const filteredItems = getFilteredGroceryItems();
+    
+    if (filteredItems.length === 0) {
         tableBody.innerHTML = '';
         emptyState.style.display = 'block';
+        if (currentDayFilter !== 'all') {
+            emptyState.textContent = `No items for ${currentDayFilter.charAt(0).toUpperCase() + currentDayFilter.slice(1)}. Try selecting a different day or add some items!`;
+        } else {
+            emptyState.textContent = 'No items in your grocery list yet. Add some items or generate from your meal plan!';
+        }
         return;
     }
 
     emptyState.style.display = 'none';
     
-    tableBody.innerHTML = groceryItems.map(item => `
+    tableBody.innerHTML = filteredItems.map(item => `
         <tr class="${item.status === 'bought' ? 'bought' : ''}">
             <td>${item.name}</td>
             <td>${item.quantity} ${item.unit}</td>
             <td>
+                <span class="day-badge" style="background-color: #007bff; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                    ${extractDayFromNotes(item.notes).charAt(0).toUpperCase() + extractDayFromNotes(item.notes).slice(1)}
+                </span>
+            </td>
+            <td>
                 <span class="status-badge status-${item.status}">
-                    ${item.status === 'pending' ? '⏳ Pending' : '✅ Bought'}
+                    ${item.status === 'bought' ? '✅ Bought' : '⏳ Pending'}
                 </span>
             </td>
             <td>
@@ -471,4 +659,75 @@ function updateGroceryTable() {
             </td>
         </tr>
     `).join('');
+}
+
+// Global variable to track current filter
+let currentDayFilter = 'all';
+
+// Function to extract day from notes
+function extractDayFromNotes(notes) {
+    console.log('Extracting day from notes:', notes);
+    if (!notes) {
+        console.log('No notes found, returning default: monday');
+        return 'monday'; // default
+    }
+    
+    // Check for the new format "Day: dayname" (with possible comma and additional text)
+    const dayMatch = notes.match(/Day: (\w+)/i);
+    if (dayMatch) {
+        const extractedDay = dayMatch[1].toLowerCase();
+        console.log('Found day in new format:', extractedDay);
+        return extractedDay;
+    }
+    
+    // If no day format found, check if it's an old item
+    console.log('No day format found, returning default: monday');
+    return 'monday'; // default for legacy items
+}
+
+// Function to filter grocery items by day
+function filterByDay(day) {
+    console.log('=== FILTER BUTTON CLICKED ===');
+    console.log('Filtering by day:', day);
+    currentDayFilter = day;
+    
+    // Update active button
+    document.querySelectorAll('.day-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    const activeButton = document.querySelector(`[data-day="${day}"]`);
+    if (activeButton) {
+        activeButton.classList.add('active');
+        console.log('Active button updated for:', day);
+    } else {
+        console.log('ERROR: Could not find button for day:', day);
+    }
+    
+    // Filter and update table
+    updateGroceryTable();
+    console.log('=== END FILTER BUTTON CLICKED ===');
+}
+
+// Function to get filtered grocery items
+function getFilteredGroceryItems() {
+    console.log('=== FILTERING DEBUG ===');
+    console.log('Current filter:', currentDayFilter);
+    console.log('Total items:', groceryItems.length);
+    
+    if (currentDayFilter === 'all') {
+        console.log('Showing all items');
+        return groceryItems;
+    }
+    
+    const filtered = groceryItems.filter(item => {
+        const itemDay = extractDayFromNotes(item.notes);
+        const matches = itemDay === currentDayFilter;
+        console.log(`Item: ${item.item_name}, Notes: "${item.notes}", Extracted day: "${itemDay}", Filter: "${currentDayFilter}", Matches: ${matches}`);
+        return matches;
+    });
+    
+    console.log('Filtered items count:', filtered.length);
+    console.log('=== END FILTERING DEBUG ===');
+    return filtered;
 }
