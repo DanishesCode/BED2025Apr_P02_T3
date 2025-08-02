@@ -2099,12 +2099,7 @@ body {
     margin-bottom: 1em;
 }
 
-.photo-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
+
 
 .photo-location {
   display: inline-flex;

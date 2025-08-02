@@ -89,9 +89,6 @@ function createTopicCard(topic) {
     const likeCount = topic.likeCount || 0;
     const commentCount = topic.commentCount || 0;
     const isLiked = topic.isLiked || false;
-    let difficulty = 'beginner';
-    if (topic.title.toLowerCase().includes('advanced') || topic.title.toLowerCase().includes('complex')) difficulty = 'advanced';
-    else if (topic.title.toLowerCase().includes('intermediate') || topic.title.toLowerCase().includes('tutorial')) difficulty = 'intermediate';
     const authorInitials = topic.author.split(' ').map(name => name[0]).join('').toUpperCase();
     const contentTypeDisplay = { 'text': 'TEXT', 'image': 'IMAGE', 'video': 'VIDEO' }[topic.contentType] || 'TEXT';
     // Cache-busting param for images/videos
@@ -145,7 +142,6 @@ function createTopicCard(topic) {
                         </div>
                     </div>
                 </div>
-                <span class="difficulty-badge ${difficulty}">${difficulty.toUpperCase()}</span>
             </div>
         </div>
     `;

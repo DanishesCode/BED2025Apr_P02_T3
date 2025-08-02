@@ -35,19 +35,23 @@ async function getPhotosByUserId(userId) {
       .query('SELECT * FROM Photos WHERE userId = @userId ORDER BY uploadedAt DESC');
     return { success: true, data: result.recordset };
   } catch (error) {
+    console.error("getPhotosByUserId error:", error);
     return { success: false, error: error.message };
   }
 }
 
 // Get all photos
 async function getAllPhotos() {
+  let pool;
   try {
-    const pool = await sql.connect(dbConfig);
-    const result = await pool.request()
-      .query('SELECT * FROM Photos ORDER BY uploadedAt DESC');
+    pool = await sql.connect(dbConfig);
+    const result = await pool.request().query('SELECT * FROM Photos ORDER BY uploadedAt DESC');
     return { success: true, data: result.recordset };
   } catch (error) {
+    console.error("getAllPhotos error:", error);
     return { success: false, error: error.message };
+  } finally {
+    if (pool) await pool.close();
   }
 }
 
@@ -64,6 +68,7 @@ async function getPhotoById(id, userId) {
     }
     return { success: true, data: result.recordset[0] };
   } catch (error) {
+    console.error("getPhotoById error:", error);
     return { success: false, error: error.message };
   }
 }
@@ -90,6 +95,7 @@ async function updatePhoto(id, photoData, userId) {
     await request.query(updateQuery);
     return { success: true };
   } catch (error) {
+    console.error("updatePhoto error:", error);
     return { success: false, error: error.message };
   }
 }
@@ -114,6 +120,7 @@ async function deletePhoto(id, userId) {
     await request.query('DELETE FROM Photos WHERE id = @id AND userId = @userId');
     return { success: true };
   } catch (error) {
+    console.error("deletePhoto error:", error);
     return { success: false, error: error.message };
   }
 }
@@ -139,6 +146,7 @@ async function updateFavoriteStatus(id, isFavorite, userId) {
     await request.query('UPDATE Photos SET isFavorite = @isFavorite WHERE id = @id AND userId = @userId');
     return { success: true };
   } catch (error) {
+    console.error("updateFavoriteStatus error:", error);
     return { success: false, error: error.message };
   }
 }
