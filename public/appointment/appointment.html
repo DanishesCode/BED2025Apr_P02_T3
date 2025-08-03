@@ -144,56 +144,6 @@
         </aside>
     </div>
     <script src="appointment.js"></script>
-    <script>
-        // Authentication check and user profile display
-        document.addEventListener('DOMContentLoaded', function() {
-            const token = localStorage.getItem('authToken');
-            const currentUser = localStorage.getItem('currentUser');
-            
-            if (!token) {
-                // Redirect to login if not authenticated
-                window.location.href = '/login';
-                return;
-            }
-            
-            // Display user info
-            if (currentUser) {
-                try {
-                    const user = JSON.parse(currentUser);
-                    document.querySelector('.profile-name').textContent = user.name || 'User';
-                } catch (e) {
-                    console.error('Error parsing user data:', e);
-                }
-            }
-            
-            // Add logout functionality
-            document.querySelector('.profile-icon').addEventListener('click', async function() {
-                try {
-                    const response = await fetch('/auth/logout', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        credentials: 'include'
-                    });
-                    
-                    // Clear localStorage regardless of server response
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('currentUser');
-                    
-                    // Redirect to login
-                    window.location.href = '/login';
-                } catch (error) {
-                    console.error('Logout error:', error);
-                    // Still clear localStorage and redirect
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('currentUser');
-                    window.location.href = '/login';
-                }
-            });
-        });
-    </script>
     <script src="../navbar/navbar.js"></script>
 </body>
 </html> 
