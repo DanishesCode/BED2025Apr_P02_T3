@@ -50,49 +50,48 @@
                     </div>
                 </div>
                 
-                <h3>Choose Consultation Type</h3>
+                <h3>Choose Doctor Preference</h3>
                 <div class="consultation-picker">
-                    <div class="consultation-option" data-type="coach">
+                    <div class="consultation-option" data-type="male-doctor">
                         <div class="consultation-icon">👨‍⚕️</div>
                         <div class="consultation-content">
-                            <h4>Real Health Coach</h4>
-                            <p>Speak with a certified health coach for personalized guidance, nutrition advice, and wellness planning.</p>
+                            <h4>Male Doctor</h4>
+                            <p>Schedule a consultation with a qualified male physician for comprehensive medical care and health guidance.</p>
                             <div class="consultation-features">
-                                <span>✓ Personalized coaching</span>
-                                <span>✓ Nutrition guidance</span>
-                                <span>✓ Wellness planning</span>
+                                <span>✓ Professional medical care</span>
+                                <span>✓ Comprehensive consultation</span>
+                                <span>✓ Health assessment</span>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="consultation-option" data-type="ai">
-                        <div class="consultation-icon">🤖</div>
+                    <div class="consultation-option" data-type="female-doctor">
+                        <div class="consultation-icon">👩‍⚕️</div>
                         <div class="consultation-content">
-                            <h4>AI Health Assistant</h4>
-                            <p>Get instant answers to health questions, wellness tips, and guidance from our AI assistant.</p>
+                            <h4>Female Doctor</h4>
+                            <p>Schedule a consultation with a qualified female physician for comprehensive medical care and health guidance.</p>
                             <div class="consultation-features">
-                                <span>✓ 24/7 availability</span>
-                                <span>✓ Instant responses</span>
-                                <span>✓ Health guidance</span>
+                                <span>✓ Professional medical care</span>
+                                <span>✓ Comprehensive consultation</span>
+                                <span>✓ Health assessment</span>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="phone-section">
-                    <h3>Phone Number for Notifications</h3>
+                <div class="contact-section">
+                    <h3>Contact Information</h3>
+                    
+                    <!-- Phone Section -->
                     <div class="phone-input-container">
-                        <div class="phone-input-wrapper">
-                            <select id="country-code-select" class="country-code-select">
+                        <h4 style="margin: 0 0 10px 0; color: #495057;">Emergency Contact & Rescheduling</h4>
+                        <div class="phone-input-wrapper" style="display: flex; gap: 10px; align-items: center;">
+                            <select id="country-code-select" class="country-code-select" style="padding: 12px; border-radius: 4px; border: 1px solid #ccc;">
                                 <option value="+65" data-country="SG">🇸🇬 +65</option>
                                 <option value="+1" data-country="US">🇺🇸 +1</option>
                                 <option value="+44" data-country="GB">🇬🇧 +44</option>
                                 <option value="+61" data-country="AU">🇦🇺 +61</option>
                                 <option value="+60" data-country="MY">🇲🇾 +60</option>
-                                <option value="+66" data-country="TH">🇹🇭 +66</option>
-                                <option value="+62" data-country="ID">🇮🇩 +62</option>
-                                <option value="+63" data-country="PH">🇵🇭 +63</option>
-                                <option value="+84" data-country="VN">🇻🇳 +84</option>
                                 <option value="+86" data-country="CN">🇨🇳 +86</option>
                                 <option value="+81" data-country="JP">🇯🇵 +81</option>
                                 <option value="+82" data-country="KR">🇰🇷 +82</option>
@@ -101,38 +100,21 @@
                                 <option value="+33" data-country="FR">🇫🇷 +33</option>
                                 <option value="+39" data-country="IT">🇮🇹 +39</option>
                                 <option value="+34" data-country="ES">🇪🇸 +34</option>
-                                <option value="+31" data-country="NL">🇳🇱 +31</option>
-                                <option value="+41" data-country="CH">🇨🇭 +41</option>
-                                <option value="+46" data-country="SE">🇸🇪 +46</option>
-                                <option value="+47" data-country="NO">🇳🇴 +47</option>
-                                <option value="+45" data-country="DK">🇩🇰 +45</option>
-                                <option value="+358" data-country="FI">🇫🇮 +358</option>
                                 <option value="+7" data-country="RU">🇷🇺 +7</option>
                                 <option value="+55" data-country="BR">🇧🇷 +55</option>
-                                <option value="+52" data-country="MX">🇲🇽 +52</option>
-                                <option value="+54" data-country="AR">🇦🇷 +54</option>
-                                <option value="+27" data-country="ZA">🇿🇦 +27</option>
-                                <option value="+971" data-country="AE">🇦🇪 +971</option>
-                                <option value="+966" data-country="SA">🇸🇦 +966</option>
-                                <option value="+20" data-country="EG">🇪🇬 +20</option>
-                                <option value="+234" data-country="NG">🇳🇬 +234</option>
                             </select>
                             <input 
                                 type="tel" 
                                 id="phone-input" 
-                                placeholder="Enter phone number (e.g., 91234567)"
+                                placeholder="Phone number (optional - for emergencies)"
                                 class="phone-input"
+                                style="flex: 1; padding: 12px; border-radius: 4px; border: 1px solid #ccc;"
                                 maxlength="15"
                             >
-                            <button id="test-sms-btn" type="button" style="margin-left: 10px; padding: 8px 12px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
-                                Test SMS
-                            </button>
                         </div>
-                        <small class="phone-help">We'll send your appointment confirmation and Google Meet link via SMS</small>
-                        <small style="display: block; margin-top: 5px; font-size: 0.8em; color: #888;">
-                            💡 Test SMS has daily limits. Actual appointment notifications always work!
+                        <small class="phone-help" style="display: block; margin-top: 8px; color: #6c757d;">
+                            📞 Optional: For emergency contact and phone rescheduling. Email is primary notification method.
                         </small>
-                        <div id="sms-test-result" style="font-size: 0.9em; margin-top: 5px; color: #666;"></div>
                     </div>
                 </div>
                 

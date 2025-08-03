@@ -1,10 +1,12 @@
 const AppointmentModel = require('../models/appointmentModel');
-const notificationService = require('../services/appointmentNotificationService');
+const emailService = require('../services/appointmentEmailService');
 
 const AppointmentController = {
     async create(req, res) {
         try {
             const userId = req.user.userId;
+            const userEmail = req.user.email; // Get user email from authenticated user
+            const userName = req.user.name || req.user.username || 'EaseForLife User';
             const { date, time, consultationType, phoneNumber } = req.body;
             
             // Check for required fields
@@ -16,13 +18,13 @@ const AppointmentController = {
                 });
             }
 
-            // Validate phone number if provided
-            if (phoneNumber) {
+            // Validate phone number if provided (optional field)
+            if (phoneNumber && phoneNumber.trim()) {
                 const phoneRegex = /^\+[1-9]\d{1,14}$/;
-                if (!phoneRegex.test(phoneNumber)) {
+                if (!phoneRegex.test(phoneNumber.trim())) {
                     return res.status(400).json({
                         success: false,
-                        message: 'Please provide a valid phone number with country code.',
+                        message: 'Please provide a valid phone number with country code (e.g., +1234567890).',
                         error: 'INVALID_PHONE_NUMBER'
                     });
                 }
@@ -59,16 +61,16 @@ const AppointmentController = {
             }
 
             // Validate consultation type
-            const validTypes = ['coach', 'ai'];
+            const validTypes = ['male-doctor', 'female-doctor'];
             if (!validTypes.includes(consultationType.toLowerCase())) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Consultation type must be either "coach" or "ai".',
+                    message: 'Doctor preference must be either "male-doctor" or "female-doctor".',
                     error: 'INVALID_CONSULTATION_TYPE'
                 });
             }
 
-            const result = await AppointmentModel.createAppointment(userId, date, time, consultationType, phoneNumber);
+            const result = await AppointmentModel.createAppointment(userId, date, time, consultationType, phoneNumber?.trim() || null);
             
             if (result.success) {
                 let responseData = { 
@@ -77,20 +79,21 @@ const AppointmentController = {
                     appointment: result.appointment
                 };
 
-                // Send confirmation SMS if phone number is provided
-                if (phoneNumber && result.appointment) {
+                // Send confirmation email using user's account email
+                if (userEmail && result.appointment) {
                     try {
-                        const notificationResult = await notificationService.sendAppointmentConfirmation(
-                            phoneNumber, 
+                        const emailResult = await emailService.sendAppointmentConfirmation(
+                            userEmail, 
+                            userName,
                             result.appointment
                         );
                         
-                        if (notificationResult.success) {
+                        if (emailResult.success) {
                             responseData.notificationSent = true;
-                            responseData.notification = '📱 Confirmation SMS sent to your phone!';
+                            responseData.notification = '� Confirmation email sent successfully!';
                         } else {
                             responseData.notificationSent = false;
-                            responseData.notification = 'Appointment created but SMS failed to send';
+                            responseData.notification = 'Appointment created but email failed to send';
                         }
                     } catch (notificationError) {
                         console.error('Notification error:', notificationError);
@@ -338,47 +341,48 @@ const AppointmentController = {
         }
     },
 
-    // Test SMS notification endpoint
-    async testSMS(req, res) {
+    // Test email notification endpoint
+    async testEmail(req, res) {
         try {
-            const { phoneNumber } = req.body;
+            const { email } = req.body;
+            const userName = req.user.name || req.user.username || 'Test User';
             
-            if (!phoneNumber) {
+            if (!email) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Phone number is required.',
-                    error: 'MISSING_PHONE_NUMBER'
+                    message: 'Email address is required.',
+                    error: 'MISSING_EMAIL'
                 });
             }
 
-            // Validate phone number format
-            const phoneRegex = /^\+[1-9]\d{1,14}$/;
-            if (!phoneRegex.test(phoneNumber)) {
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Please provide a valid phone number with country code.',
-                    error: 'INVALID_PHONE_NUMBER'
+                    message: 'Please provide a valid email address.',
+                    error: 'INVALID_EMAIL'
                 });
             }
 
-            const result = await notificationService.sendTestMessage(phoneNumber);
+            const result = await emailService.sendTestMessage(email, userName);
             
             if (result.success) {
                 res.json({
                     success: true,
-                    message: 'Test SMS sent successfully!',
+                    message: 'Test email sent successfully!',
                     messageId: result.messageId
                 });
             } else {
                 res.status(400).json({
                     success: false,
-                    message: 'Failed to send test SMS: ' + result.error,
-                    error: 'SMS_SEND_FAILED'
+                    message: 'Failed to send test email: ' + result.error,
+                    error: 'EMAIL_SEND_FAILED'
                 });
             }
 
         } catch (error) {
-            console.error('Test SMS error:', error);
+            console.error('Test email error:', error);
             res.status(500).json({
                 success: false,
                 message: 'Internal server error.',

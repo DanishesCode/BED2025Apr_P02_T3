@@ -38,7 +38,10 @@ CREATE TABLE Appointments (
     appointmentDate DATE NOT NULL,
     appointmentTime VARCHAR(10) NOT NULL,
     consultationType NVARCHAR(50) NOT NULL,
-    createdAt DATETIME DEFAULT GETDATE()
+    phoneNumber NVARCHAR(20) NULL,
+    googleMeetLink NVARCHAR(500) NULL,
+    createdAt DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE CASCADE
 );
 
 -- Weight history per user

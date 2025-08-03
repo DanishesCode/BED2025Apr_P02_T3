@@ -147,23 +147,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const countryCode = countryCodeSelect ? countryCodeSelect.value : '+65';
         
         if (!selectedDate || !selectedTime || !selectedConsultationType) {
-            alert('Please select a date, time, and consultation type.');
+            alert('Please select a date, time, and doctor preference.');
             return;
         }
         
-        if (!phoneNumber) {
-            alert('Please enter your phone number for notifications.');
-            return;
-        }
-        
-        // Combine country code with phone number
-        const fullPhoneNumber = countryCode + phoneNumber;
-        
-        // Validate phone number format (basic validation for international numbers)
-        const phoneRegex = /^\+[1-9]\d{1,14}$/;
-        if (!phoneRegex.test(fullPhoneNumber)) {
-            alert('Please enter a valid phone number (numbers only, no spaces or dashes).');
-            return;
+        // Phone number is optional, but if provided, validate it
+        let fullPhoneNumber = null;
+        if (phoneNumber) {
+            fullPhoneNumber = countryCode + phoneNumber.replace(/^0+/, ''); // Remove leading zeros
+            
+            // Validate phone number format (basic validation for international numbers)
+            const phoneRegex = /^\+[1-9]\d{1,14}$/;
+            if (!phoneRegex.test(fullPhoneNumber)) {
+                alert('Please enter a valid phone number (numbers only, no spaces or dashes) or leave it empty.');
+                return;
+            }
         }
         
         createAppointment(selectedDate, selectedTime, selectedConsultationType, fullPhoneNumber);
@@ -173,65 +171,59 @@ document.addEventListener('DOMContentLoaded', function () {
         window.history.back();
     });
 
-    // Test SMS functionality using existing phone input
-    document.getElementById('test-sms-btn').addEventListener('click', async function() {
-        const countryCode = document.getElementById('country-code-select').value;
-        const phoneNumber = document.getElementById('phone-input').value.trim();
-        const resultDiv = document.getElementById('sms-test-result');
+    // Test email functionality
+    document.getElementById('test-email-btn').addEventListener('click', async function() {
+        const emailInput = document.getElementById('email-input');
+        const resultDiv = document.getElementById('email-test-result');
         const button = this;
         
         // Clear previous results
         resultDiv.innerHTML = '';
         
-        if (!phoneNumber) {
-            resultDiv.innerHTML = '<span style="color: red;">Please enter a phone number first</span>';
+        const email = emailInput.value.trim();
+        
+        if (!email) {
+            resultDiv.innerHTML = '<span style="color: red;">Please enter an email address first</span>';
             return;
         }
         
-        // Format full phone number
-        const fullPhoneNumber = countryCode + phoneNumber.replace(/^0+/, ''); // Remove leading zeros
-        
-        // Validate phone number format
-        const phoneRegex = /^\+[1-9]\d{1,14}$/;
-        if (!phoneRegex.test(fullPhoneNumber)) {
-            resultDiv.innerHTML = '<span style="color: red;">Please enter a valid phone number</span>';
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            resultDiv.innerHTML = '<span style="color: red;">Please enter a valid email address</span>';
             return;
         }
         
         // Disable button and show loading
         button.disabled = true;
-        button.textContent = 'Testing...';
-        resultDiv.innerHTML = '<span style="color: blue;">📱 Sending test SMS...</span>';
+        button.textContent = 'Sending...';
+        resultDiv.innerHTML = '<span style="color: blue;">� Sending test email...</span>';
         
         try {
-            const response = await fetch(`${API_BASE_URL}/api/appointments/test-sms`, {
+            const response = await fetch(`${API_BASE_URL}/api/appointments/test-email`, {
                 method: 'POST',
                 headers: getAuthHeaders(),
                 credentials: 'include',
                 body: JSON.stringify({
-                    phoneNumber: fullPhoneNumber
+                    email: email
                 })
             });
             
             const data = await response.json();
             
             if (data.success) {
-                resultDiv.innerHTML = '<span style="color: green;">✅ Test SMS sent successfully!</span>';
+                resultDiv.innerHTML = '<span style="color: green;">✅ Test email sent successfully! Check your inbox.</span>';
             } else {
-                if (data.message && data.message.includes('quota')) {
-                    resultDiv.innerHTML = '<span style="color: orange;">⚠️ SMS quota limit reached. Free service allows 1 SMS per day per phone number. Your appointment SMS will still work when you book!</span>';
-                } else {
-                    resultDiv.innerHTML = `<span style="color: red;">❌ Failed: ${data.message}</span>`;
-                }
+                resultDiv.innerHTML = `<span style="color: red;">❌ Failed to send test email: ${data.message}</span>`;
             }
             
         } catch (error) {
-            console.error('Test SMS error:', error);
-            resultDiv.innerHTML = '<span style="color: red;">❌ Error sending test SMS. Please try again.</span>';
+            console.error('Test email error:', error);
+            resultDiv.innerHTML = '<span style="color: red;">❌ Error sending test email. Please try again.</span>';
         } finally {
             // Re-enable button
             button.disabled = false;
-            button.textContent = 'Test SMS';
+            button.textContent = 'Test Email';
         }
     });
 });
@@ -327,7 +319,7 @@ function renderAppointments(appointments) {
     mobileAppointments.innerHTML = mobileHtml;
 }
 
-function createAppointment(date, time, consultationType, phoneNumber) {
+function createAppointment(date, time, consultationType, phoneNumber = null) {
     fetch(`${API_BASE_URL}/api/appointments`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -354,9 +346,9 @@ function createAppointment(date, time, consultationType, phoneNumber) {
             }
             
             if (data.notificationSent) {
-                message += '\n\n📱 Notification sent to your phone!';
+                message += '\n\n� Confirmation email sent to your account email!';
             } else if (data.notification) {
-                message += `\n\n📱 ${data.notification}`;
+                message += `\n\n� ${data.notification}`;
             }
             
             alert(message);
@@ -367,7 +359,7 @@ function createAppointment(date, time, consultationType, phoneNumber) {
             document.querySelectorAll('.time-btn.selected').forEach(sel => sel.classList.remove('selected'));
             document.querySelectorAll('.consultation-option.selected').forEach(sel => sel.classList.remove('selected'));
             
-            // Clear phone input if it exists
+            // Clear phone input
             const phoneInput = document.getElementById('phone-input');
             if (phoneInput) phoneInput.value = '';
             
