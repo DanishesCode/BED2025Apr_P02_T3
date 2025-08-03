@@ -1,10 +1,11 @@
 const AppointmentModel = require('../models/appointmentModel');
+const notificationService = require('../services/appointmentNotificationService');
 
 const AppointmentController = {
     async create(req, res) {
         try {
             const userId = req.user.userId;
-            const { date, time, consultationType } = req.body;
+            const { date, time, consultationType, phoneNumber } = req.body;
             
             // Check for required fields
             if (!date || !time || !consultationType) {
@@ -13,6 +14,18 @@ const AppointmentController = {
                     message: 'Date, time, and consultation type are required.',
                     error: 'MISSING_REQUIRED_FIELDS'
                 });
+            }
+
+            // Validate phone number if provided
+            if (phoneNumber) {
+                const phoneRegex = /^\+[1-9]\d{1,14}$/;
+                if (!phoneRegex.test(phoneNumber)) {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Please provide a valid phone number with country code.',
+                        error: 'INVALID_PHONE_NUMBER'
+                    });
+                }
             }
 
             // Validate date format
@@ -46,23 +59,49 @@ const AppointmentController = {
             }
 
             // Validate consultation type
-            const validTypes = ['general', 'specialist', 'emergency', 'follow-up', 'checkup'];
+            const validTypes = ['coach', 'ai'];
             if (!validTypes.includes(consultationType.toLowerCase())) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Consultation type must be one of: general, specialist, emergency, follow-up, checkup.',
+                    message: 'Consultation type must be either "coach" or "ai".',
                     error: 'INVALID_CONSULTATION_TYPE'
                 });
             }
 
-            const result = await AppointmentModel.createAppointment(userId, date, time, consultationType);
+            const result = await AppointmentModel.createAppointment(userId, date, time, consultationType, phoneNumber);
             
             if (result.success) {
-                res.status(201).json({ 
+                let responseData = { 
                     success: true, 
                     message: 'Appointment created successfully',
-                    appointment: result.appointment 
-                });
+                    appointment: result.appointment
+                };
+
+                // Send confirmation SMS if phone number is provided
+                if (phoneNumber && result.appointment) {
+                    try {
+                        const notificationResult = await notificationService.sendAppointmentConfirmation(
+                            phoneNumber, 
+                            result.appointment
+                        );
+                        
+                        if (notificationResult.success) {
+                            responseData.notificationSent = true;
+                            responseData.notification = '📱 Confirmation SMS sent to your phone!';
+                        } else {
+                            responseData.notificationSent = false;
+                            responseData.notification = 'Appointment created but SMS failed to send';
+                        }
+                    } catch (notificationError) {
+                        console.error('Notification error:', notificationError);
+                        responseData.notificationSent = false;
+                        responseData.notification = 'Appointment created but SMS notification failed';
+                    }
+                } else {
+                    responseData.notification = 'Appointment created successfully';
+                }
+
+                res.status(201).json(responseData);
             } else {
                 res.status(400).json({ 
                     success: false, 
@@ -153,11 +192,11 @@ const AppointmentController = {
             }
 
             // Validate consultation type
-            const validTypes = ['general', 'specialist', 'emergency', 'follow-up', 'checkup'];
+            const validTypes = ['coach', 'ai'];
             if (!validTypes.includes(consultationType.toLowerCase())) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Consultation type must be one of: general, specialist, emergency, follow-up, checkup.',
+                    message: 'Consultation type must be either "coach" or "ai".',
                     error: 'INVALID_CONSULTATION_TYPE'
                 });
             }
@@ -294,6 +333,55 @@ const AppointmentController = {
             res.status(500).json({ 
                 success: false, 
                 message: 'Internal server error. Please try again later.',
+                error: 'INTERNAL_SERVER_ERROR'
+            });
+        }
+    },
+
+    // Test SMS notification endpoint
+    async testSMS(req, res) {
+        try {
+            const { phoneNumber } = req.body;
+            
+            if (!phoneNumber) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Phone number is required.',
+                    error: 'MISSING_PHONE_NUMBER'
+                });
+            }
+
+            // Validate phone number format
+            const phoneRegex = /^\+[1-9]\d{1,14}$/;
+            if (!phoneRegex.test(phoneNumber)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Please provide a valid phone number with country code.',
+                    error: 'INVALID_PHONE_NUMBER'
+                });
+            }
+
+            const result = await notificationService.sendTestMessage(phoneNumber);
+            
+            if (result.success) {
+                res.json({
+                    success: true,
+                    message: 'Test SMS sent successfully!',
+                    messageId: result.messageId
+                });
+            } else {
+                res.status(400).json({
+                    success: false,
+                    message: 'Failed to send test SMS: ' + result.error,
+                    error: 'SMS_SEND_FAILED'
+                });
+            }
+
+        } catch (error) {
+            console.error('Test SMS error:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Internal server error.',
                 error: 'INTERNAL_SERVER_ERROR'
             });
         }

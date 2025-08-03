@@ -11,18 +11,23 @@ function getUserID() {
       const user = JSON.parse(currentUser);
       console.log('Parsed user object:', user);
       // Try different possible property names for userID
-      const userId = user.userId || user.id || user.user_id || user.UserID || 1;
-      console.log('Using UserID:', userId);
-      console.log('UserID type:', typeof userId);
-      return userId;
+      const userId = user.userId || user.id || user.user_id || user.UserID;
+      
+      if (userId) {
+        console.log('Using UserID:', userId);
+        console.log('UserID type:', typeof userId);
+        return userId;
+      }
     } catch (e) {
       console.error('Error parsing user data:', e);
-      console.log('Fallback to UserID: 1');
-      return 1;
     }
   }
-  console.log('No currentUser, fallback to UserID: 1');
-  return 1; // Default fallback
+  
+  console.log('No valid user found in localStorage, redirecting to login');
+  alert('Session expired. Please log in again.');
+  localStorage.clear();
+  window.location.href = '/login/login.html';
+  return null;
 }
 
 const UserID = getUserID();

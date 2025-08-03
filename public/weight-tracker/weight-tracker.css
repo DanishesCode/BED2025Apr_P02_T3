@@ -270,6 +270,39 @@ canvas {
     color: #2b6cb0;
 }
 
+/* Exercise Instructions */
+.exercise-instructions {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.exercise-instructions ul {
+    margin-top: 8px;
+    padding-left: 20px;
+}
+
+.exercise-instructions li {
+    color: #4a5568;
+    font-size: 13px;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+/* Exercise GIF */
+.exercise-gif {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.exercise-gif img {
+    max-width: 100%;
+    height: auto;
+    max-height: 120px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
 /* Weight History */
 .history-table {
     overflow-x: auto;

@@ -13,7 +13,7 @@ function validateGroceryItem(req, res, next) {
             errors.push('Item name cannot be empty');
         } else if (trimmedName.length > 100) {
             errors.push('Item name must be 100 characters or less');
-        } else if (!/^[a-zA-Z0-9\s\-'.,()&]+$/.test(trimmedName)) {
+        } else if (!/^[a-zA-Z0-9\s\-'.,()&:]+$/.test(trimmedName)) {
             errors.push('Item name contains invalid characters');
         }
         // Sanitize the item name
@@ -86,6 +86,8 @@ function validateUpdateGroceryItem(req, res, next) {
     const { item_name, quantity, unit, price, notes, bought } = req.body;
     const errors = [];
 
+    console.log('Validating update for item:', { item_name, quantity, unit, price, notes, bought });
+
     // For updates, fields are optional but must be valid if provided
     if (item_name !== undefined) {
         if (typeof item_name !== 'string') {
@@ -96,7 +98,7 @@ function validateUpdateGroceryItem(req, res, next) {
                 errors.push('Item name cannot be empty');
             } else if (trimmedName.length > 100) {
                 errors.push('Item name must be 100 characters or less');
-            } else if (!/^[a-zA-Z0-9\s\-'.,()&]+$/.test(trimmedName)) {
+            } else if (!/^[a-zA-Z0-9\s\-'.,()&:]+$/.test(trimmedName)) {
                 errors.push('Item name contains invalid characters');
             }
             req.body.item_name = trimmedName;
@@ -141,11 +143,15 @@ function validateUpdateGroceryItem(req, res, next) {
     }
 
     if (errors.length > 0) {
+        console.log('Validation failed for item:', req.body);
+        console.log('Validation errors:', errors);
         return res.status(400).json({
             error: 'Validation failed',
             details: errors
         });
     }
+
+    console.log('Validation passed for item:', req.body);
 
     next();
 }

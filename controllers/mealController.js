@@ -46,8 +46,20 @@ async function addMeal(req, res) {
       return res.status(400).json({ message: 'Missing required meal fields' });
     }
 
+    // Validate that the UserID exists in the database
+    // We can use the authenticated user's ID from the JWT token for better security
+    const authenticatedUserId = req.user?.userId;
+    if (!authenticatedUserId) {
+      return res.status(401).json({ message: 'User authentication required' });
+    }
+
+    // Ensure the UserID in the request matches the authenticated user
+    if (parseInt(UserID) !== authenticatedUserId) {
+      return res.status(403).json({ message: 'You can only create meals for your own account' });
+    }
+
     let newMeal = {
-      UserID,
+      UserID: authenticatedUserId, // Use the authenticated user's ID
       MealName,
       Category,
       Instructions,
@@ -95,6 +107,15 @@ async function addMeal(req, res) {
     });
   } catch (error) {
     console.error('Error adding meal:', error);
+    
+    // Handle specific foreign key constraint errors
+    if (error.message && error.message.includes('FK_Meals_UserID')) {
+      return res.status(400).json({ 
+        message: 'Invalid user ID. User does not exist.',
+        error: 'INVALID_USER_ID'
+      });
+    }
+    
     res.status(500).json({ message: 'Server error while adding meal' });
   }
 }

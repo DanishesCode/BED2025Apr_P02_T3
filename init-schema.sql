@@ -5,6 +5,23 @@
 
 -- Ensure the script runs in EaseForLifeDB database
 USE EaseForLifeDb;
+-- Disable foreign key constraints
+DECLARE @sql NVARCHAR(MAX) = N'';
+
+SELECT @sql += 'ALTER TABLE [' + SCHEMA_NAME(t.schema_id) + '].[' + t.name + '] DROP CONSTRAINT [' + fk.name + '];' + CHAR(13)
+FROM sys.foreign_keys fk
+JOIN sys.tables t ON fk.parent_object_id = t.object_id;
+
+EXEC sp_executesql @sql;
+
+-- Step 2: Drop all tables
+SET @sql = '';
+
+SELECT @sql += 'DROP TABLE [' + SCHEMA_NAME(schema_id) + '].[' + name + '];' + CHAR(13)
+FROM sys.tables
+WHERE is_ms_shipped = 0;
+
+EXEC sp_executesql @sql;
 
 CREATE TABLE Users (
     userId INT IDENTITY(1,1) PRIMARY KEY,
@@ -464,37 +481,10 @@ CREATE TABLE TopicLikes (
     CONSTRAINT UQ_TopicLikes UNIQUE (topicId, userId)
 );
 
--- Dev Topic Learner
-CREATE TABLE TopicComments (
-    id INT IDENTITY(1,1) PRIMARY KEY,
-    topicId INT NOT NULL,
-    userId INT NOT NULL,
-    comment NVARCHAR(1000) NOT NULL,
-    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
-    CONSTRAINT FK_TopicComments_Topics FOREIGN KEY (topicId) REFERENCES Topics(id) ON DELETE CASCADE,
-    CONSTRAINT FK_TopicComments_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE NO ACTION
-);
-
--- Sample data for Topics table
-INSERT INTO Topics (userId, title, content, content_type, category, description, tags) VALUES
-(1, 'Introduction to JavaScript Promises', 'JavaScript Promises are a powerful way to handle asynchronous operations. They provide a clean alternative to callback functions and help avoid callback hell. A Promise represents a value that may be available now, in the future, or never.', 'text', 'technology', 'A comprehensive guide to understanding and using JavaScript Promises', '["javascript", "promises", "async", "programming"]'),
-(2, 'Healthy Morning Routine', 'Starting your day with a healthy routine can significantly improve your productivity and well-being. Here are some key practices: 1. Wake up early and get sunlight exposure, 2. Drink water immediately, 3. Exercise or stretch, 4. Eat a nutritious breakfast, 5. Practice mindfulness or meditation.', 'text', 'health', 'A guide to building a healthy and productive morning routine', '["health", "morning", "routine", "wellness"]'),
-(3, 'React Best Practices', 'When developing React applications, following best practices ensures maintainable and performant code. Key practices include: using functional components with hooks, proper state management, avoiding prop drilling, and implementing proper error boundaries.', 'text', 'technology', 'Essential best practices for React development', '["react", "best-practices", "frontend", "development"]'),
-(1, 'Beautiful Sunset Photo', '/uploads/topics/sunset_2025_001.jpg', 'image', 'photography', 'A stunning sunset captured during my vacation in Bali', '["sunset", "photography", "bali", "nature"]'),
-(2, 'Cooking Tutorial Video', '/uploads/topics/pasta_recipe_2025_002.mp4', 'video', 'cooking', 'Step-by-step guide to making authentic Italian pasta', '["cooking", "pasta", "italian", "tutorial"]'),
-(3, 'Mountain Hiking Adventure', '/uploads/topics/mountain_hike_2025_003.jpg', 'image', 'travel', 'Epic mountain hiking experience with breathtaking views', '["hiking", "mountain", "adventure", "nature"]');
-
--- [Assistant] - [Topic Likes table for tracking user likes] - [2025-07-17]
--- Add like_count column to Topics table
-ALTER TABLE Topics ADD like_count INT DEFAULT 0;
-
-
-
-
 -- [Tze Wei] - [Meal and Meal Plan Tables] - [Last Modified Date: 2025-07-20]
 CREATE TABLE Meals (
     MealID INT PRIMARY KEY IDENTITY(1,1),
-    UserID INT FOREIGN KEY REFERENCES Users(userId),
+    UserID INT,
     MealName NVARCHAR(100) NOT NULL,
     Category NVARCHAR(50),
     Instructions NVARCHAR(MAX),
@@ -502,7 +492,8 @@ CREATE TABLE Meals (
     Ingredients NVARCHAR(MAX) NULL,
     Servings INT DEFAULT 4,
     ReadyInMinutes INT NULL,
-    ImageUrl NVARCHAR(500) NULL
+    ImageUrl NVARCHAR(500) NULL,
+    CONSTRAINT FK_Meals_UserID FOREIGN KEY (UserID) REFERENCES Users(userId)
 );
 CREATE TABLE MealPlan (
   PlanID INT IDENTITY(1,1) PRIMARY KEY,
@@ -533,4 +524,33 @@ CREATE TABLE GroceryItems (
 ALTER TABLE GroceryItems 
 ADD CONSTRAINT FK_GroceryItems_Users 
 FOREIGN KEY (user_Id) REFERENCES Users(userId);
+
+-- Dev Topic Learner
+CREATE TABLE TopicComments (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    topicId INT NOT NULL,
+    userId INT NOT NULL,
+    comment NVARCHAR(1000) NOT NULL,
+    created_at DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
+    CONSTRAINT FK_TopicComments_Topics FOREIGN KEY (topicId) REFERENCES Topics(id) ON DELETE CASCADE,
+    CONSTRAINT FK_TopicComments_Users FOREIGN KEY (userId) REFERENCES Users(userId) ON DELETE NO ACTION
+);
+
+-- Sample data for Topics table
+INSERT INTO Topics (userId, title, content, content_type, category, description, tags) VALUES
+(1, 'Introduction to JavaScript Promises', 'JavaScript Promises are a powerful way to handle asynchronous operations. They provide a clean alternative to callback functions and help avoid callback hell. A Promise represents a value that may be available now, in the future, or never.', 'text', 'technology', 'A comprehensive guide to understanding and using JavaScript Promises', '["javascript", "promises", "async", "programming"]'),
+(2, 'Healthy Morning Routine', 'Starting your day with a healthy routine can significantly improve your productivity and well-being. Here are some key practices: 1. Wake up early and get sunlight exposure, 2. Drink water immediately, 3. Exercise or stretch, 4. Eat a nutritious breakfast, 5. Practice mindfulness or meditation.', 'text', 'health', 'A guide to building a healthy and productive morning routine', '["health", "morning", "routine", "wellness"]'),
+(3, 'React Best Practices', 'When developing React applications, following best practices ensures maintainable and performant code. Key practices include: using functional components with hooks, proper state management, avoiding prop drilling, and implementing proper error boundaries.', 'text', 'technology', 'Essential best practices for React development', '["react", "best-practices", "frontend", "development"]'),
+(1, 'Beautiful Sunset Photo', '/uploads/topics/sunset_2025_001.jpg', 'image', 'photography', 'A stunning sunset captured during my vacation in Bali', '["sunset", "photography", "bali", "nature"]'),
+(2, 'Cooking Tutorial Video', '/uploads/topics/pasta_recipe_2025_002.mp4', 'video', 'cooking', 'Step-by-step guide to making authentic Italian pasta', '["cooking", "pasta", "italian", "tutorial"]'),
+(3, 'Mountain Hiking Adventure', '/uploads/topics/mountain_hike_2025_003.jpg', 'image', 'travel', 'Epic mountain hiking experience with breathtaking views', '["hiking", "mountain", "adventure", "nature"]');
+
+-- [Assistant] - [Topic Likes table for tracking user likes] - [2025-07-17]
+-- Add like_count column to Topics table
+ALTER TABLE Topics ADD like_count INT DEFAULT 0;
+
+
+
+
+
 
