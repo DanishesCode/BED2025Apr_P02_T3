@@ -195,11 +195,11 @@ const AppointmentController = {
             }
 
             // Validate consultation type
-            const validTypes = ['coach', 'ai'];
+            const validTypes = ['male-doctor', 'female-doctor'];
             if (!validTypes.includes(consultationType.toLowerCase())) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Consultation type must be either "coach" or "ai".',
+                    message: 'Doctor preference must be either "male-doctor" or "female-doctor".',
                     error: 'INVALID_CONSULTATION_TYPE'
                 });
             }

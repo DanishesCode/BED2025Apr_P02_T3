@@ -213,10 +213,10 @@ function renderAppointments(appointments) {
     } else {
         html += '<ul style="list-style:none;padding:0;">';
         appointments.forEach(app => {
-            const consultationType = app.consultationType === 'H' ? '👨‍⚕️ Health Coach (Human)' : '🤖 AI Assistant (Bot)';
+            const doctorInfo = app.doctorName ? `👨‍⚕️ Dr. ${app.doctorName} - ${app.specialty || 'General Practice'}` : '👨‍⚕️ Medical Appointment';
             html += `<li style="margin-bottom:20px;padding:15px;background:#f9fafb;border-radius:10px;border-left:4px solid #a78bfa;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
                 <div style="font-weight:600;margin-bottom:8px;font-size:1rem;color:#1f2937;">${app.appointmentDate} ${app.appointmentTime}</div>
-                <div style="font-size:0.9rem;color:#6b7280;margin-bottom:12px;line-height:1.4;">${consultationType}</div>
+                <div style="font-size:0.9rem;color:#6b7280;margin-bottom:12px;line-height:1.4;">${doctorInfo}</div>
                 ${app.googleMeetLink ? `<div style="margin-bottom:12px;">
                     <button onclick="openGoogleMeet('${app.googleMeetLink}')" style="background:#4285f4;color:white;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;margin-right:8px;margin-bottom:6px;">
                         📹 Join Video Call
@@ -242,12 +242,12 @@ function renderAppointments(appointments) {
         mobileHtml = '<p style="text-align: center; color: #666; padding: 20px;">No appointments yet.</p>';
     } else {
         appointments.forEach(app => {
-            const consultationType = app.consultationType === 'H' ? '👨‍⚕️ Health Coach (Human)' : '🤖 AI Assistant (Bot)';
+            const doctorInfo = app.doctorName ? `👨‍⚕️ Dr. ${app.doctorName} - ${app.specialty || 'General Practice'}` : '👨‍⚕️ Medical Appointment';
             mobileHtml += `
                 <div class="mobile-appointment-item">
                     <div class="mobile-appointment-date">${app.appointmentDate}</div>
                     <div class="mobile-appointment-time">${app.appointmentTime}</div>
-                    <div class="mobile-appointment-type">${consultationType}</div>
+                    <div class="mobile-appointment-type">${doctorInfo}</div>
                     ${app.googleMeetLink ? `<div class="mobile-appointment-meeting">
                         <button class="mobile-join-btn" onclick="openGoogleMeet('${app.googleMeetLink}')">📹 Join Video Call</button>
                         <button class="mobile-copy-btn" onclick="copyMeetLink('${app.googleMeetLink}')">📋 Copy Link</button>
@@ -379,20 +379,20 @@ function startEditAppointment(id, oldDate, oldTime, oldConsultationType) {
                     </select>
                 </div>
                 <div class="edit-form-group">
-                    <label>Consultation Type:</label>
+                    <label>Doctor Preference:</label>
                     <div class="edit-consultation-options">
                         <label class="edit-consultation-option">
-                            <input type="radio" name="edit-consultation" value="coach" ${oldConsultationType === 'coach' ? 'checked' : ''}>
+                            <input type="radio" name="edit-consultation" value="male-doctor" ${oldConsultationType === 'male-doctor' || oldConsultationType === 'general' || oldConsultationType === 'coach' ? 'checked' : ''}>
                             <span class="edit-consultation-label">
                                 <span class="edit-consultation-icon">👨‍⚕️</span>
-                                <span>Health Coach</span>
+                                <span>Male Doctor</span>
                             </span>
                         </label>
                         <label class="edit-consultation-option">
-                            <input type="radio" name="edit-consultation" value="ai" ${oldConsultationType === 'ai' ? 'checked' : ''}>
+                            <input type="radio" name="edit-consultation" value="female-doctor" ${oldConsultationType === 'female-doctor' || oldConsultationType === 'specialist' || oldConsultationType === 'ai' ? 'checked' : ''}>
                             <span class="edit-consultation-label">
-                                <span class="edit-consultation-icon">🤖</span>
-                                <span>AI Assistant</span>
+                                <span class="edit-consultation-icon">�</span>
+                                <span>Female Doctor</span>
                             </span>
                         </label>
                     </div>

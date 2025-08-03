@@ -1,9 +1,4 @@
-// Inject navbar styles
-const navbarCSS = document.createElement("link");
-navbarCSS.rel = "stylesheet";
-navbarCSS.href = "navbar.css"; // Make sure path is correct
-document.head.appendChild(navbarCSS);
-
+// Navbar JavaScript - CSS should be included in HTML
 // Inject navbar HTML
 const headerHTML = `
     <div class="header">
@@ -41,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const currentUser = localStorage.getItem('currentUser');
 
     if (!token) {
-        window.location.href = '/login/login.html';
+        window.location.href = '/public/login/login.html';
         return;
     }
 
@@ -69,12 +64,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             localStorage.removeItem('authToken');
             localStorage.removeItem('currentUser');
-            window.location.href = '/login';
+            window.location.href = '/public/login/login.html';
         } catch (error) {
             console.error('Logout error:', error);
             localStorage.removeItem('authToken');
             localStorage.removeItem('currentUser');
-            window.location.href = '/login';
+            window.location.href = '/public/login/login.html';
         }
     });
 
