@@ -588,6 +588,13 @@ function closeModal() {
     document.body.style.overflow = '';
 }
 
+function scrollToGallery() {
+    const gallerySection = document.getElementById('gallery-start');
+    if (gallerySection) {
+        gallerySection.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
 // Toggle favorite function
 async function toggleFavorite(photoId, button, event) {
     if (event) {
