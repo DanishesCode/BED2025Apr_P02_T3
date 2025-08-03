@@ -138,7 +138,10 @@ describe("mealController", () => {
 
       mealsModel.addMeal.mockResolvedValue(mockCreatedMeal);
 
-      const req = { body: mockMealData };
+      const req = { 
+        body: mockMealData,
+        user: { userId: 1 } // Add authenticated user
+      };
       const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
@@ -198,7 +201,10 @@ describe("mealController", () => {
       getRecipeDetails.mockResolvedValue(mockSpoonacularResponse);
       mealsModel.addMeal.mockResolvedValue(mockCreatedMeal);
 
-      const req = { body: mockMealData };
+      const req = { 
+        body: mockMealData,
+        user: { userId: 1 } // Add authenticated user
+      };
       const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
@@ -245,7 +251,10 @@ describe("mealController", () => {
 
       mealsModel.addMeal.mockRejectedValue(new Error("Database error"));
 
-      const req = { body: mockMealData };
+      const req = { 
+        body: mockMealData,
+        user: { userId: 1 } // Add authenticated user
+      };
       const res = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
