@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const currentUser = localStorage.getItem('currentUser');
 
     if (!token) {
-        window.location.href = '/login';
+        window.location.href = '/login/login.html';
         return;
     }
 

@@ -5,6 +5,7 @@ const summarizeBtn = document.getElementById('summarizeBtn');
 const errorMessage = document.getElementById('errorMessage');
 const initialInput = document.getElementById('initialInput');
 const outputHeader = document.getElementById('outputHeader');
+const token = localStorage.getItem('authToken');
 
 async function summarizeText(textInput, button) {
     const text = textInput.value.trim();
@@ -39,7 +40,8 @@ async function summarizeText(textInput, button) {
         const response = await fetch('http://localhost:3000/api/summarize', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({ text })
         });

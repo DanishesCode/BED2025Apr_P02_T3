@@ -466,7 +466,7 @@ if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
 
 // Summarize button functionality (placeholder)
 document.querySelector('.summarize-btn').addEventListener('click', () => {
-    console.log('Summarize functionality would be implemented here');
+    window.location.href = '../summarizer/summarizer.html';
 });
 
 // New Chat button functionality

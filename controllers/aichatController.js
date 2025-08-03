@@ -70,8 +70,11 @@ const saveMessage = async (req, res) => {
             });
         }
 
+        // Convert chatId to a number here:
+        const chatIdNum = parseInt(chatId);
+
         // Save the message
-        const savedMessageId = await chatModel.saveMessage(chatId, senderId, message, is_ai);
+        const savedMessageId = await chatModel.saveMessage(chatIdNum, senderId, message, is_ai);
 
         return res.status(200).json({
             success: true,
@@ -86,6 +89,7 @@ const saveMessage = async (req, res) => {
         });
     }
 }
+
 
 
 const getAIResponse = async (req, res) => {
