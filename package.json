@@ -4,7 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:user": "jest unitTesting/user/",
+    "test:appointment": "jest unitTesting/appointment/",
+    "test:weight": "jest unitTesting/weightTracker/",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:info": "node unitTesting/testRunner.js"
   },
   "repository": {
     "type": "git",
@@ -40,6 +46,8 @@
     "validator": "^13.15.15"
   },
   "devDependencies": {
-    "jest": "^30.0.5"
+    "jest": "^30.0.5",
+    "jest-environment-node": "^30.0.5",
+    "supertest": "^7.1.4"
   }
 }
