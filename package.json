@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/DanishesCode/DanishGrp_AssgBED#readme",
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",

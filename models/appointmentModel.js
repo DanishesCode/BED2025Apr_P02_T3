@@ -6,8 +6,16 @@ const AppointmentModel = {
         try {
             const pool = await sql.connect(dbConfig);
             
-            // Map consultation type: coach = 'H' (human), ai = 'B' (bot)
-            const mappedType = consultationType === 'coach' ? 'H' : 'B';
+            // Map consultation type for new doctor preferences
+            let mappedType;
+            if (consultationType === 'male-doctor') {
+                mappedType = 'M'; // Male Doctor
+            } else if (consultationType === 'female-doctor') {
+                mappedType = 'F'; // Female Doctor
+            } else {
+                // Fallback for any old values
+                mappedType = consultationType === 'coach' ? 'H' : 'B';
+            }
             
             // Generate a unique meeting link using Jitsi Meet (reliable alternative)
             const meetingId = this.generateMeetingId();
@@ -45,8 +53,16 @@ const AppointmentModel = {
         try {
             const pool = await sql.connect(dbConfig);
             
-            // Map consultation type: coach = 'H' (human), ai = 'B' (bot)
-            const mappedType = consultationType === 'coach' ? 'H' : 'B';
+            // Map consultation type for new doctor preferences
+            let mappedType;
+            if (consultationType === 'male-doctor') {
+                mappedType = 'M'; // Male Doctor
+            } else if (consultationType === 'female-doctor') {
+                mappedType = 'F'; // Female Doctor
+            } else {
+                // Fallback for any old values
+                mappedType = consultationType === 'coach' ? 'H' : 'B';
+            }
             
             const result = await pool.request()
                 .input('id', sql.Int, id)

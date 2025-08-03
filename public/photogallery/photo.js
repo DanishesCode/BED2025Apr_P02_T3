@@ -6,10 +6,7 @@ let elements = {};
 
 // Helper functions
 const getBackendUrl = () => {
-    if (window.location.port === '5500') {
-        return `${window.location.protocol}//${window.location.hostname}:3000`;
-    }
-    return `${window.location.protocol}//${window.location.host}`;
+    return 'http://localhost:3000';
 };
 
 const formatDate = (date) => new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -586,6 +583,13 @@ function closeModal() {
     const modal = document.getElementById('photo-modal');
     if (modal) modal.classList.remove('active');
     document.body.style.overflow = '';
+}
+
+function scrollToGallery() {
+    const gallerySection = document.getElementById('gallery-start');
+    if (gallerySection) {
+        gallerySection.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 // Toggle favorite function

@@ -4,16 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Weather Forecast</title>
-  <!-- Dynamic CSS loading based on environment -->
-  <script>
-    // Detect environment and load appropriate CSS path
-    const isLiveServer = window.location.port === '5500' || window.location.hostname === '127.0.0.1';
-    const cssPath = isLiveServer ? 'weather.css' : '/weather/weather.css';
-    document.write('<link rel="stylesheet" href="' + cssPath + '" />');
-  </script>
+  <link rel="stylesheet" href="weather.css" />
+  <link rel="stylesheet" href="../navbar/navbar.css" />
+  
 </head>
 <body>
 
+  <div id="navbar"></div>
   <div class="main-container">
     <section class="hero-section">
       <div class="location-display">
@@ -35,7 +32,6 @@
       <div class="nav-tabs">
         <button class="nav-tab active" onclick="showTab('weather')">Weather</button>
         <button class="nav-tab" onclick="showTab('forecast')">Forecast</button>
-        <button class="nav-tab" onclick="showTab('alerts')">Alerts</button>
       </div>
 
       <!-- Weather Tab Content -->
@@ -90,16 +86,7 @@
         </div>
       </div>
 
-      <!-- Alerts Tab Content -->
-      <div id="alertsTab" class="tab-content">
-        <div class="weather-section">
-          <h2 class="section-title">Weather Alerts</h2>
-          <div class="alerts-container">
-            <p class="no-alerts">No weather alerts at this time.</p>
-            <!-- Weather alerts will be dynamically populated here -->
-          </div>
-        </div>
-      </div>
+
     </aside>
   </div>
 
@@ -166,6 +153,6 @@
       event.target.classList.add('active');
     };
   </script>
-  <!-- Keep navbar separate to avoid conflicts -->
+  <script src="../navbar/navbar.js"></script>
 </body>
 </html>
