@@ -11,7 +11,7 @@ const toolsData = {
             title: "Summarizer",
             description: "Instantly get summaries of long text or websites/links for easy reading.",
             icon: "summarizer",
-            url: "#"
+            url: "summarizer/summarizer.html"
         }
     ],
     health: [
