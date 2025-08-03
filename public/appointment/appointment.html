@@ -79,6 +79,63 @@
                     </div>
                 </div>
                 
+                <div class="phone-section">
+                    <h3>Phone Number for Notifications</h3>
+                    <div class="phone-input-container">
+                        <div class="phone-input-wrapper">
+                            <select id="country-code-select" class="country-code-select">
+                                <option value="+65" data-country="SG">🇸🇬 +65</option>
+                                <option value="+1" data-country="US">🇺🇸 +1</option>
+                                <option value="+44" data-country="GB">🇬🇧 +44</option>
+                                <option value="+61" data-country="AU">🇦🇺 +61</option>
+                                <option value="+60" data-country="MY">🇲🇾 +60</option>
+                                <option value="+66" data-country="TH">🇹🇭 +66</option>
+                                <option value="+62" data-country="ID">🇮🇩 +62</option>
+                                <option value="+63" data-country="PH">🇵🇭 +63</option>
+                                <option value="+84" data-country="VN">🇻🇳 +84</option>
+                                <option value="+86" data-country="CN">🇨🇳 +86</option>
+                                <option value="+81" data-country="JP">🇯🇵 +81</option>
+                                <option value="+82" data-country="KR">🇰🇷 +82</option>
+                                <option value="+91" data-country="IN">🇮🇳 +91</option>
+                                <option value="+49" data-country="DE">🇩🇪 +49</option>
+                                <option value="+33" data-country="FR">🇫🇷 +33</option>
+                                <option value="+39" data-country="IT">🇮🇹 +39</option>
+                                <option value="+34" data-country="ES">🇪🇸 +34</option>
+                                <option value="+31" data-country="NL">🇳🇱 +31</option>
+                                <option value="+41" data-country="CH">🇨🇭 +41</option>
+                                <option value="+46" data-country="SE">🇸🇪 +46</option>
+                                <option value="+47" data-country="NO">🇳🇴 +47</option>
+                                <option value="+45" data-country="DK">🇩🇰 +45</option>
+                                <option value="+358" data-country="FI">🇫🇮 +358</option>
+                                <option value="+7" data-country="RU">🇷🇺 +7</option>
+                                <option value="+55" data-country="BR">🇧🇷 +55</option>
+                                <option value="+52" data-country="MX">🇲🇽 +52</option>
+                                <option value="+54" data-country="AR">🇦🇷 +54</option>
+                                <option value="+27" data-country="ZA">🇿🇦 +27</option>
+                                <option value="+971" data-country="AE">🇦🇪 +971</option>
+                                <option value="+966" data-country="SA">🇸🇦 +966</option>
+                                <option value="+20" data-country="EG">🇪🇬 +20</option>
+                                <option value="+234" data-country="NG">🇳🇬 +234</option>
+                            </select>
+                            <input 
+                                type="tel" 
+                                id="phone-input" 
+                                placeholder="Enter phone number (e.g., 91234567)"
+                                class="phone-input"
+                                maxlength="15"
+                            >
+                            <button id="test-sms-btn" type="button" style="margin-left: 10px; padding: 8px 12px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9em;">
+                                Test SMS
+                            </button>
+                        </div>
+                        <small class="phone-help">We'll send your appointment confirmation and Google Meet link via SMS</small>
+                        <small style="display: block; margin-top: 5px; font-size: 0.8em; color: #888;">
+                            💡 Test SMS has daily limits. Actual appointment notifications always work!
+                        </small>
+                        <div id="sms-test-result" style="font-size: 0.9em; margin-top: 5px; color: #666;"></div>
+                    </div>
+                </div>
+                
                 <div class="action-buttons">
                     <button class="back-btn">Back</button>
                     <button class="continue-btn">Continue</button>
