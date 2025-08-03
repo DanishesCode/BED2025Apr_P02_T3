@@ -308,7 +308,7 @@ function validateGroceryItem(name, quantity, unit, day) {
     }
     
     // Validate day
-    const validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+    const validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
     if (!day || !validDays.includes(day.toLowerCase())) {
         errors.push('Please select a valid day');
     }
@@ -450,42 +450,6 @@ function showSuccessMessage(message) {
         successDiv.remove();
     }, 3000);
 }
-
-// Test function to add sample grocery items
-async function addTestItems() {
-    const testItems = [
-        { name: 'Milk', quantity: 1, unit: 'L' },
-        { name: 'Bread', quantity: 2, unit: 'pcs' },
-        { name: 'Eggs', quantity: 12, unit: 'pcs' },
-        { name: 'Apples', quantity: 6, unit: 'pcs' },
-        { name: 'Chicken breast', quantity: 500, unit: 'g' }
-    ];
-
-    for (const item of testItems) {
-        try {
-            await fetch(`${BASE_URL}/grocery`, {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    item_name: item.name,
-                    quantity: item.quantity,
-                    unit: item.unit,
-                    bought: false,
-                    user_id: UserID,
-                    price: 0.00,
-                    notes: 'Test item'
-                })
-            });
-        } catch (error) {
-            console.error('Error adding test item:', error);
-        }
-    }
-    
-    await loadGroceryItems();
-    updateGroceryTable();
-    alert('Test grocery items added!');
-}
-
 // Debug function to check meal data
 async function debugMealData() {
     console.log('=== DEBUGGING MEAL DATA ===');
