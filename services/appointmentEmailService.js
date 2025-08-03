@@ -55,18 +55,31 @@ class AppointmentEmailService {
      * Send appointment confirmation email
      */
     async sendAppointmentConfirmation(recipientEmail, recipientName, appointment) {
-        const consultationType = appointment.consultationType === 'H' ? 'Health Coach' : 'AI Assistant';
-        const appointmentDate = new Date(appointment.dateTime).toLocaleDateString('en-US', {
+        // Update consultation type mapping for new doctor preferences
+        let consultationType;
+        if (appointment.consultationType === 'M') {
+            consultationType = 'Male Doctor';
+        } else if (appointment.consultationType === 'F') {
+            consultationType = 'Female Doctor';
+        } else if (appointment.consultationType === 'H') {
+            consultationType = 'Health Coach'; // Legacy support
+        } else if (appointment.consultationType === 'B') {
+            consultationType = 'AI Assistant'; // Legacy support
+        } else {
+            // Direct mapping for any other values
+            consultationType = appointment.consultationType;
+        }
+        
+        // Fix date/time handling - use separate appointmentDate and appointmentTime fields
+        const appointmentDate = new Date(appointment.appointmentDate).toLocaleDateString('en-US', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
             day: 'numeric'
         });
-        const appointmentTime = new Date(appointment.dateTime).toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
+        
+        // Parse the time string directly since it's already in HH:MM format
+        const appointmentTime = appointment.appointmentTime;
 
         const subject = `🏥 EaseForLife Appointment Confirmed - ${appointmentDate}`;
         
@@ -113,7 +126,7 @@ class AppointmentEmailService {
                         <span class="detail-value">${appointmentTime}</span>
                     </div>
                     <div class="detail-row">
-                        <span class="detail-label">👨‍⚕️ Consultation Type:</span>
+                        <span class="detail-label">👨‍⚕️ Doctor Preference:</span>
                         <span class="detail-value">${consultationType}</span>
                     </div>
                     <div class="detail-row">
@@ -135,9 +148,9 @@ class AppointmentEmailService {
                 
                 <div style="background: #e9ecef; padding: 20px; border-radius: 5px; margin: 20px 0;">
                     <h4 style="margin-top: 0; color: #495057;">📋 What to Expect:</h4>
-                    ${consultationType === 'Health Coach' 
-                        ? '<ul><li>Personalized health guidance</li><li>Nutrition and lifestyle advice</li><li>Goal setting and planning</li><li>Professional support</li></ul>'
-                        : '<ul><li>AI-powered health insights</li><li>Instant health guidance</li><li>24/7 availability</li><li>Quick answers to health questions</li></ul>'
+                    ${consultationType === 'Male Doctor' || consultationType === 'Female Doctor'
+                        ? '<ul><li>Professional medical consultation</li><li>Comprehensive health assessment</li><li>Personalized treatment recommendations</li><li>Expert medical guidance</li></ul>'
+                        : '<ul><li>Professional medical consultation</li><li>Comprehensive health assessment</li><li>Personalized treatment recommendations</li><li>Expert medical guidance</li></ul>'
                     }
                 </div>
                 
@@ -162,18 +175,31 @@ class AppointmentEmailService {
      * Send appointment reminder email
      */
     async sendAppointmentReminder(recipientEmail, recipientName, appointment) {
-        const consultationType = appointment.consultationType === 'H' ? 'Health Coach' : 'AI Assistant';
-        const appointmentDate = new Date(appointment.dateTime).toLocaleDateString('en-US', {
+        // Update consultation type mapping for new doctor preferences
+        let consultationType;
+        if (appointment.consultationType === 'M') {
+            consultationType = 'Male Doctor';
+        } else if (appointment.consultationType === 'F') {
+            consultationType = 'Female Doctor';
+        } else if (appointment.consultationType === 'H') {
+            consultationType = 'Health Coach'; // Legacy support
+        } else if (appointment.consultationType === 'B') {
+            consultationType = 'AI Assistant'; // Legacy support
+        } else {
+            // Direct mapping for any other values
+            consultationType = appointment.consultationType;
+        }
+        
+        // Fix date/time handling - use separate appointmentDate and appointmentTime fields
+        const appointmentDate = new Date(appointment.appointmentDate).toLocaleDateString('en-US', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
             day: 'numeric'
         });
-        const appointmentTime = new Date(appointment.dateTime).toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        });
+        
+        // Parse the time string directly since it's already in HH:MM format
+        const appointmentTime = appointment.appointmentTime;
 
         const subject = `⏰ Reminder: Your EaseForLife appointment is tomorrow`;
         
@@ -221,55 +247,6 @@ class AppointmentEmailService {
                 
                 <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #6c757d; font-size: 14px;">
                     <p><strong>EaseForLife</strong> - Your Health & Wellness Companion</p>
-                </div>
-            </div>
-        </body>
-        </html>`;
-
-        return await this.sendEmail(recipientEmail, recipientName, subject, htmlContent);
-    }
-
-    /**
-     * Send test email
-     */
-    async sendTestMessage(recipientEmail, recipientName = 'Test User') {
-        const subject = '✅ EaseForLife Email Test - Success!';
-        
-        const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="utf-8">
-            <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f4f4f4; }
-                .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-                .header { text-align: center; color: #28a745; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>✅ Email Test Successful!</h1>
-                    <h2>🏥 EaseForLife</h2>
-                </div>
-                
-                <p>Dear ${recipientName},</p>
-                
-                <p>Congratulations! Your email notification system is working perfectly. 🎉</p>
-                
-                <p>You will receive appointment confirmations and reminders at this email address.</p>
-                
-                <div style="background: #d4edda; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #28a745;">
-                    <p><strong>✓ Email delivery confirmed</strong><br>
-                    ✓ Brevo API integration working<br>
-                    ✓ Ready for appointment notifications</p>
-                </div>
-                
-                <p>Thank you for using EaseForLife!</p>
-                
-                <div style="text-align: center; margin-top: 30px; color: #6c757d; font-size: 14px;">
-                    <p><strong>EaseForLife</strong> - Your Health & Wellness Companion</p>
-                    <p>This was a test email. Actual appointment notifications will look similar.</p>
                 </div>
             </div>
         </body>

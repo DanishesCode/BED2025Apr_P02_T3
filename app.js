@@ -284,7 +284,6 @@ app.post('/api/appointments', AuthMiddleware.authenticateToken, appointmentContr
 app.get('/api/appointments', AuthMiddleware.authenticateToken, appointmentController.list);
 app.put('/api/appointments/:id', AuthMiddleware.authenticateToken, appointmentController.update);
 app.delete('/api/appointments/:id', AuthMiddleware.authenticateToken, appointmentController.delete);
-app.post('/api/appointments/test-email', AuthMiddleware.authenticateToken, appointmentController.testEmail);
 
 //Routes for nearest hospital(danish)
 app.post("/hospital/getroute",AuthMiddleware.authenticateToken,hospitalController.getRouteData);

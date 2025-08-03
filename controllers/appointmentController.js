@@ -339,56 +339,6 @@ const AppointmentController = {
                 error: 'INTERNAL_SERVER_ERROR'
             });
         }
-    },
-
-    // Test email notification endpoint
-    async testEmail(req, res) {
-        try {
-            const { email } = req.body;
-            const userName = req.user.name || req.user.username || 'Test User';
-            
-            if (!email) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Email address is required.',
-                    error: 'MISSING_EMAIL'
-                });
-            }
-
-            // Validate email format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Please provide a valid email address.',
-                    error: 'INVALID_EMAIL'
-                });
-            }
-
-            const result = await emailService.sendTestMessage(email, userName);
-            
-            if (result.success) {
-                res.json({
-                    success: true,
-                    message: 'Test email sent successfully!',
-                    messageId: result.messageId
-                });
-            } else {
-                res.status(400).json({
-                    success: false,
-                    message: 'Failed to send test email: ' + result.error,
-                    error: 'EMAIL_SEND_FAILED'
-                });
-            }
-
-        } catch (error) {
-            console.error('Test email error:', error);
-            res.status(500).json({
-                success: false,
-                message: 'Internal server error.',
-                error: 'INTERNAL_SERVER_ERROR'
-            });
-        }
     }
 };
 

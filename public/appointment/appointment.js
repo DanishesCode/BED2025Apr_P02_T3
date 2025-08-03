@@ -170,62 +170,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('.back-btn').addEventListener('click', function () {
         window.history.back();
     });
-
-    // Test email functionality
-    document.getElementById('test-email-btn').addEventListener('click', async function() {
-        const emailInput = document.getElementById('email-input');
-        const resultDiv = document.getElementById('email-test-result');
-        const button = this;
-        
-        // Clear previous results
-        resultDiv.innerHTML = '';
-        
-        const email = emailInput.value.trim();
-        
-        if (!email) {
-            resultDiv.innerHTML = '<span style="color: red;">Please enter an email address first</span>';
-            return;
-        }
-        
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            resultDiv.innerHTML = '<span style="color: red;">Please enter a valid email address</span>';
-            return;
-        }
-        
-        // Disable button and show loading
-        button.disabled = true;
-        button.textContent = 'Sending...';
-        resultDiv.innerHTML = '<span style="color: blue;">� Sending test email...</span>';
-        
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/appointments/test-email`, {
-                method: 'POST',
-                headers: getAuthHeaders(),
-                credentials: 'include',
-                body: JSON.stringify({
-                    email: email
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                resultDiv.innerHTML = '<span style="color: green;">✅ Test email sent successfully! Check your inbox.</span>';
-            } else {
-                resultDiv.innerHTML = `<span style="color: red;">❌ Failed to send test email: ${data.message}</span>`;
-            }
-            
-        } catch (error) {
-            console.error('Test email error:', error);
-            resultDiv.innerHTML = '<span style="color: red;">❌ Error sending test email. Please try again.</span>';
-        } finally {
-            // Re-enable button
-            button.disabled = false;
-            button.textContent = 'Test Email';
-        }
-    });
 });
 
 function fetchAppointments() {

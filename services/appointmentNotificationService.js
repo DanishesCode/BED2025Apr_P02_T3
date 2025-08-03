@@ -112,14 +112,6 @@ Join now!`;
     }
 
     /**
-     * Send test SMS to verify phone number works
-     */
-    async sendTestMessage(phoneNumber) {
-        const message = `✅ EaseForLife test message - your phone number ${phoneNumber} is working!`;
-        return await this.sendSMS(phoneNumber, message);
-    }
-
-    /**
      * Schedule reminders (for future implementation with cron jobs)
      */
     async scheduleReminders(appointment) {
