@@ -4,79 +4,14 @@ body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: #333;
     min-height: 100vh;
+    padding-top: 70px; /* Add padding to account for fixed navbar */
 }
 
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 12px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.logo {
-    font-weight: 700;
-    font-size: 1.6rem;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.home-link {
-    color: #667eea;
-    text-decoration: none;
-    font-weight: 600;
-    padding: 8px 16px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    background: rgba(102, 126, 234, 0.1);
-}
-
-.home-link:hover {
-    background: rgba(102, 126, 234, 0.2);
-    transform: translateY(-2px);
-}
-
-.credit {
-    color: #666;
-    font-weight: 500;
-}
-
-.profile-name {
-    color: #333;
-    font-weight: 600;
-}
-
-.profile-icon {
-    font-size: 1.8rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 8px;
-    border-radius: 50%;
-    background: rgba(102, 126, 234, 0.1);
-}
-
-.profile-icon:hover {
-    background: rgba(102, 126, 234, 0.2);
-    transform: scale(1.1);
-}
+/* Old topbar styles removed - now using navbar.css */
 
 .container {
     display: flex;
-    min-height: calc(100vh - 60px);
+    min-height: calc(100vh - 80px); /* Updated for new navbar */
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     margin: 10px;
